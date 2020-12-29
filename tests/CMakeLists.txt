@@ -1,0 +1,18 @@
+cmake_minimum_required(VERSION 2.6)
+
+
+FIND_PACKAGE( Boost 1.33.0 COMPONENTS unit_test_framework  REQUIRED)
+INCLUDE_DIRECTORIES(${LETITGO_INCLUDE_DIR})
+
+FILE(GLOB_RECURSE TEST_FILES *Test.cpp)
+
+MESSAGE(STATUS "prepare sources: ${SOURCE_FILES}")
+MESSAGE(STATUS "prepare tests: ${TEST_FILES}")
+
+FOREACH(TEST_FILE  ${TEST_FILES})
+	GET_FILENAME_COMPONENT(TEST_NAME ${TEST_FILE} NAME_WE)
+	MESSAGE(STATUS "Add ${TEST_NAME} - ${TEST_FILE}")
+	ADD_EXECUTABLE(${TEST_NAME} ${TEST_FILE})
+	target_link_libraries(${TEST_NAME} libletitgo ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+	add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME}  --log_level=all --report_level=detailed  --detect_memory_leak=1)
+ENDFOREACH()

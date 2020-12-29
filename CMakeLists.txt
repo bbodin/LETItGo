@@ -1,0 +1,16 @@
+cmake_minimum_required(VERSION 2.6)
+
+project(LETItGo)
+
+enable_testing()
+
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/modules/")
+
+SET(LETITGO_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/include)
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
+
+
+ADD_SUBDIRECTORY(src)
+ADD_SUBDIRECTORY(tests)
+
