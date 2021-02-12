@@ -45,11 +45,18 @@ public:
   friend bool operator<(const Task &l, const Task &r) { return l.id < r.id; }
 };
 
+
+
+
+
+
 class Dependency : private std::pair<TASK_ID, TASK_ID> {
 public:
   Dependency(TASK_ID t1, TASK_ID t2) : std::pair<TASK_ID, TASK_ID>(t1, t2) {}
   TASK_ID getFirst() const { return this->first; }
   TASK_ID getSecond() const { return this->second; }
+
+  friend bool operator<(const Dependency &l, const Dependency &r) { return std::pair<TASK_ID, TASK_ID>(l) < std::pair<TASK_ID, TASK_ID>(r); }
 
   friend std::ostream &operator<<(std::ostream &stream, const Dependency &obj) {
     stream << "Dependency(from:" << obj.getFirst() << ", to:" << obj.getSecond()
@@ -57,6 +64,13 @@ public:
     return stream;
   }
 };
+
+
+
+
+
+
+
 
 class LETModel {
 
@@ -81,7 +95,7 @@ public:
 
   const Task getTaskById(TASK_ID id) const { return TaskIdToTask[id]; }
 
-  const TASK_ID getTaskIdByTask(Task t) const { return TaskToTaskId.at(t); }
+  TASK_ID getTaskIdByTask(Task t) const { return TaskToTaskId.at(t); }
 
   void addDependency(TASK_ID t1, TASK_ID t2) {
     Dependency d(t1, t2);
@@ -89,11 +103,17 @@ public:
   }
 
   size_t getTaskCount() const { return TaskIdToTask.size(); }
+  size_t getDependencyCount() const { return DependencyIdToDependency.size(); }
 
   const std::vector<Dependency> &dependencies() const {
     return DependencyIdToDependency;
   }
 };
+
+
+
+
+
 
 class Execution : public std::pair<TASK_ID, EXECUTION_COUNT> {
 public:
@@ -102,12 +122,20 @@ public:
 
 public:
   TASK_ID getTaskId() const { return this->first; }
+
+  friend std::ostream &operator<<(std::ostream &stream, const Execution &obj) {
+    stream << "Execution(id:" << obj.first << ", index:" << obj.second << ")";
+    return stream;
+  }
+
 };
 
-std::ostream &operator<<(std::ostream &stream, const Execution &obj) {
-  stream << "Execution(id:" << obj.first << ", index:" << obj.second << ")";
-  return stream;
-}
+
+
+
+
+
+
 
 class Constraint {
   Execution ei, ej;
@@ -117,19 +145,23 @@ public:
   Constraint(Execution e1, Execution e2, WEIGHT w) : ei(e1), ej(e2), w(w) {}
   const Execution getSource() const { return ei; }
   const Execution getDestination() const { return ej; }
-  const WEIGHT getWeight() const { return w; }
+  WEIGHT getWeight() const { return w; }
 
   friend bool operator<(const Constraint &l, const Constraint &r) {
     return std::tie(l.ei, l.ej, l.w) < std::tie(r.ei, r.ej, r.w);
   }
+
+  friend std::ostream &operator<<(std::ostream &stream, const Constraint &obj) {
+    stream << "Constraint(from:" << obj.getSource()
+           << ", to:" << obj.getDestination() << ", weight:" << obj.getWeight()
+           << ")";
+    return stream;
+  }
+
+
 };
 
-std::ostream &operator<<(std::ostream &stream, const Constraint &obj) {
-  stream << "Constraint(from:" << obj.getSource()
-         << ", to:" << obj.getDestination() << ", weight:" << obj.getWeight()
-         << ")";
-  return stream;
-}
+
 
 class PartialConstraintGraph {
   std::set<Execution> executions;
@@ -164,20 +196,24 @@ public:
     return constraints;
   }
   inline const std::set<Execution> getExecutions() const { return executions; }
+
+
+  friend std::ostream &operator<<(std::ostream &stream,
+                           const PartialConstraintGraph &obj) {
+    stream << "PartialConstraintGraph(" << std::endl;
+    for (auto c : obj.getConstraints()) {
+      stream << "  " << c << std::endl;
+    }
+    stream << ")" << std::endl;
+    return stream;
+  }
+
+
 };
 
-std::ostream &operator<<(std::ostream &stream,
-                         const PartialConstraintGraph &obj) {
-  stream << "PartialConstraintGraph(" << std::endl;
-  for (auto c : obj.getConstraints()) {
-    stream << "  " << c << std::endl;
-  }
-  stream << ")" << std::endl;
-  return stream;
-}
 
-PeriodicityVector generate_unitary_periodicity_vector(const LETModel &model) {
-  return PeriodicityVector(model.getTaskCount(), 1);
-}
+
+
+
 
 #endif /* SRC_INCLUDE_MODEL_H_ */

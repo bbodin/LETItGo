@@ -57,7 +57,7 @@ BOOST_AUTO_TEST_CASE(test_figure2_graph) {
   std::cout << "Start ComputeAgeLatency" << std::endl;
   auto delay = ComputeAgeLatency(*figure2);
 
-  BOOST_TEST(delay == 12);
+  BOOST_TEST(delay.age_latency == 12);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
@@ -65,6 +65,7 @@ BOOST_AUTO_TEST_SUITE_END()
 BOOST_AUTO_TEST_SUITE(test_rosace)
 
 BOOST_AUTO_TEST_CASE(test_rosace_delay) {
+
 
   auto rosace = new LETModel();
 
@@ -83,7 +84,10 @@ BOOST_AUTO_TEST_CASE(test_rosace_delay) {
 
   auto delay = ComputeAgeLatency(*rosace);
 
-  BOOST_TEST(delay == 240);
+  BOOST_TEST(delay.age_latency == 240);
+
+  commons::set_verbose_mode(5);
+  VERBOSE_INFO("Rosace result " << delay);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
