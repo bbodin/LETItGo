@@ -34,8 +34,8 @@ BOOST_AUTO_TEST_CASE(test_FGG_performance) {
 				auto verified = generate_partial_constraint_graph(model, K) ;
 				auto new_version = new_generate_partial_constraint_graph(model, K) ;
 
-				std::cout << "generate_LET("<< n << ","<< m << ", "<< 123 + i << ");" << std::endl;
-				std::cout << model << std::endl;
+				//std::cout << "generate_LET("<< n << ","<< m << ", "<< 123 + i << ");" << std::endl;
+				//std::cout << model << std::endl;
 				BOOST_REQUIRE_EQUAL(verified, new_version);
 			}
 

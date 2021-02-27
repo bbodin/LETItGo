@@ -393,7 +393,7 @@ void algorithm2(const LETModel &model, const PeriodicityVector &K , const Depend
 
 		VERBOSE_INFO (" Case 3 : algorithm 1");
 
-		for (long x = 1; x <= maxX ; x++ ) {
+		for (EXECUTION_COUNT x = 1; x <= maxX ; x++ ) {
 
 			VERBOSE_INFO ("  Run algorithm 1 with x =" << x);
 

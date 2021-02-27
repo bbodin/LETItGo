@@ -15,12 +15,12 @@
 #include <verbose.h>
 
 typedef double TIME_UNIT;
-typedef long long INTEGER_TIME_UNIT;
+typedef long INTEGER_TIME_UNIT;
 typedef long TASK_ID; // TODO: Signed because -1 is a valid task id as in ComputeAgeLatency, but should not.
 
-typedef long long EXECUTION_COUNT;
-typedef long long COUNT_T;
-typedef long long WEIGHT;
+typedef long EXECUTION_COUNT;
+typedef long COUNT_T;
+typedef long WEIGHT;
 
 class Task {
 private:
