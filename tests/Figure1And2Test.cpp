@@ -6,7 +6,6 @@
 #define BOOST_TEST_MODULE Figure1And2Test
 #include <boost/test/included/unit_test.hpp>
 #include <letitgo.h>
-#include <model.h>
 
 BOOST_AUTO_TEST_SUITE(test_figure1)
 
@@ -57,7 +56,7 @@ BOOST_AUTO_TEST_CASE(test_figure2_graph) {
   std::cout << "Start ComputeAgeLatency" << std::endl;
   auto delay = ComputeAgeLatency(*figure2);
 
-  BOOST_TEST(delay.age_latency == 12);
+  BOOST_CHECK_EQUAL(delay.age_latency, 12);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
@@ -84,7 +83,7 @@ BOOST_AUTO_TEST_CASE(test_rosace_delay) {
 
   auto delay = ComputeAgeLatency(*rosace);
 
-  BOOST_TEST(delay.age_latency == 240);
+  BOOST_CHECK_EQUAL(delay.age_latency , 240);
 
   commons::set_verbose_mode(5);
   VERBOSE_INFO("Rosace result " << delay);

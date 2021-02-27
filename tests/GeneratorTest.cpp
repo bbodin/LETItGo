@@ -5,7 +5,7 @@
 
 #define BOOST_TEST_MODULE Figure1And2Test
 #include <boost/test/included/unit_test.hpp>
-#include <generator.h>
+#include <letitgo.h>
 #include <map>
 
 BOOST_AUTO_TEST_SUITE(test_generator)
