@@ -240,7 +240,10 @@ void algorithm1(const LETModel &model, const PeriodicityVector &K , const Depend
 	for (long theta = start ; theta <= stop; theta ++ ) {
 		VERBOSE_ALGO1(" Iteration theta=" << theta);
 
-		if (theta % g) continue;
+		if (theta % g) {
+			VERBOSE_ALGO1(" Skip: theta is not divisble by g = " << g);
+			continue;
+		}
 
 		// theta divisible by g
 
@@ -259,7 +262,7 @@ void algorithm1(const LETModel &model, const PeriodicityVector &K , const Depend
 			VERBOSE_ALGO1("  Iteration k=" << k << " with x =" << x << " and y =" << y);
 			if (y > 0 and y <= maxY) {
 				VERBOSE_ALGO1("  Take this ai,aj ( ai=" << x << ", aj=" << y << " ) ");
-			take_this_ai_aj (model, K , d, x, y,  graph);
+				take_this_ai_aj (model, K , d, x, y,  graph);
 			}
 		}
 

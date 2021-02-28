@@ -22,7 +22,6 @@ BOOST_AUTO_TEST_SUITE_END()
 BOOST_AUTO_TEST_SUITE(test_figure2)
 
 BOOST_AUTO_TEST_CASE(test_figure2_graph) {
-  commons::set_verbose_mode(commons::DEBUG_LEVEL);
 
   LETModel *figure2 = new LETModel();
 
@@ -85,8 +84,6 @@ BOOST_AUTO_TEST_CASE(test_rosace_delay) {
 
   BOOST_CHECK_EQUAL(delay.age_latency , 240);
 
-  commons::set_verbose_mode(5);
-  VERBOSE_INFO("Rosace result " << delay);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -9,7 +9,7 @@
 #include <iostream>
 #include <verbose.h>
 
-namespace commons {
+namespace utils {
 int VERBOSE_MODE = MIN_LEVEL;
 bool VERBOSE_GUESS = true;
 bool VERBOSE_COLOR = true;
@@ -45,4 +45,4 @@ void print_trace(const char *file, int line) {
                           // fflush(out);
 }
 
-} // namespace commons
+} // namespace utils

@@ -10,8 +10,6 @@
 BOOST_AUTO_TEST_SUITE(test_random_graph)
 
 BOOST_AUTO_TEST_CASE(test_random_615623606) {
-
-	  commons::set_verbose_mode(5);
 	  size_t n = 5;
 	  size_t m = 5;
 	  size_t seed = 615623606;

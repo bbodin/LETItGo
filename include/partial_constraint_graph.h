@@ -10,6 +10,7 @@
 
 #include <model.h>
 #include <periodicity_vector.h>
+#include <functional>
 
 
 class PartialConstraintGraph {
@@ -67,21 +68,27 @@ public:
 
   }
 
+  friend bool operator !=(const PartialConstraintGraph & a1, const PartialConstraintGraph & a2) {
+	  return not (a1 == a2);
+  }
 
 
 };
 
 
+typedef std::function<PartialConstraintGraph(const LETModel &model, const PeriodicityVector& K)> GenerateExpansionFun;
+
 void add_constraints (const LETModel &model, const PeriodicityVector &K , const Dependency &d, PartialConstraintGraph& graph);
 void add_start_finish (const LETModel &model, const PeriodicityVector &K, PartialConstraintGraph& graph);
 
 PartialConstraintGraph generate_partial_constraint_graph (const LETModel& model , const PeriodicityVector& K) ;
-
 PartialConstraintGraph new_generate_partial_constraint_graph(const LETModel &model, const PeriodicityVector &K) ;
+PartialConstraintGraph opt_new_generate_partial_constraint_graph(const LETModel &model, const PeriodicityVector &K) ;
 
 
 std::vector<Execution> topologicalOrder (PartialConstraintGraph PKG) ;
 std::pair<std::vector<Execution> , INTEGER_TIME_UNIT>  FindLongestPath(PartialConstraintGraph PKG);
+
 
 
 #endif /* SRC_INCLUDE_PARTIAL_CONSTRAINT_GRAPH_H_ */

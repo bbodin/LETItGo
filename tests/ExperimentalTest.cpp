@@ -17,8 +17,6 @@ BOOST_AUTO_TEST_SUITE(ExperimentalTest)
 
 BOOST_AUTO_TEST_CASE(test_FGG_performance) {
 
-	commons::set_verbose_mode(0);
-
 	size_t sample_count = 10;
 	size_t min_n = 2, max_n = 20;
 

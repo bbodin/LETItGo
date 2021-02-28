@@ -195,8 +195,7 @@ void add_start_finish (const LETModel &model, const PeriodicityVector &K, Partia
 
 
 PartialConstraintGraph
-generate_partial_constraint_graph(const LETModel &model,
-		const PeriodicityVector &K) {
+generate_partial_constraint_graph(const LETModel &model,	const PeriodicityVector &K) {
 
 	PartialConstraintGraph graph;
 

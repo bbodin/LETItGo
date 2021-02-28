@@ -18,15 +18,17 @@
 
 #define VERBOSE_AGE_LATENCY(m) VERBOSE_CUSTOM_DEBUG("AGE_LATENCY", m)
 
-AgeLatencyResult ComputeAgeLatency(const LETModel &model) {
+AgeLatencyResult ComputeAgeLatency(const LETModel &model, GenerateExpansionFun fun) {
 	AgeLatencyResult res;
 	bool NeedsToContinue = true;
-	PeriodicityVector K = generate_unitary_periodicity_vector(model);
+	PeriodicityVector K = generate_periodicity_vector(model);
 
 	while (NeedsToContinue) {
 		res.required_iterations++;
 		VERBOSE_DEBUG ("Iteration" << res.required_iterations);
-		PartialConstraintGraph PKG = generate_partial_constraint_graph(model, K);
+		PartialConstraintGraph PKG = fun(model, K);
+		PartialConstraintGraph PKGGOLD = generate_partial_constraint_graph(model, K);
+		VERBOSE_ASSERT_EQUALS(PKG, PKGGOLD);
 		auto FLP = FindLongestPath(PKG);
 		auto P = FLP.first;
 		res.expansion_size = PKG.getExecutions().size();

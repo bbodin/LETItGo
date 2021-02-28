@@ -26,7 +26,7 @@
 #endif
 #endif
 
-namespace commons {
+namespace utils {
 
 inline const std::string getFilename(const std::string s) {
   return s.substr(s.find_last_of("/\\") + 1);
@@ -64,15 +64,15 @@ void myterminate(int);
 } // namespace commons
 
 // \033 remplace \e !!!
-#define PURPLE_COLOR (commons::VERBOSE_COLOR ? "\033[1;35m" : "")
-#define RED_COLOR (commons::VERBOSE_COLOR ? "\033[1;31m" : "")
-#define YELLOW_COLOR (commons::VERBOSE_COLOR ? "\033[0;33m" : "")
-#define GREEN_COLOR (commons::VERBOSE_COLOR ? "\033[1;32m" : "")
-#define BLUE_COLOR (commons::VERBOSE_COLOR ? "\033[1;34m" : "")
-#define RESET_COLOR (commons::VERBOSE_COLOR ? "\033[0m" : "")
+#define PURPLE_COLOR (utils::VERBOSE_COLOR ? "\033[1;35m" : "")
+#define RED_COLOR (utils::VERBOSE_COLOR ? "\033[1;31m" : "")
+#define YELLOW_COLOR (utils::VERBOSE_COLOR ? "\033[0;33m" : "")
+#define GREEN_COLOR (utils::VERBOSE_COLOR ? "\033[1;32m" : "")
+#define BLUE_COLOR (utils::VERBOSE_COLOR ? "\033[1;34m" : "")
+#define RESET_COLOR (utils::VERBOSE_COLOR ? "\033[0m" : "")
 
 #define __SHOW_LEVEL                                                           \
-  "[ " << __RELEASE__ << "  " << commons::getFilename(__FILE__) << ":"         \
+  "[ " << __RELEASE__ << "  " << utils::getFilename(__FILE__) << ":"         \
        << __LINE__ << "]" << RESET_COLOR << " "
 
 #ifdef __RELEASE_MODE__
@@ -88,25 +88,25 @@ void myterminate(int);
 #endif
 
 static inline bool VERBOSE_IS_EXTRA_DEBUG() {
-  return (commons::VERBOSE_MODE >= commons::EXTRA_DEBUG_LEVEL);
+  return (utils::VERBOSE_MODE >= utils::EXTRA_DEBUG_LEVEL);
 }
 static inline bool VERBOSE_IS_DEBUG() {
-  return (commons::VERBOSE_MODE >= commons::DEBUG_LEVEL);
+  return (utils::VERBOSE_MODE >= utils::DEBUG_LEVEL);
 }
 static inline bool VERBOSE_IS_INFO() {
-  return (commons::VERBOSE_MODE >= commons::INFO_LEVEL);
+  return (utils::VERBOSE_MODE >= utils::INFO_LEVEL);
 }
 static inline bool VERBOSE_IS_ERROR() {
-  return (commons::VERBOSE_MODE >= commons::ERROR_LEVEL);
+  return (utils::VERBOSE_MODE >= utils::ERROR_LEVEL);
 }
 static inline bool VERBOSE_IS_WARNING() {
-  return (commons::VERBOSE_MODE >= commons::WARNING_LEVEL);
+  return (utils::VERBOSE_MODE >= utils::WARNING_LEVEL);
 }
 static inline bool VERBOSE_IS_PB() {
-  return (commons::VERBOSE_MODE >= commons::PB_LEVEL);
+  return (utils::VERBOSE_MODE >= utils::PB_LEVEL);
 }
 static inline bool VERBOSE_IS_ILP() {
-  return (commons::VERBOSE_MODE >= commons::ILP_LEVEL);
+  return (utils::VERBOSE_MODE >= utils::ILP_LEVEL);
 }
 
 #ifndef __RELEASE_MODE__
@@ -115,7 +115,7 @@ static inline bool VERBOSE_IS_ILP() {
     std::cerr << BLUE_COLOR << "[X]" << __SHOW_LEVEL << m                      \
               << std::string(20, ' ') << "\n"; // PRINT_STATE();
 #define VERBOSE_CUSTOM_DEBUG(code, m)                                          \
-  if (commons::VERBOSE_CUSTOM_MODES.count(code)) {                             \
+  if (utils::VERBOSE_CUSTOM_MODES.count(code)) {                             \
     VERBOSE_DEBUG(m);                                                          \
   }
 #define VERBOSE_DEBUG(m)                                                       \
@@ -243,6 +243,6 @@ static inline bool VERBOSE_IS_ILP() {
     EXIT_ON_FAILURE();                                                         \
   }
 
-#define VERBOSE_BACKTRACE() commons::print_trace(__FILE__, __LINE__);
+#define VERBOSE_BACKTRACE() utils::print_trace(__FILE__, __LINE__);
 
 #endif /* VERBOSE_H_ */

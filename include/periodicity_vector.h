@@ -12,12 +12,12 @@
 
 typedef std::vector<EXECUTION_COUNT> PeriodicityVector;
 
-PeriodicityVector generate_unitary_periodicity_vector(const LETModel &model);
-
-inline PeriodicityVector generate_unitary_periodicity_vector(const LETModel &model) {
-	return PeriodicityVector(model.getTaskCount(), 1);
+inline PeriodicityVector generate_periodicity_vector(const LETModel &model, int k = 1) {
+	return PeriodicityVector(model.getTaskCount(), k);
 }
-
+inline PeriodicityVector generate_unitary_periodicity_vector(const LETModel &model) {
+	return generate_periodicity_vector(model,1);
+}
 
 
 

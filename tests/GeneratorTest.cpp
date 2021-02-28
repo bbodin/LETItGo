@@ -53,9 +53,6 @@ BOOST_AUTO_TEST_CASE(test_big) {
 
 
 BOOST_AUTO_TEST_CASE(test_generation) {
-	if (getenv("VERBOSE")) {
-		commons::set_verbose_mode(atoi(getenv("VERBOSE")));
-	}
 
 	int n = 3;
 	int m = 2;

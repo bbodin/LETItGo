@@ -42,8 +42,6 @@ template <typename entier>
 std::pair<entier,entier> extended_euclide (entier _a, entier _b, entier _c) {
 
 	// Kuṭṭaka, Aryabhata's algorithm for solving linear Diophantine equations in two unknowns
-
-
 	entier gcdab = std::gcd(_a,_b) ;
 
 	VERBOSE_ASSERT (_c % gcdab == 0, "No solution");
@@ -62,13 +60,6 @@ std::pair<entier,entier> extended_euclide (entier _a, entier _b, entier _c) {
     	s = std::pair<entier,entier> ( s.second ,  s.first - quotient * s.second );
     	t = std::pair<entier,entier> ( t.second ,  t.first - quotient * t.second );
     }
-
-    VERBOSE_INFO ( "A:" <<  _a << ", B:" <<  _b << ", C:" <<  _c );
-    VERBOSE_INFO ( "gcdab:" <<  gcdab );
-    VERBOSE_INFO ( "A:" <<  a << ", B:" <<  b << ", C:" <<  c );
-    VERBOSE_INFO ( "Bézout coefficients:" <<  s.first << "," <<  t.first );
-    VERBOSE_INFO ( "greatest common divisor:" <<  r.first);
-    VERBOSE_INFO ( "quotients by the gcd:" <<  t.second<< "," <<   s.second);
 
     return std::pair<entier,entier>  ( (c * s.first), (c * t.first));
 

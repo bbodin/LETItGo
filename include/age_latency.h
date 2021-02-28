@@ -28,8 +28,8 @@ struct AgeLatencyResult {
 
 };
 
+AgeLatencyResult ComputeAgeLatency(const LETModel &model, GenerateExpansionFun fun = generate_partial_constraint_graph) ;
 
-AgeLatencyResult ComputeAgeLatency (const LETModel& model) ;
 
 
 

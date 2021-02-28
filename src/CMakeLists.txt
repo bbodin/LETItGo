@@ -1,4 +1,17 @@
 
+find_package(gflags REQUIRED)
+
 INCLUDE_DIRECTORIES(${LETITGO_INCLUDE_DIR})
 
-ADD_LIBRARY			   (letitgo SHARED   age_latency.cpp  generator.cpp verbose.cpp partial_constraint_graph.cpp new_partial_graph_generation.cpp)
+FILE(GLOB MAIN_SRC_FILES *.cpp)
+FILE(GLOB LETITGO_SRC_FILES core/*.cpp utils/*.cpp)
+
+ADD_LIBRARY			   (letitgo SHARED  ${LETITGO_SRC_FILES})
+
+
+FOREACH(SRC_NAME ${MAIN_SRC_FILES})
+  GET_FILENAME_COMPONENT(EXEC_NAME  ${SRC_NAME} NAME_WE)
+  MESSAGE(STATUS "Add ${EXEC_NAME} - ${SRC_NAME}")
+  ADD_EXECUTABLE(${EXEC_NAME} ${SRC_NAME})
+  target_link_libraries(${EXEC_NAME} letitgo gflags)
+ENDFOREACH()
