@@ -12,12 +12,6 @@
 #include <numeric>
 #include <cmath>
 
-
-#define VERBOSE_PCG(m) VERBOSE_CUSTOM_DEBUG("PCG", m)
-
-
-
-
 /**
  * Description of Algorithm 2:
  *

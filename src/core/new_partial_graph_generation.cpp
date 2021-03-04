@@ -13,9 +13,6 @@
 #include <cmath>
 
 
-#define VERBOSE_PCG(m) VERBOSE_CUSTOM_DEBUG("PCG", m)
-
-
 void take_this_ai_aj (const LETModel &model, const PeriodicityVector &K , const Dependency &d, EXECUTION_COUNT ai,  EXECUTION_COUNT aj, PartialConstraintGraph& graph) {
 	TASK_ID ti_id = d.getFirst();
 	TASK_ID tj_id = d.getSecond();

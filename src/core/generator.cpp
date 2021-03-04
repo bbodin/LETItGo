@@ -10,6 +10,7 @@
 
 LETModel generate_LET (unsigned int n, unsigned int m, size_t seed = 0) {
 
+
 	if (seed == 0) {
 		std::random_device rd;
 		seed = rd();

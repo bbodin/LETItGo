@@ -12,10 +12,6 @@
 #include <cmath>
 
 
-#define VERBOSE_PCG(m) VERBOSE_CUSTOM_DEBUG("PCG", m)
-
-
-
 std::pair<std::vector<Execution>, INTEGER_TIME_UNIT>
 FindLongestPath(PartialConstraintGraph PKG) {
 

@@ -1,12 +1,14 @@
 /*
- * benchmarkNewExpansion.cpp
+ * benchmarkAgelatency.cpp
  *
- *  Created on: Feb 28, 2021
+ *  Created on: Mar 4, 2021
  *      Author: toky
  */
 
+
+
 #include <verbose.h>
-#include <partial_constraint_graph.h>
+#include <letitgo.h>
 #include <benchmark.h>
 #include <gflags/gflags.h>
 #include <iomanip>
@@ -29,11 +31,11 @@ int main (int argc , char * argv[]) {
 	gflags::ParseCommandLineFlags(&argc, &argv, true);
 	utils::set_verbose_mode(FLAGS_verbose);
 
-	main_benchmark_expansion ( FLAGS_begin_n,  FLAGS_end_n,  FLAGS_step_n,  FLAGS_sample_count,  FLAGS_iter_count, FLAGS_seed) ;
+
+	main_benchmark_age_latency ( FLAGS_begin_n,  FLAGS_end_n,  FLAGS_step_n,  FLAGS_sample_count,  FLAGS_iter_count, FLAGS_seed) ;
 
 
 	gflags::ShutDownCommandLineFlags();
 	return 0;
 
 }
-

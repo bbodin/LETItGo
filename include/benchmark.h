@@ -13,7 +13,6 @@
 #include <chrono>
 #include <letitgo.h>
 #include <functional>
-typedef std::function<AgeLatencyResult(const LETModel &model, GenerateExpansionFun fun)> AgeLatencyFun;
 
 struct ExpansionBenchmarkResult {
 	double average_time;
@@ -21,10 +20,13 @@ struct ExpansionBenchmarkResult {
 	ExpansionBenchmarkResult (double average_time, size_t size) : average_time(average_time) , size(size) {}
 };
 struct AgeLatencyBenchmarkResult {
-	  double sum_time = 0;
-	  double sum_iter = 0;
-	  double sum_size = 0;
-	  AgeLatencyBenchmarkResult (double sum_time, double sum_iter, double sum_size) : sum_time(sum_time) , sum_iter(sum_iter)  , sum_size(sum_size) {}
+	  double time  = 0;
+	  double iter  = 0;
+	  double size  = 0;
+	  double bound = 0;
+	  double g_ctime  = 0;
+	  double p_ctime = 0;
+	  AgeLatencyBenchmarkResult (double t, double it, double s, double b, double g, double p) : time(t) , iter(it)  , size(s), bound(b) , g_ctime(g), p_ctime(p) {}
 };
 
 template <typename entier>
@@ -52,6 +54,8 @@ entier getSumN (LETModel& m) {
 AgeLatencyBenchmarkResult benchmark_age_latency (AgeLatencyFun fun, size_t sample_count, size_t iter_count, size_t n, size_t m, size_t seed);
 ExpansionBenchmarkResult  benchmark_expansion   (GenerateExpansionFun fun, size_t sample_count, size_t iter_count, size_t n, size_t m, size_t seed);
 
+void main_benchmark_age_latency (size_t begin_n, size_t end_n, size_t step_n, size_t sample_count, size_t iter_count, size_t fseed);
+void main_benchmark_expansion (size_t begin_n, size_t end_n, size_t step_n, size_t sample_count, size_t iter_count, size_t fseed);
 
 
 #endif /* INCLUDE_BENCHMARK_H_ */

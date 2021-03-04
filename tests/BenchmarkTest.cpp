@@ -13,39 +13,27 @@
 
 BOOST_AUTO_TEST_SUITE(test_benchmark)
 
+BOOST_AUTO_TEST_CASE(benchmark_Expansion) {
+
+	 // size_t begin_n = 5;
+	 // size_t end_n   = 20;
+	 // size_t step_n  = 5;
+	 // size_t sample_count = 2;
+	 // size_t iter_count   = 2;
+
+	  // TODO: fix bug first ...
+	//main_benchmark_expansion ( begin_n,  end_n,  step_n,  sample_count,  iter_count, 123) ;
+}
 
 BOOST_AUTO_TEST_CASE(benchmark_AgeLatency) {
 
-  size_t begin_n = 5;
-  size_t end_n   = 100;
-  size_t step_n  = 5;
-  size_t sample_count = 1;
-  size_t iter_count   = 1;
+	  size_t begin_n = 5;
+	  size_t end_n   = 20;
+	  size_t step_n  = 5;
+	  size_t sample_count = 2;
+	  size_t iter_count   = 2;
 
-  if (getenv("SAMPLE_COUNT")) {
-	  sample_count = atoi(getenv("SAMPLE_COUNT"));
-  }
-
-  size_t total = sample_count * (end_n - begin_n + step_n) / step_n;
-  VERBOSE_INFO("Start benchmark of " << total << " runs.");
-
-  //boost::timer::progress_display show_progress( total );
-
-  std::cout << "index\tltime\titer\tsize\thtime\titer\tsize" << std::endl;
-
-  for (auto n = begin_n ; n <= end_n ; n+= step_n) {
-	  size_t seed = 123 + n;
-	  size_t high_density_m = (n * (n - 1)) / 3;
-	  size_t low_density_m = (n * (n - 1)) / 4;
-	  auto bench_low  = benchmark_age_latency ( ComputeAgeLatency, sample_count, iter_count, n, low_density_m, seed) ;
-	  auto bench_high = benchmark_age_latency ( ComputeAgeLatency, sample_count, iter_count, n, high_density_m, seed) ;
-
-	  std::cout << n << "\t" << std::setprecision(2) << std::fixed << bench_low.sum_time << "\t"  << std::setprecision(2)  << bench_low.sum_iter << "\t" << bench_low.sum_size
-			         << "\t"  <<std::setprecision(2) << std::fixed << bench_high.sum_time << "\t" << std::setprecision(2) << bench_high.sum_iter << "\t" << bench_high.sum_size << std::endl;
-
-  }
-
-
+	main_benchmark_age_latency ( begin_n,  end_n,  step_n,  sample_count,  iter_count, 123) ;
 }
 
 BOOST_AUTO_TEST_SUITE_END()

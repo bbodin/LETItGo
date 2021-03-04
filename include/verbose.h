@@ -53,10 +53,14 @@ const int EXTRA_DEBUG_LEVEL = 10;
 
 void print_trace(const char *file, int line);
 inline void set_verbose_mode(const int m) { VERBOSE_MODE = m; }
+inline void set_verbose_custom_mode(const std::string mode, bool v) {
+	if (!v) {VERBOSE_CUSTOM_MODES.erase(mode);}
+	if (v) {VERBOSE_CUSTOM_MODES.insert(mode);}
+}
 
 inline int is_info_verbose() { return VERBOSE_MODE >= INFO_LEVEL; }
 inline int get_verbose_mode() { return VERBOSE_MODE; }
-inline void set_verbose_color(const bool v) { VERBOSE_COLOR = v; }
+inline void set_verbose_color(const bool v) { utils::VERBOSE_COLOR = v; }
 inline void set_verbose_guess(const bool v) { VERBOSE_GUESS = v; }
 
 void myterminate(int);
