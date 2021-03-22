@@ -130,6 +130,8 @@ void new_algorithm2(const LETModel &model, const PeriodicityVector &K , const De
 		// Take them all
 		VERBOSE_NPCG (" Case 1 : Take them all");
 		Algorithm2_statistics::getSingleton().total_case1++;
+
+
 		for (auto ai = 1; ai <= Ki; ai++) {
 
 			const Execution ei(ti_id, ai);
@@ -162,6 +164,8 @@ void new_algorithm2(const LETModel &model, const PeriodicityVector &K , const De
 
 		VERBOSE_NPCG (" Case 2 : Ty == gcdK");
 		Algorithm2_statistics::getSingleton().total_case2++;
+
+
 		VERBOSE_NPCG ("  g0=NA f0=NA Tx=" << Tx << " gcdK=" << gcdK);
 
 		for (auto x = 1; x <= maxX ; x++ ) {

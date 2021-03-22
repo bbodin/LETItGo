@@ -172,8 +172,8 @@ void main_benchmark_expansion (size_t begin_n, size_t end_n, size_t step_n, size
 		 bench_res3  = benchmark_expansion ( opt_new_generate_partial_constraint_graph , sample_count, iter_count, n, m, seed) ;
 
 		 std::cout << n << "\t" << m
-					<< "\t"  << bench_res1.total_vertex_count / bench_res1.sample_count
-					<< "\t"  << bench_res1.total_edge_count / bench_res1.sample_count
+					<< "\t"  << bench_res1.total_vertex_count / (double)bench_res1.sample_count
+					<< "\t"  << bench_res1.total_edge_count / (double)bench_res1.sample_count
 						<< "\t"  << std::setprecision(2) << std::fixed << bench_res1.average_time
 					   	<< "\t"  << std::setprecision(2) << std::fixed << bench_res2.average_time
 					   	<< "\t"  << std::setprecision(2) << std::fixed << bench_res3.average_time
