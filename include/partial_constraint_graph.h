@@ -13,7 +13,12 @@
 #include <verbose.h>
 #include <functional>
 
+#ifdef ULTRA_DEBUG
 #define VERBOSE_PCG(m) VERBOSE_CUSTOM_DEBUG("PCG", m)
+#else
+#define VERBOSE_PCG(m) {}
+#endif
+
 
 class PartialConstraintGraph {
   std::set<Execution> executions;
@@ -75,6 +80,34 @@ public:
   }
 
 
+};
+
+
+
+struct Algorithm2_statistics {
+
+	size_t total_case1 = 0;
+	size_t total_case2 = 0;
+	size_t total_case3 = 0;
+
+	static Algorithm2_statistics & getSingleton() {
+		static Algorithm2_statistics current;
+		return current;
+	}
+	void clear () {
+		this->total_case1 = 0;
+		this->total_case2 = 0;
+		this->total_case3 = 0;
+	}
+
+	friend Algorithm2_statistics operator+(const Algorithm2_statistics&l, const Algorithm2_statistics& r) {
+		Algorithm2_statistics res;
+		res.clear();
+		res.total_case1 = l.total_case1 + r.total_case1;
+		res.total_case2 = l.total_case2 + r.total_case2;
+		res.total_case3 = l.total_case3 + r.total_case3;
+		return res;
+	}
 };
 
 

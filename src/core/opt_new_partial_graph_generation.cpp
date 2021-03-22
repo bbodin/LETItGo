@@ -12,9 +12,14 @@
 #include <numeric>
 #include <cmath>
 
-
+#ifdef ULTRA_DEBUG
 #define VERBOSE_NPCG(m) VERBOSE_CUSTOM_DEBUG("NPCG", m)
 #define VERBOSE_ALGO1(stream) VERBOSE_NPCG("   Algorithm 1: " << stream)
+#else
+#define VERBOSE_NPCG(m) {}
+#define VERBOSE_ALGO1(stream) {}
+#endif
+
 
 /**
  * Description of Algorithm 2:
@@ -47,8 +52,6 @@ entier opt_extended_euclide (entier _a, entier _b, entier _c) {
 
 	// Kuṭṭaka, Aryabhata's algorithm for solving linear Diophantine equations in two unknowns
 	const entier gcdab = std::gcd(_a,_b) ;
-
-	VERBOSE_ASSERT (_c % gcdab == 0, "No solution");
 
 	const entier a = _a/ gcdab;
 	const entier b = _b/ gcdab;
@@ -126,8 +129,9 @@ void new_algorithm2(const LETModel &model, const PeriodicityVector &K , const De
 	if (g0gcdk >= gcdK + f0gcdk) {
 		// Take them all
 		VERBOSE_NPCG (" Case 1 : Take them all");
-
+		Algorithm2_statistics::getSingleton().total_case1++;
 		for (auto ai = 1; ai <= Ki; ai++) {
+
 			const Execution ei(ti_id, ai);
 
 			for (auto aj = 1; aj <= Kj; aj++) {
@@ -157,6 +161,7 @@ void new_algorithm2(const LETModel &model, const PeriodicityVector &K , const De
 	} else if (Ty == gcdK) {
 
 		VERBOSE_NPCG (" Case 2 : Ty == gcdK");
+		Algorithm2_statistics::getSingleton().total_case2++;
 		VERBOSE_NPCG ("  g0=NA f0=NA Tx=" << Tx << " gcdK=" << gcdK);
 
 		for (auto x = 1; x <= maxX ; x++ ) {
@@ -205,6 +210,7 @@ void new_algorithm2(const LETModel &model, const PeriodicityVector &K , const De
 	} else {
 
 		VERBOSE_NPCG (" Case 3 : algorithm 1");
+		Algorithm2_statistics::getSingleton().total_case3++;
 
 		long step = (gcdK)/g;
 		for (EXECUTION_COUNT x = 1; x <= maxX ; x++ ) {
@@ -287,7 +293,6 @@ void new_algorithm2(const LETModel &model, const PeriodicityVector &K , const De
 
 
 	}
-
 }
 
 
@@ -298,13 +303,13 @@ opt_new_generate_partial_constraint_graph(const LETModel &model,
 
 	PartialConstraintGraph graph;
 
-	VERBOSE_DEBUG("1) Create constraints.");
+	VERBOSE_NPCG("1) Create constraints.");
 	for (Dependency d : model.dependencies()) {
-		VERBOSE_DEBUG(" Run Algorithm 2 for d=" << d);
+		VERBOSE_NPCG(" Run Algorithm 2 for d=" << d);
 		new_algorithm2(model, K , d, graph) ;
 	}
 
-	VERBOSE_DEBUG("2) Constraints done, add start and finish.");
+	VERBOSE_NPCG("2) Constraints done, add start and finish.");
 	add_start_finish (model, K, graph) ;
 	return graph;
 }

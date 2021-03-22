@@ -11,6 +11,8 @@
 #include <numeric>
 #include <cmath>
 
+#define VERBOSE_LWB(stream) VERBOSE_DEBUG(stream)
+
 
 void add_lowerbounds (const LETModel &model, const PeriodicityVector &K , const Dependency &d, PartialConstraintGraph& graph) {
 
@@ -40,7 +42,7 @@ void add_lowerbounds (const LETModel &model, const PeriodicityVector &K , const 
 
 	EXECUTION_COUNT TjKj_gcdK = TjKj/gcdK;
 
-	VERBOSE_PCG("   "
+	VERBOSE_LWB("   "
 			<< " Ti= " << Ti
 			<< " Tj= " << Tj
 			<< " Ki= " << Ki
@@ -53,7 +55,7 @@ void add_lowerbounds (const LETModel &model, const PeriodicityVector &K , const 
 	for (auto ai = 1; ai <= Ki; ai++) {
 		for (auto aj = 1; aj <= Kj; aj++) {
 
-			VERBOSE_PCG("  "
+			VERBOSE_LWB("  "
 					<< "from " << ai << " to " << aj);
 
 			// recall: auto Me = Tj + std::ceil((ri - rj + Di) / gcdeT) * gcdeT;
@@ -64,36 +66,33 @@ void add_lowerbounds (const LETModel &model, const PeriodicityVector &K , const 
 			INTEGER_TIME_UNIT pi_max =
 					std::floor((-Me + Ti - alphae_ai_aj * gcdeT) / gcdK);
 
-			VERBOSE_PCG("   "
+			VERBOSE_LWB("   "
 					<< "alphae_ai_aj= "
 					<< "(" << Ti << "*" << ai << "-" << Tj << "*" << aj
 					<< ") / " << gcdeT << " = " << alphae_ai_aj);
-			VERBOSE_PCG("   "
+			VERBOSE_LWB("   "
 					<< "pi_min= " << pi_min);
-			VERBOSE_PCG("   "
+			VERBOSE_LWB("   "
 					<< "pi_max= " << pi_max);
 
 
 
 			std::pair<long,long> res = extended_euclide ( Ti * Ki,   Tj * Kj, gcdK);
 			EXECUTION_COUNT x0 = res.first;
-			EXECUTION_COUNT y0 = res.first;
-			VERBOSE_PCG("   "
-					<< " x_0= " << x0
-					<< " y_0= " << y0);
+			VERBOSE_LWB("   "
+					<< " x_0= " << x0);
 
 
-			VERBOSE_PCG("   "
+			VERBOSE_LWB("   "
 					<< " TjKj_gcdK = " << TjKj_gcdK);
-			VERBOSE_PCG("   "
+			VERBOSE_LWB("   "
 					<< " gcd(x0, TjKj_gcdK)= " << std::gcd(x0, TjKj_gcdK));
 
-			VERBOSE_PCG("   "
-					<< " x_0= " << x0
-					<< " y_0= " << y0);
+			VERBOSE_LWB("   "
+					<< " x_0= " << x0);
 
 
-			VERBOSE_PCG("   "
+			VERBOSE_LWB("   "
 					<< " (pi_min + TjKj_gcdK = " << pi_min + TjKj_gcdK
 					<< ") and (pi_max + 1 = " << pi_max + 1 << ")");
 
@@ -110,7 +109,7 @@ void add_lowerbounds (const LETModel &model, const PeriodicityVector &K , const 
 				// From Theorem 6 (ECRTS2020)
 				INTEGER_TIME_UNIT Lmax =
 						rj - ri + Ti - Tj - (pi_max * gcdK + alphae_ai_aj * gcdeT);
-				VERBOSE_PCG("   "
+				VERBOSE_LWB("   "
 						<< "Lmax= " << Lmax);
 
 				Execution ei(ti_id, ai);
@@ -130,7 +129,7 @@ generate_partial_lowerbound_graph(const LETModel &model,	const PeriodicityVector
 	PartialConstraintGraph graph;
 
 	for (Dependency d : model.dependencies()) {
-		VERBOSE_PCG(" " << d);
+		VERBOSE_LWB(" " << d);
 		add_lowerbounds (model, K , d, graph);
 	}
 

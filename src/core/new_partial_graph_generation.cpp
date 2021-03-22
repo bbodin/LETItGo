@@ -12,8 +12,15 @@
 #include <numeric>
 #include <cmath>
 
+
+#ifdef ULTRA_DEBUG
 #define VERBOSE_NPCG(m) VERBOSE_CUSTOM_DEBUG("NPCG", m)
 #define VERBOSE_ALGO1(stream) VERBOSE_NPCG("   Algorithm 1: " << stream)
+#else
+#define VERBOSE_NPCG(m) {}
+#define VERBOSE_ALGO1(stream) {}
+#endif
+
 
 void take_this_ai_aj (const LETModel &model, const PeriodicityVector &K , const Dependency &d, EXECUTION_COUNT ai,  EXECUTION_COUNT aj, PartialConstraintGraph& graph) {
 	TASK_ID ti_id = d.getFirst();
@@ -207,9 +214,9 @@ void take_them_all (const LETModel &model, const PeriodicityVector &K , const De
 
 
 
-void algorithm1(const LETModel &model, const PeriodicityVector &K , const Dependency &d, PartialConstraintGraph& graph, long x, double f0, double g0, long f0gcdK, long g0gcdK,  long Tx,long Ty,long gcdK, long maxX , long maxY) {
+void algorithm1(const LETModel &model, const PeriodicityVector &K , const Dependency &d, PartialConstraintGraph& graph, const long x,   const long f0gcdK,  const long g0gcdK,   const long Tx, const long Ty, const long gcdK,  const  long maxY) {
 
-	VERBOSE_ALGO1("Start algorithm 1 (x=" << x << ", f0=" << f0 << ", g0=" << g0 << ",  Tx=" << Tx << ", Ty=" << Ty << ", gcdK=" << gcdK << ", maxX=" << maxX << ",  maxY=" << maxY << ")");
+	VERBOSE_ALGO1("Start algorithm 1 (x=" << x << ", Tx=" << Tx << ", Ty=" << Ty << ", gcdK=" << gcdK << " maxY=" << maxY << ")");
 
 	long g = std::gcd(gcdK,Ty);
 
@@ -217,27 +224,21 @@ void algorithm1(const LETModel &model, const PeriodicityVector &K , const Depend
 
 	VERBOSE_ALGO1(" Tx:" << Tx
 			<< " x:" << x
-			<< " g0:" << g0
-			<< " f0:" << f0
 			<< " g0gcdK:" << g0gcdK
 			<< " f0gcdK:" << f0gcdK
 			<< " gcdK:" << gcdK
 			<< " Ty:" << Ty);
 
-	double yg0 = (Tx * x - g0gcdK) / Ty;
-	double yf0 = (Tx * x - f0gcdK) / Ty;
 	//double Tyyg0 = (double) Ty * yg0;
 	//double Tyyf0 = (double) Ty * yf0;
 
-	double Tyyg0 = (Tx * x - g0gcdK);
-	double Tyyf0 = (Tx * x - f0gcdK);
+	const double Tyyg0 = (Tx * x - g0gcdK);
+	const double Tyyf0 = (Tx * x - f0gcdK);
 
-	long start = std::ceil ( Tyyg0 );
-	long stop  = std::floor ( Tyyf0 );
+	const long start = std::ceil ( Tyyg0 );
+	const long stop  = std::floor ( Tyyf0 );
 
 
-	VERBOSE_ALGO1("yg0=" << yg0);
-	VERBOSE_ALGO1("yf0=" << yf0);
 	VERBOSE_ALGO1("Tyyg0=" << Tyyg0);
 	VERBOSE_ALGO1("Tyyf0=" << Tyyf0);
 	VERBOSE_ALGO1("start=" << start);
@@ -258,15 +259,15 @@ void algorithm1(const LETModel &model, const PeriodicityVector &K , const Depend
 		// Find (u0v0) solutions of uTy -vgcdk = tehta
 
 
-		std::pair<long,long> res = extended_euclide ( Ty,  gcdK, theta);
-		long u0 = res.first;
-		long v0 = res.second;
-
-		VERBOSE_ALGO1(" Good Theta: euclide (Ty=" << Ty << " gcdK=" << gcdK << " theta=" << theta << ") = (u0,v0) = (" << u0 << "," << v0 << ")");
+		const std::pair<long,long> res = extended_euclide ( Ty,  gcdK, theta);
+		const long u0 = res.first;
 
 
-		long step = (gcdK)/g;
-		long y0 = u0 - step * std::ceil(u0/step);
+		VERBOSE_ALGO1(" Good Theta: euclide (Ty=" << Ty << " gcdK=" << gcdK << " theta=" << theta << ") = (u0,v0) = (" << u0 << ",NA)");
+
+
+		const long step = (gcdK)/g;
+		const long y0 = u0 - step * std::ceil(u0/step);
 		VERBOSE_ALGO1(" Start subloop from y=" << y0 << " to " << maxY << " with increment of " << gcdK<< "/" <<g << "=" << (gcdK)/g );
 		for (long y = y0 ; y <= maxY ; y += step ) {
 
@@ -379,10 +380,12 @@ void algorithm2(const LETModel &model, const PeriodicityVector &K , const Depend
 	if (g0 >= 1 + f0) {
 		// Take them all
 		VERBOSE_NPCG (" Case 1 : Take them all");
+		Algorithm2_statistics::getSingleton().total_case1++;
 		take_them_all (model, K , d, graph);
 	} else if (Ty == gcdK) {
 
 		VERBOSE_NPCG (" Case 2 : Ty == gcdK");
+		Algorithm2_statistics::getSingleton().total_case2++;
 		VERBOSE_NPCG ("  g0=" << g0 << " f0=" << f0 << " Tx=" << Tx << " gcdK=" << gcdK);
 		for (auto x = 1; x <= maxX ; x++ ) {
 			VERBOSE_NPCG ("  Test x =" << x);
@@ -411,13 +414,14 @@ void algorithm2(const LETModel &model, const PeriodicityVector &K , const Depend
 	} else {
 
 		VERBOSE_NPCG (" Case 3 : algorithm 1");
+		Algorithm2_statistics::getSingleton().total_case3++;
 
 		for (EXECUTION_COUNT x = 1; x <= maxX ; x++ ) {
 
 			VERBOSE_NPCG ("  Run algorithm 1 with x =" << x);
 
 			// Algorithm 1
-			algorithm1(model, K , d, graph, x, f0,  g0,  f0gcdk,  g0gcdk,  Tx, Ty, gcdK,  maxX,  maxY);
+			algorithm1(model, K , d, graph, x,  f0gcdk,  g0gcdk,  Tx, Ty, gcdK,  maxY);
 
 		}
 

@@ -24,7 +24,7 @@ PeriodicityVector generate_random_periodicity_vector(const LETModel &model, size
 	PeriodicityVector K(model.getTaskCount(), 1);
 
 	for (Task t : model.tasks()) {
-		std::uniform_int_distribution<> K_distrib(1,2);
+		std::uniform_int_distribution<> K_distrib(1,10);
 		K[t.getId()] = K_distrib(gen);
 	}
 	return K;
