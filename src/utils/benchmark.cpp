@@ -31,15 +31,18 @@ double get_age_latency_execution_time (AgeLatencyFun fun, LETModel sample, size_
 	return (sum_time / n) / 1000000;
 }
 
-
-ExpansionBenchmarkResult  benchmark_expansion   (GenerateExpansionFun fun, size_t sample_count, size_t iter_count, size_t n, size_t m, size_t seed) {
+ExpansionBenchmarkResult  benchmark_expansion   (GenerateExpansionFun fun, size_t sample_count, size_t iter_count, size_t n, size_t m,  size_t seed) {
 	  double sum_time = 0;
+	  long sum_edge = 0;
+	  long sum_vertex = 0;
 	  Generator& g = Generator::getInstance();
 
 	  VERBOSE_DEBUG("Start benchmark with n=" << n << " and " << " m=" << m << " seed=" << seed);
 	  for (size_t i = 0 ; i < sample_count ; i ++ ) {
 		  LETModel sample = g.generate(n,m, seed + i);
-		  auto K = generate_periodicity_vector(sample, 2);
+
+		  auto K = generate_random_periodicity_vector(sample, seed);
+
 		  INTEGER_TIME_UNIT lcm = getLCM<INTEGER_TIME_UNIT>(sample);
 		  VERBOSE_DEBUG("LCM=" << lcm);
 
@@ -56,7 +59,8 @@ ExpansionBenchmarkResult  benchmark_expansion   (GenerateExpansionFun fun, size_
 		  PartialConstraintGraph res = fun(sample, K);
 
 		  auto original = generate_partial_constraint_graph(sample, K);
-
+		  sum_vertex += original.getExecutions().size();
+		  sum_edge += original.getConstraints().size();
 		  if (res != original) {
 				std::cout << "Failed with: K =" << K << std::endl<< sample << std::endl;
 		  }
@@ -68,7 +72,7 @@ ExpansionBenchmarkResult  benchmark_expansion   (GenerateExpansionFun fun, size_
 
 	  }
 
-	  return ExpansionBenchmarkResult((double)sum_time / (double)sample_count, 0);
+	  return ExpansionBenchmarkResult( sample_count , (double)sum_time / (double)sample_count, sum_vertex, sum_edge);
 }
 
 AgeLatencyBenchmarkResult benchmark_age_latency (AgeLatencyFun fun, size_t sample_count, size_t iter_count, size_t n, size_t m, size_t seed) {
@@ -127,7 +131,7 @@ void main_benchmark_expansion (size_t begin_n, size_t end_n, size_t step_n, size
 	  std::cout << "##########################################################################################" << std::endl;
 
 
-	std::cout << "n\tm\torig\tnew\tratio" << std::endl;
+	std::cout << "n\tm\tV\tE\torig\tnew\topt\tratio" << std::endl;
 
 	for (size_t n = begin_n ; n <= end_n ; n+= step_n) {
 		size_t m = (n * (n - 1)) / 3;
@@ -135,22 +139,30 @@ void main_benchmark_expansion (size_t begin_n, size_t end_n, size_t step_n, size
 		size_t seed = fseed + n;
 
 		ExpansionBenchmarkResult bench_res1  = benchmark_expansion ( generate_partial_constraint_graph , sample_count, iter_count, n, m, seed) ;
-		ExpansionBenchmarkResult bench_res2  = benchmark_expansion ( opt_new_generate_partial_constraint_graph , sample_count, iter_count, n, m, seed) ;
+		ExpansionBenchmarkResult bench_res2  = benchmark_expansion ( new_generate_partial_constraint_graph , sample_count, iter_count, n, m, seed) ;
+		ExpansionBenchmarkResult bench_res3  = benchmark_expansion ( opt_new_generate_partial_constraint_graph , sample_count, iter_count, n, m, seed) ;
 
 		std::cout << n << "\t" << m
+				<< "\t"  << bench_res1.total_vertex_count / bench_res1.sample_count
+				<< "\t"  << bench_res1.total_edge_count / bench_res1.sample_count
 				<< "\t"  << std::setprecision(2) << std::fixed << bench_res1.average_time
 			   	<< "\t"  << std::setprecision(2) << std::fixed << bench_res2.average_time
-			   	<< "\t"  << std::setprecision(2) << std::fixed << bench_res2.average_time /  bench_res1.average_time
+			   	<< "\t"  << std::setprecision(2) << std::fixed << bench_res3.average_time
+			   	<< "\t"  << std::setprecision(2) << std::fixed << bench_res3.average_time /  bench_res1.average_time
 				<< std::endl;
 
 		 m = (n * (n - 1)) / 4;
 		 bench_res1  = benchmark_expansion ( generate_partial_constraint_graph , sample_count, iter_count, n, m, seed) ;
-		 bench_res2  = benchmark_expansion ( opt_new_generate_partial_constraint_graph , sample_count, iter_count, n, m, seed) ;
+		 bench_res2  = benchmark_expansion ( new_generate_partial_constraint_graph , sample_count, iter_count, n, m, seed) ;
+		 bench_res3  = benchmark_expansion ( opt_new_generate_partial_constraint_graph , sample_count, iter_count, n, m, seed) ;
 
 		 std::cout << n << "\t" << m
+					<< "\t"  << bench_res1.total_vertex_count / bench_res1.sample_count
+					<< "\t"  << bench_res1.total_edge_count / bench_res1.sample_count
 						<< "\t"  << std::setprecision(2) << std::fixed << bench_res1.average_time
 					   	<< "\t"  << std::setprecision(2) << std::fixed << bench_res2.average_time
-					   	<< "\t"  << std::setprecision(2) << std::fixed << bench_res2.average_time /  bench_res1.average_time
+					   	<< "\t"  << std::setprecision(2) << std::fixed << bench_res3.average_time
+					   	<< "\t"  << std::setprecision(2) << std::fixed << bench_res3.average_time /  bench_res1.average_time
 						<< std::endl;
 	  }
 

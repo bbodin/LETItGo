@@ -52,7 +52,7 @@ const int DEBUG_LEVEL = 8;
 const int EXTRA_DEBUG_LEVEL = 10;
 
 void print_trace(const char *file, int line);
-inline void set_verbose_mode(const int m) { VERBOSE_MODE = m; }
+inline void set_verbose_mode(const int m) { VERBOSE_MODE = m; VERBOSE_CUSTOM_MODES.clear();}
 inline void set_verbose_custom_mode(const std::string mode, bool v) {
 	if (!v) {VERBOSE_CUSTOM_MODES.erase(mode);}
 	if (v) {VERBOSE_CUSTOM_MODES.insert(mode);}
@@ -120,8 +120,8 @@ static inline bool VERBOSE_IS_ILP() {
               << std::string(20, ' ') << "\n"; // PRINT_STATE();
 #define VERBOSE_CUSTOM_DEBUG(code, m)                                          \
   if (utils::VERBOSE_CUSTOM_MODES.count(code)) {                             \
-    VERBOSE_DEBUG(m);                                                          \
-  }
+	  std::cerr << PURPLE_COLOR << "[C][" << code << "]" << __SHOW_LEVEL << m                      \
+	  << std::string(20, ' ') << "\n";   }
 #define VERBOSE_DEBUG(m)                                                       \
   if (VERBOSE_IS_DEBUG())                                                      \
     std::cerr << BLUE_COLOR << "[D]" << __SHOW_LEVEL << m                      \

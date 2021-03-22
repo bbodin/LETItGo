@@ -9,9 +9,11 @@
 #define SRC_INCLUDE_GENERATOR_H_
 
 #include <model.h>
+#include <periodicity_vector.h>
 
 
 LETModel generate_LET (unsigned int n, unsigned int m, size_t seed = 0);
+PeriodicityVector generate_random_periodicity_vector(const LETModel &model, size_t seed = 0);
 
 
 struct GeneratorCacheEntry {

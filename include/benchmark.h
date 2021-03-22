@@ -15,9 +15,11 @@
 #include <functional>
 
 struct ExpansionBenchmarkResult {
+	size_t sample_count;
 	double average_time;
-	size_t size;
-	ExpansionBenchmarkResult (double average_time, size_t size) : average_time(average_time) , size(size) {}
+	size_t total_vertex_count;
+	size_t total_edge_count;
+	ExpansionBenchmarkResult (size_t sample_count, double average_time, size_t total_vertex_count, size_t total_edge_count) : sample_count(sample_count), average_time(average_time) , total_vertex_count(total_vertex_count), total_edge_count(total_edge_count) {}
 };
 struct AgeLatencyBenchmarkResult {
 	  double time  = 0;

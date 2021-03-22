@@ -14,8 +14,57 @@
 #include <letitgo.h>
 #include <verbose.h>
 
+
+
 BOOST_AUTO_TEST_SUITE(FastExpansionTest)
 
+
+
+BOOST_AUTO_TEST_CASE(test_fast_graph_generation8) {
+
+	/**
+	 *
+	 * This case has been problematic
+     *
+     *
+     *Failed with: K =4 4
+     *  <LETModel>
+     *   <Task id='0' r='1' C='5' D='5' T='5'>
+     *   <Task id='1' r='5' C='2' D='2' T='2'>
+     *   <Dependency from='0' to='1'>
+     *  </LETModel>
+     *
+     *
+	 *
+	 */
+
+
+	LETModel model;
+
+	auto t0 = model.addTask(1,5);
+	auto t1 = model.addTask(5,2);
+	model.addDependency(t0, t1);
+
+	auto K = generate_periodicity_vector(model);
+	auto verified = generate_partial_constraint_graph(model, K) ;
+	auto new_version = new_generate_partial_constraint_graph(model, K) ;
+	BOOST_REQUIRE_EQUAL(verified, new_version);
+
+
+	auto SK = generate_periodicity_vector(model,4);
+	auto sverified = generate_partial_constraint_graph(model, SK) ;
+	//utils::set_verbose_mode(10);
+	//utils::set_verbose_custom_mode("PCG", true);
+	//utils::set_verbose_custom_mode("NPCG", true);
+	auto snew_version = new_generate_partial_constraint_graph(model, SK) ;
+	auto sopt_new_version = opt_new_generate_partial_constraint_graph(model, SK) ;
+	//utils::set_verbose_mode(0);
+
+	BOOST_REQUIRE_EQUAL(sverified, snew_version);
+	BOOST_REQUIRE_EQUAL(sverified, sopt_new_version);
+
+
+}
 
 
 BOOST_AUTO_TEST_CASE(test_fast_graph_generation7) {
@@ -63,11 +112,14 @@ BOOST_AUTO_TEST_CASE(test_fast_graph_generation7) {
 	BOOST_REQUIRE_EQUAL(verified, new_version);
 
 	auto SK = generate_periodicity_vector(model,2);
-	utils::set_verbose_mode(10);
-	utils::set_verbose_custom_mode("PCG", true);
 	auto sverified = generate_partial_constraint_graph(model, SK) ;
 	auto snew_version = new_generate_partial_constraint_graph(model, SK) ;
-	utils::set_verbose_mode(0);
+	BOOST_REQUIRE_EQUAL(sverified, snew_version);
+
+
+	SK = generate_periodicity_vector(model,2);
+	sverified = generate_partial_constraint_graph(model, SK) ;
+	snew_version = opt_new_generate_partial_constraint_graph(model, SK) ;
 	BOOST_REQUIRE_EQUAL(sverified, snew_version);
 
 }
@@ -102,11 +154,14 @@ BOOST_AUTO_TEST_CASE(test_fast_graph_generation6) {
 	BOOST_REQUIRE_EQUAL(verified, new_version);
 
 	auto SK = generate_periodicity_vector(model,9);
-	utils::set_verbose_mode(10);
-	utils::set_verbose_custom_mode("PCG", true);
 	auto sverified = generate_partial_constraint_graph(model, SK) ;
 	auto snew_version = new_generate_partial_constraint_graph(model, SK) ;
-	utils::set_verbose_mode(0);
+	BOOST_REQUIRE_EQUAL(sverified, snew_version);
+
+
+	SK = generate_periodicity_vector(model,9);
+	sverified = generate_partial_constraint_graph(model, SK) ;
+	snew_version = opt_new_generate_partial_constraint_graph(model, SK) ;
 	BOOST_REQUIRE_EQUAL(sverified, snew_version);
 
 }
@@ -147,6 +202,12 @@ BOOST_AUTO_TEST_CASE(test_fast_graph_generation5) {
 	auto new_version10 = new_generate_partial_constraint_graph(model, K10) ;
 	BOOST_REQUIRE_EQUAL(verified10, new_version10);
 
+
+	auto SK = generate_periodicity_vector(model,10);
+	auto sverified = generate_partial_constraint_graph(model, SK) ;
+	auto snew_version = opt_new_generate_partial_constraint_graph(model, SK) ;
+	BOOST_REQUIRE_EQUAL(sverified, snew_version);
+
 }
 
 
@@ -176,6 +237,13 @@ BOOST_AUTO_TEST_CASE(test_fast_graph_generation4) {
 	auto verified = generate_partial_constraint_graph(model, K) ;
 	auto new_version = new_generate_partial_constraint_graph(model, K) ;
 	BOOST_REQUIRE_EQUAL(verified, new_version);
+
+
+
+	auto SK = generate_periodicity_vector(model,10);
+	auto sverified = generate_partial_constraint_graph(model, SK) ;
+	auto snew_version = opt_new_generate_partial_constraint_graph(model, SK) ;
+	BOOST_REQUIRE_EQUAL(sverified, snew_version);
 }
 
 
@@ -206,6 +274,14 @@ BOOST_AUTO_TEST_CASE(test_fast_graph_generation3) {
 	auto verified = generate_partial_constraint_graph(model, K) ;
 	auto new_version = new_generate_partial_constraint_graph(model, K) ;
 	BOOST_REQUIRE_EQUAL(verified, new_version);
+
+
+
+	auto SK = generate_periodicity_vector(model,1);
+	auto sverified = generate_partial_constraint_graph(model, SK) ;
+	auto snew_version = opt_new_generate_partial_constraint_graph(model, SK) ;
+	BOOST_REQUIRE_EQUAL(sverified, snew_version);
+
 }
 
 
@@ -237,12 +313,17 @@ BOOST_AUTO_TEST_CASE(test_fast_graph_generation2) {
 	BOOST_REQUIRE_EQUAL(verified, new_version);
 
 	auto K2 = generate_periodicity_vector(model,2);
-	//utils::set_verbose_mode(10);
-	//utils::set_verbose_custom_mode("PCG", true);
 	auto verified2 = generate_partial_constraint_graph(model, K2) ;
 	auto new_version2 = new_generate_partial_constraint_graph(model, K2) ;
-	//utils::set_verbose_mode(0);
 	BOOST_REQUIRE_EQUAL(verified2, new_version2);
+
+
+
+	auto SK = generate_periodicity_vector(model,2);
+	auto sverified = generate_partial_constraint_graph(model, SK) ;
+	auto snew_version = opt_new_generate_partial_constraint_graph(model, SK) ;
+	BOOST_REQUIRE_EQUAL(sverified, snew_version);
+
 
 }
 
@@ -261,6 +342,13 @@ BOOST_AUTO_TEST_CASE(test_fast_graph_generation1) {
 	auto new_version = new_generate_partial_constraint_graph(model, K) ;
 
 	BOOST_REQUIRE_EQUAL(verified, new_version);
+
+
+	auto SK = generate_periodicity_vector(model,1);
+	auto sverified = generate_partial_constraint_graph(model, SK) ;
+	auto snew_version = opt_new_generate_partial_constraint_graph(model, SK) ;
+	BOOST_REQUIRE_EQUAL(sverified, snew_version);
+
 
 }
 
@@ -286,7 +374,10 @@ BOOST_AUTO_TEST_CASE(test_rosace_fast_graph) {
   rosace->addDependency(t6, t4);
 
   auto delay = ComputeAgeLatency(*rosace, new_generate_partial_constraint_graph);
+  BOOST_REQUIRE_EQUAL(delay.age_latency , 240);
 
+
+  delay = ComputeAgeLatency(*rosace, opt_new_generate_partial_constraint_graph);
   BOOST_REQUIRE_EQUAL(delay.age_latency , 240);
 
 }
@@ -296,7 +387,7 @@ BOOST_AUTO_TEST_CASE(test_rosace_fast_graph) {
 
 
 BOOST_AUTO_TEST_CASE(test_fast_graph_random) {
-	return;
+	//return;
 	size_t maxiter = 10000;
 	size_t maxk = 10;
 	for (size_t it = 0 ; it < maxiter ; it ++ ) {
@@ -309,6 +400,12 @@ BOOST_AUTO_TEST_CASE(test_fast_graph_random) {
 				std::cout << "Failed with: K =" << K << std::endl<< model << std::endl;
 			}
 			BOOST_REQUIRE_EQUAL(verified, new_version);
+
+			auto opt_new_version = opt_new_generate_partial_constraint_graph(model, K) ;
+			if (verified != opt_new_version) {
+				std::cout << "OPT Failed with: K =" << K << std::endl<< model << std::endl;
+			}
+			BOOST_REQUIRE_EQUAL(verified, opt_new_version);
 		}
 	}
 }

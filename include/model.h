@@ -36,6 +36,7 @@ public:
 
 	};
 
+	TASK_ID getId() const { return id; }
 	INTEGER_TIME_UNIT getT() const { return T; }
 	TIME_UNIT getC() const { return C; }
 	TIME_UNIT getD() const { return D; }

@@ -12,6 +12,8 @@
 #include <numeric>
 #include <cmath>
 
+#define VERBOSE_NPCG(m) VERBOSE_CUSTOM_DEBUG("NPCG", m)
+#define VERBOSE_ALGO1(stream) VERBOSE_NPCG("   Algorithm 1: " << stream)
 
 void take_this_ai_aj (const LETModel &model, const PeriodicityVector &K , const Dependency &d, EXECUTION_COUNT ai,  EXECUTION_COUNT aj, PartialConstraintGraph& graph) {
 	TASK_ID ti_id = d.getFirst();
@@ -38,8 +40,6 @@ void take_this_ai_aj (const LETModel &model, const PeriodicityVector &K , const 
 
 
 
-		VERBOSE_PCG("  "
-				<< "from " << ai << " to " << aj);
 
 		// recall: auto Me = Tj + std::ceil((ri - rj + Di) / gcdeT) * gcdeT;
 
@@ -51,6 +51,7 @@ void take_this_ai_aj (const LETModel &model, const PeriodicityVector &K , const 
 		INTEGER_TIME_UNIT Lmax =
 				rj - ri + Ti - Tj - (pi_min * gcdeK + alphae_ai_aj * gcdeT);
 
+		VERBOSE_NPCG ("    (" <<  ai <<  "," <<  aj <<  ") =" << Lmax);
 		Execution ei(ti_id, ai);
 		Execution ej(tj_id, aj);
 		Constraint cij(ei, ej, Lmax);
@@ -86,8 +87,6 @@ void take_this_ai (const LETModel &model, const PeriodicityVector &K , const Dep
 
 	for (auto aj = 1; aj <= Kj; aj++) {
 
-		VERBOSE_PCG("  "
-				<< "from " << ai << " to " << aj);
 
 		// recall: auto Me = Tj + std::ceil((ri - rj + Di) / gcdeT) * gcdeT;
 
@@ -99,6 +98,7 @@ void take_this_ai (const LETModel &model, const PeriodicityVector &K , const Dep
 		INTEGER_TIME_UNIT Lmax =
 				rj - ri + Ti - Tj - (pi_min * gcdeK + alphae_ai_aj * gcdeT);
 
+		VERBOSE_NPCG ("    (" <<  ai <<  "," <<  aj <<  ") =" << Lmax);
 		Execution ei(ti_id, ai);
 		Execution ej(tj_id, aj);
 		Constraint cij(ei, ej, Lmax);
@@ -135,9 +135,6 @@ void take_this_aj (const LETModel &model, const PeriodicityVector &K , const Dep
 
 	for (auto ai = 1; ai <= Ki; ai++) {
 
-		VERBOSE_PCG("  "
-				<< "from " << ai << " to " << aj);
-
 		// recall: auto Me = Tj + std::ceil((ri - rj + Di) / gcdeT) * gcdeT;
 
 		INTEGER_TIME_UNIT alphae_ai_aj = (Ti * ai - Tj * aj) / gcdeT;
@@ -148,6 +145,8 @@ void take_this_aj (const LETModel &model, const PeriodicityVector &K , const Dep
 		INTEGER_TIME_UNIT Lmax =
 				rj - ri + Ti - Tj - (pi_min * gcdeK + alphae_ai_aj * gcdeT);
 
+
+		VERBOSE_NPCG ("    (" <<  ai <<  "," <<  aj <<  ") =" << Lmax);
 		Execution ei(ti_id, ai);
 		Execution ej(tj_id, aj);
 		Constraint cij(ei, ej, Lmax);
@@ -182,18 +181,20 @@ void take_them_all (const LETModel &model, const PeriodicityVector &K , const De
 	for (auto ai = 1; ai <= Ki; ai++) {
 		for (auto aj = 1; aj <= Kj; aj++) {
 
-			VERBOSE_PCG("  "
-					<< "from " << ai << " to " << aj);
+
 
 			// recall: auto Me = Tj + std::ceil((ri - rj + Di) / gcdeT) * gcdeT;
 
 			INTEGER_TIME_UNIT alphae_ai_aj = (Ti * ai - Tj * aj) / gcdeT;
 			INTEGER_TIME_UNIT pi_min =
-					std::ceil((-Me + gcdeT - alphae_ai_aj * gcdeT) / gcdeK);
+					std::ceil( (-Me + gcdeT - alphae_ai_aj * gcdeT) / gcdeK );
 
 			// From Theorem 6 (ECRTS2020)
 			INTEGER_TIME_UNIT Lmax =
 					rj - ri + Ti - Tj - (pi_min * gcdeK + alphae_ai_aj * gcdeT);
+
+			VERBOSE_NPCG ("    pi_min=" << pi_min);
+			VERBOSE_NPCG ("    (" <<  ai <<  "," <<  aj <<  ") =" << Lmax);
 
 			Execution ei(ti_id, ai);
 			Execution ej(tj_id, aj);
@@ -205,7 +206,6 @@ void take_them_all (const LETModel &model, const PeriodicityVector &K , const De
 }
 
 
-#define VERBOSE_ALGO1(stream) VERBOSE_INFO("   Algorithm 1: " << stream)
 
 void algorithm1(const LETModel &model, const PeriodicityVector &K , const Dependency &d, PartialConstraintGraph& graph, long x, double f0, double g0, long f0gcdK, long g0gcdK,  long Tx,long Ty,long gcdK, long maxX , long maxY) {
 
@@ -315,7 +315,7 @@ void algorithm1(const LETModel &model, const PeriodicityVector &K , const Depend
 
 void algorithm2(const LETModel &model, const PeriodicityVector &K , const Dependency &d, PartialConstraintGraph& graph ) {
 
-	VERBOSE_INFO("Algorithm 2 Starts ");
+	VERBOSE_NPCG("Algorithm 2 Starts ");
 
 
 	TASK_ID ti_id = d.getFirst();
@@ -349,18 +349,6 @@ void algorithm2(const LETModel &model, const PeriodicityVector &K , const Depend
 	auto Me = Tj + std::ceil((ri - rj + Di) / gcdT) * gcdT;
 
 
-	//std::cout << "# dependence \"" <<  d << "\" between \"" <<  ti_id << "\" and \"" <<  tj_id << "\"" << std::endl;#
-	//std::cout << "ai,aj,shift,fxy,gxy,pibmin,pibmax,w" << std::endl;
-
-
-
-	// recall: auto Me = Tj + std::ceil((ri - rj + Di) / gcdeT) * gcdeT;
-
-	// recall: INTEGER_TIME_UNIT alphae_ai_aj = (Ti * ai - Tj * aj) / gcdeT;
-	// recall: INTEGER_TIME_UNIT pi_min =				std::ceil((-Me + gcdeT - alphae_ai_aj * gcdeT) / gcdeK);
-	// recall: INTEGER_TIME_UNIT pi_max =				std::floor((-Me + Ti - alphae_ai_aj * gcdeT) / gcdeK);
-
-
 	// By definition f00gcdz and g00gcdz are divisible by gcdz
 	EXECUTION_COUNT f0gcdk = gcdT - Me;
 	EXECUTION_COUNT g0gcdk = Ti - Me ;
@@ -371,16 +359,16 @@ void algorithm2(const LETModel &model, const PeriodicityVector &K , const Depend
 	double f0 =  (double) f0gcdk / (double) gcdK;
 	double g0 =  (double) g0gcdk / (double) gcdK;
 
-	VERBOSE_INFO("Tx=" << Tx << " Ty=" << Ty << "");
-	VERBOSE_INFO("Ki=" << Ki << " Kj=" << Kj << "");
-	VERBOSE_INFO("gcdT=" << gcdT << " gcdK=" << gcdK << "");
+	VERBOSE_NPCG("Tx=" << Tx << " Ty=" << Ty << "");
+	VERBOSE_NPCG("Ki=" << Ki << " Kj=" << Kj << "");
+	VERBOSE_NPCG("gcdT=" << gcdT << " gcdK=" << gcdK << "");
 
 
-	VERBOSE_INFO("Me=" << Me << "");
+	VERBOSE_NPCG("Me=" << Me << "");
 
 
-	VERBOSE_INFO("f0gcdk=" << f0gcdk << " g0gcdk=" << g0gcdk << "");
-	VERBOSE_INFO("f0=" << f0 << " g0=" << g0 << "");
+	VERBOSE_NPCG("f0gcdk=" << f0gcdk << " g0gcdk=" << g0gcdk << "");
+	VERBOSE_NPCG("f0=" << f0 << " g0=" << g0 << "");
 
 	//VERBOSE_ASSERT ((f0gcdk % gcdk) == 0, "f0 Must be integer and here f0gcdk=" << f0gcdk << " with gcdk=" << gcdk << " that is (f0gcdk % gcdk)=" << f0gcdk % gcdk);
 	//VERBOSE_ASSERT ((g0gcdk % gcdk) == 0, "g0 Must be integer and here g0gcdk=" << g0gcdk << " with gcdk=" << gcdk << " that is (g0gcdk % gcdk)=" << g0gcdk % gcdk);
@@ -390,43 +378,43 @@ void algorithm2(const LETModel &model, const PeriodicityVector &K , const Depend
 	// Algorithm 2
 	if (g0 >= 1 + f0) {
 		// Take them all
-		VERBOSE_INFO (" Case 1 : Take them all");
+		VERBOSE_NPCG (" Case 1 : Take them all");
 		take_them_all (model, K , d, graph);
 	} else if (Ty == gcdK) {
 
-		VERBOSE_INFO (" Case 2 : Ty == gcdK");
-		VERBOSE_INFO ("  g0=" << g0 << " f0=" << f0 << " Tx=" << Tx << " gcdK=" << gcdK);
+		VERBOSE_NPCG (" Case 2 : Ty == gcdK");
+		VERBOSE_NPCG ("  g0=" << g0 << " f0=" << f0 << " Tx=" << Tx << " gcdK=" << gcdK);
 		for (auto x = 1; x <= maxX ; x++ ) {
-			VERBOSE_INFO ("  Test x =" << x);
+			VERBOSE_NPCG ("  Test x =" << x);
 			double shift = ((double) ( - Tx * x ) /  (double) gcdK);
 
 			double gx0 =  (double) g0 +  (double) shift;
 			double fx0 =  (double) f0 +  (double) shift;
 
-			VERBOSE_INFO ("   shift = " << shift << " gx0=" << gx0 << " fx0=" << fx0);
+			VERBOSE_NPCG ("   shift = " << shift << " gx0=" << gx0 << " fx0=" << fx0);
 
 			long floorgx0 = (long) std::floor(gx0);
 			long ceilfx0 = (long) std::ceil(fx0);
 
-			VERBOSE_INFO ("   floorgx0=" << floorgx0 << " ceilfx0=" << ceilfx0);
+			VERBOSE_NPCG ("   floorgx0=" << floorgx0 << " ceilfx0=" << ceilfx0);
 
 
 			if (floorgx0 == ceilfx0) {
 				// Take (x,y) for every y
-				VERBOSE_INFO ("    Take (x,y) for every y");
+				VERBOSE_NPCG ("    Take (x,y) for every y");
 				take_this_ai (model, K , d, x, graph);
 			} else {
-				VERBOSE_INFO ("    Skip it");
+				VERBOSE_NPCG ("    Skip it");
 
 			}
 		}
 	} else {
 
-		VERBOSE_INFO (" Case 3 : algorithm 1");
+		VERBOSE_NPCG (" Case 3 : algorithm 1");
 
 		for (EXECUTION_COUNT x = 1; x <= maxX ; x++ ) {
 
-			VERBOSE_INFO ("  Run algorithm 1 with x =" << x);
+			VERBOSE_NPCG ("  Run algorithm 1 with x =" << x);
 
 			// Algorithm 1
 			algorithm1(model, K , d, graph, x, f0,  g0,  f0gcdk,  g0gcdk,  Tx, Ty, gcdK,  maxX,  maxY);
@@ -446,13 +434,13 @@ new_generate_partial_constraint_graph(const LETModel &model,
 
 	PartialConstraintGraph graph;
 
-	VERBOSE_DEBUG("1) Create constraints.");
+	VERBOSE_NPCG("1) Create constraints.");
 	for (Dependency d : model.dependencies()) {
-		VERBOSE_DEBUG(" Run Algorithm 2 for d=" << d);
+		VERBOSE_NPCG(" Run Algorithm 2 for d=" << d);
 		algorithm2(model, K , d, graph) ;
 	}
 
-	VERBOSE_DEBUG("2) Constraints done, add start and finish.");
+	VERBOSE_NPCG("2) Constraints done, add start and finish.");
 	add_start_finish (model, K, graph) ;
 	return graph;
 }

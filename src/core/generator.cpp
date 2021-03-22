@@ -6,7 +6,29 @@
  */
 
 #include <model.h>
+#include <periodicity_vector.h>
 #include <random>
+
+
+PeriodicityVector generate_random_periodicity_vector(const LETModel &model, size_t seed = 0) {
+
+	if (seed == 0) {
+		std::random_device rd;
+		seed = rd();
+	}
+
+	VERBOSE_DEBUG("generate_random_periodicity_vector Seed=" << seed);
+	std::mt19937 gen(seed);
+
+
+	PeriodicityVector K(model.getTaskCount(), 1);
+
+	for (Task t : model.tasks()) {
+		std::uniform_int_distribution<> K_distrib(1,2);
+		K[t.getId()] = K_distrib(gen);
+	}
+	return K;
+}
 
 LETModel generate_LET (unsigned int n, unsigned int m, size_t seed = 0) {
 
