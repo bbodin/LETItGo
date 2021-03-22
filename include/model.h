@@ -86,6 +86,9 @@ private:
 public:
 	LETModel() : TaskIdToTask(), TaskToTaskId(), DependencyIdToDependency() {}
 
+	TASK_ID addTask(TIME_UNIT r, TIME_UNIT DandT) {
+		return this->addTask(r, DandT, DandT);
+	}
 	TASK_ID addTask(TIME_UNIT r, TIME_UNIT D, TIME_UNIT T) {
 		const TASK_ID id = TaskIdToTask.size();
 		const Task t(id, r, D, D, T);

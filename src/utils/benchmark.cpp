@@ -36,7 +36,7 @@ ExpansionBenchmarkResult  benchmark_expansion   (GenerateExpansionFun fun, size_
 	  double sum_time = 0;
 	  Generator& g = Generator::getInstance();
 
-	  VERBOSE_DEBUG("Start benchmark with n=" << n << " and " << " m=" << m);
+	  VERBOSE_DEBUG("Start benchmark with n=" << n << " and " << " m=" << m << " seed=" << seed);
 	  for (size_t i = 0 ; i < sample_count ; i ++ ) {
 		  LETModel sample = g.generate(n,m, seed + i);
 		  auto K = generate_periodicity_vector(sample, 2);
@@ -56,6 +56,11 @@ ExpansionBenchmarkResult  benchmark_expansion   (GenerateExpansionFun fun, size_
 		  PartialConstraintGraph res = fun(sample, K);
 
 		  auto original = generate_partial_constraint_graph(sample, K);
+
+		  if (res != original) {
+				std::cout << "Failed with: K =" << K << std::endl<< sample << std::endl;
+		  }
+
 		  VERBOSE_ASSERT_EQUALS(res, original);
 
 		  sum_time += duration / 1000000;

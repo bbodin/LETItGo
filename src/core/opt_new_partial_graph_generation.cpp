@@ -60,29 +60,28 @@ void new_algorithm2(const LETModel &model, const PeriodicityVector &K , const De
 	const EXECUTION_COUNT maxX = Ki;
 	const EXECUTION_COUNT maxY = Kj;
 
-	const INTEGER_TIME_UNIT gcdeT = std::gcd(Ti, Tj);
-	const auto gcdeK = std::gcd(Ti * Ki, Tj * Kj);
-	const auto Me = Tj + std::ceil((ri - rj + Di) / gcdeT) * gcdeT;
-	const INTEGER_TIME_UNIT gcdk = gcdeT;
+	const INTEGER_TIME_UNIT gcdT = std::gcd(Ti, Tj);
+	const auto gcdK = std::gcd(Ti * Ki, Tj * Kj);
+	const auto Me = Tj + std::ceil((ri - rj + Di) / gcdT) * gcdT;
 
 	// By definition f00gcdz and g00gcdz are devisible by gcdz
-	const EXECUTION_COUNT f0gcdk = gcdeT - Me;
+	const EXECUTION_COUNT f0gcdk = gcdT - Me;
 	const EXECUTION_COUNT g0gcdk = Ti - Me ;
 
 	const EXECUTION_COUNT Tx = Ti;
 	const EXECUTION_COUNT Ty = Tj;
 
-	const double f0 =  (double) f0gcdk / (double) gcdeK;
-	const double g0 =  (double) g0gcdk / (double) gcdeK;
+	//const double f0 =  (double) f0gcdk / (double) gcdK;
+	//const double g0 =  (double) g0gcdk / (double) gcdK;
 
-	const EXECUTION_COUNT g = std::gcd(gcdk,Ty);
+	const EXECUTION_COUNT g = std::gcd(gcdK,Ty);
 
-	const EXECUTION_COUNT gcdeTmMe = -Me + gcdeT ;
+	const EXECUTION_COUNT gcdeTmMe = -Me + gcdT ;
 	const EXECUTION_COUNT rjmripTimTj = rj - ri + Ti - Tj;
 
 
 	// Algorithm 2
-	if (g0 >= 1 + f0) {
+	if (g0gcdk >= gcdK + f0gcdk) {
 		// Take them all
 
 		for (auto ai = 1; ai <= Ki; ai++) {
@@ -93,11 +92,11 @@ void new_algorithm2(const LETModel &model, const PeriodicityVector &K , const De
 
 				const EXECUTION_COUNT alphae_ai_ajgcdeT = (alphae_ai_ajgcdeTaiside - Tj * aj);
 				const INTEGER_TIME_UNIT pi_min =
-						std::ceil((gcdeTmMe - alphae_ai_ajgcdeT) / gcdeK);
+						std::ceil((gcdeTmMe - alphae_ai_ajgcdeT) / gcdK);
 
 				// From Theorem 6 (ECRTS2020)
 				const INTEGER_TIME_UNIT Lmax =
-						rjmripTimTj - (pi_min * gcdeK + alphae_ai_ajgcdeT);
+						rjmripTimTj - (pi_min * gcdK + alphae_ai_ajgcdeT);
 
 				const Execution ej(tj_id, aj);
 				const Constraint cij(ei, ej, Lmax);
@@ -105,13 +104,13 @@ void new_algorithm2(const LETModel &model, const PeriodicityVector &K , const De
 
 			}
 		}
-	} else if (Ty == gcdk) {
+	} else if (Ty == gcdK) {
 
 		for (auto x = 1; x <= maxX ; x++ ) {
-			const double shift = ((double) ( Tx * x ) /  (double) gcdk);
+			const double shift = ((double) ( Tx * x ) /  (double) gcdK);
 
-			const double gx0 =  (double) g0 +  (double) shift;
-			const double fx0 =  (double) f0 +  (double) shift;
+			const double gx0 =  (double) g0gcdk / gcdK +  (double) shift;
+			const double fx0 =  (double) f0gcdk / gcdK +  (double) shift;
 
 			long floorgx0 = (long) std::floor(gx0);
 			long ceilfx0 = (long) std::ceil(fx0);
@@ -126,11 +125,11 @@ void new_algorithm2(const LETModel &model, const PeriodicityVector &K , const De
 
 					EXECUTION_COUNT alphae_ai_ajgcdeT = (alphae_ai_ajgcdeTaiside - Tj * aj);
 					INTEGER_TIME_UNIT pi_min =
-							std::ceil((-Me + gcdeT -alphae_ai_ajgcdeT) / gcdeK);
+							std::ceil((-Me + gcdT -alphae_ai_ajgcdeT) / gcdK);
 
 					// From Theorem 6 (ECRTS2020)
 					INTEGER_TIME_UNIT Lmax =
-							rjmripTimTj - (pi_min * gcdeK + alphae_ai_ajgcdeT);
+							rjmripTimTj - (pi_min * gcdK + alphae_ai_ajgcdeT);
 
 					Execution ej(tj_id, aj);
 					Constraint cij(ei, ej, Lmax);
@@ -150,8 +149,8 @@ void new_algorithm2(const LETModel &model, const PeriodicityVector &K , const De
 			const Execution ei(ti_id, ai);
 			const EXECUTION_COUNT alphae_ai_ajgcdeTaiside = (Ti * ai);
 
-			double Tyyg0 = (Tx * x - g0 * gcdk);
-			double Tyyf0 = (Tx * x - f0 * gcdk);
+			double Tyyg0 = (Tx * x - g0gcdk);
+			double Tyyf0 = (Tx * x - f0gcdk);
 
 			long start = std::ceil ( Tyyg0 );
 			long stop  = std::floor ( Tyyf0 );
@@ -160,9 +159,11 @@ void new_algorithm2(const LETModel &model, const PeriodicityVector &K , const De
 
 				if (theta % g) continue;
 
-				std::pair<long,long> res = extended_euclide ( Ty,  gcdk, theta);
+				std::pair<long,long> res = extended_euclide ( Ty,  gcdK, theta);
 				long u0 = res.first;
-				for (long k = 0, y = u0 ; y <= maxY ; y = u0 + (++k * gcdk)/g) {
+				long step = (gcdK)/g;
+				long y0 = u0 - step * std::ceil(u0/step);
+				for (long y = y0 ; y <= maxY ; y += step ) {
 
 					if (y > 0 and y <= maxY) {
 
@@ -173,11 +174,11 @@ void new_algorithm2(const LETModel &model, const PeriodicityVector &K , const De
 
 							EXECUTION_COUNT alphae_ai_ajgcdeT = (alphae_ai_ajgcdeTaiside - Tj * aj);
 							INTEGER_TIME_UNIT pi_min =
-									std::ceil((-Me + gcdeT - alphae_ai_ajgcdeT) / gcdeK);
+									std::ceil((-Me + gcdT - alphae_ai_ajgcdeT) / gcdK);
 
 							// From Theorem 6 (ECRTS2020)
 							INTEGER_TIME_UNIT Lmax =
-									rjmripTimTj - (pi_min * gcdeK + alphae_ai_ajgcdeT);
+									rjmripTimTj - (pi_min * gcdK + alphae_ai_ajgcdeT);
 
 							Execution ej(tj_id, aj);
 							Constraint cij(ei, ej, Lmax);

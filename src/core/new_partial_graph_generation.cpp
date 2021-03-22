@@ -207,21 +207,30 @@ void take_them_all (const LETModel &model, const PeriodicityVector &K , const De
 
 #define VERBOSE_ALGO1(stream) VERBOSE_INFO("   Algorithm 1: " << stream)
 
-void algorithm1(const LETModel &model, const PeriodicityVector &K , const Dependency &d, PartialConstraintGraph& graph, long x, double f0, double g0, long Tx,long Ty,long gcdk, long maxX , long maxY) {
+void algorithm1(const LETModel &model, const PeriodicityVector &K , const Dependency &d, PartialConstraintGraph& graph, long x, double f0, double g0, long f0gcdK, long g0gcdK,  long Tx,long Ty,long gcdK, long maxX , long maxY) {
 
-	VERBOSE_ALGO1("Start algorithm 1 (x=" << x << ", f0=" << f0 << ", g0=" << g0 << ",  Tx=" << Tx << ", Ty=" << Ty << ", gcdk=" << gcdk << ", maxX=" << maxX << ",  maxY=" << maxY << ")");
+	VERBOSE_ALGO1("Start algorithm 1 (x=" << x << ", f0=" << f0 << ", g0=" << g0 << ",  Tx=" << Tx << ", Ty=" << Ty << ", gcdK=" << gcdK << ", maxX=" << maxX << ",  maxY=" << maxY << ")");
 
-	long g = std::gcd(gcdk,Ty);
+	long g = std::gcd(gcdK,Ty);
 
 	VERBOSE_ALGO1("g=" << g);
 
-	double yg0 = (Tx * x - g0 * gcdk) / Ty;
-	double yf0 = (Tx * x - f0 * gcdk) / Ty;
+	VERBOSE_ALGO1(" Tx:" << Tx
+			<< " x:" << x
+			<< " g0:" << g0
+			<< " f0:" << f0
+			<< " g0gcdK:" << g0gcdK
+			<< " f0gcdK:" << f0gcdK
+			<< " gcdK:" << gcdK
+			<< " Ty:" << Ty);
+
+	double yg0 = (Tx * x - g0gcdK) / Ty;
+	double yf0 = (Tx * x - f0gcdK) / Ty;
 	//double Tyyg0 = (double) Ty * yg0;
 	//double Tyyf0 = (double) Ty * yf0;
 
-	double Tyyg0 = (Tx * x - g0 * gcdk);
-	double Tyyf0 = (Tx * x - f0 * gcdk);
+	double Tyyg0 = (Tx * x - g0gcdK);
+	double Tyyf0 = (Tx * x - f0gcdK);
 
 	long start = std::ceil ( Tyyg0 );
 	long stop  = std::floor ( Tyyf0 );
@@ -231,6 +240,8 @@ void algorithm1(const LETModel &model, const PeriodicityVector &K , const Depend
 	VERBOSE_ALGO1("yf0=" << yf0);
 	VERBOSE_ALGO1("Tyyg0=" << Tyyg0);
 	VERBOSE_ALGO1("Tyyf0=" << Tyyf0);
+	VERBOSE_ALGO1("start=" << start);
+	VERBOSE_ALGO1("stop=" << stop);
 
 	VERBOSE_ALGO1("Start loop from start=" << start << " to stop=" << stop);
 
@@ -247,16 +258,23 @@ void algorithm1(const LETModel &model, const PeriodicityVector &K , const Depend
 		// Find (u0v0) solutions of uTy -vgcdk = tehta
 
 
-		std::pair<long,long> res = extended_euclide ( Ty,  gcdk, theta);
+		std::pair<long,long> res = extended_euclide ( Ty,  gcdK, theta);
 		long u0 = res.first;
 		long v0 = res.second;
 
-		VERBOSE_ALGO1(" This theta is interesting run euclide (Ty=" << Ty << ",  gcdk=" << gcdk << ", theta=" << theta << ") = (u0,v0) = (" << u0 << ", " << v0 << ")");
+		VERBOSE_ALGO1(" Good Theta: euclide (Ty=" << Ty << " gcdK=" << gcdK << " theta=" << theta << ") = (u0,v0) = (" << u0 << "," << v0 << ")");
 
 
-		VERBOSE_ALGO1(" Start subloop from y=" << u0);
-		for (long k = 0, y = u0 ; y <= maxY ; y = u0 + (++k * gcdk)/g) {
-			VERBOSE_ALGO1("  Iteration k=" << k << " with x =" << x << " and y =" << y);
+		long step = (gcdK)/g;
+		long y0 = u0 - step * std::ceil(u0/step);
+		VERBOSE_ALGO1(" Start subloop from y=" << y0 << " to " << maxY << " with increment of " << gcdK<< "/" <<g << "=" << (gcdK)/g );
+		for (long y = y0 ; y <= maxY ; y += step ) {
+
+
+			VERBOSE_ALGO1("  Iteration with x =" << x << " and y =" << y);
+
+
+
 			if (y > 0 and y <= maxY) {
 				VERBOSE_ALGO1("  Take this ai,aj ( ai=" << x << ", aj=" << y << " ) ");
 				take_this_ai_aj (model, K , d, x, y,  graph);
@@ -297,7 +315,7 @@ void algorithm1(const LETModel &model, const PeriodicityVector &K , const Depend
 
 void algorithm2(const LETModel &model, const PeriodicityVector &K , const Dependency &d, PartialConstraintGraph& graph ) {
 
-	VERBOSE_INFO("Algorithm 2 Starts");
+	VERBOSE_INFO("Algorithm 2 Starts ");
 
 
 	TASK_ID ti_id = d.getFirst();
@@ -325,10 +343,11 @@ void algorithm2(const LETModel &model, const PeriodicityVector &K , const Depend
 
 
 
-	INTEGER_TIME_UNIT gcdeT = std::gcd(Ti, Tj);
-	auto gcdeK = std::gcd(Ti * Ki, Tj * Kj);
-	auto Me = Tj + std::ceil((ri - rj + Di) / gcdeT) * gcdeT;
-	INTEGER_TIME_UNIT gcdk = gcdeT;
+//INTEGER_TIME_UNIT gcdeT = std::gcd(Ti, Tj);
+	auto gcdT = std::gcd(Ti, Tj);
+	auto gcdK = std::gcd(Ti * Ki, Tj * Kj);
+	auto Me = Tj + std::ceil((ri - rj + Di) / gcdT) * gcdT;
+
 
 	//std::cout << "# dependence \"" <<  d << "\" between \"" <<  ti_id << "\" and \"" <<  tj_id << "\"" << std::endl;#
 	//std::cout << "ai,aj,shift,fxy,gxy,pibmin,pibmax,w" << std::endl;
@@ -342,19 +361,25 @@ void algorithm2(const LETModel &model, const PeriodicityVector &K , const Depend
 	// recall: INTEGER_TIME_UNIT pi_max =				std::floor((-Me + Ti - alphae_ai_aj * gcdeT) / gcdeK);
 
 
-	// By definition f00gcdz and g00gcdz are devisible by gcdz
-	EXECUTION_COUNT f0gcdk = gcdeT - Me;
+	// By definition f00gcdz and g00gcdz are divisible by gcdz
+	EXECUTION_COUNT f0gcdk = gcdT - Me;
 	EXECUTION_COUNT g0gcdk = Ti - Me ;
 
 	EXECUTION_COUNT Tx = Ti;
 	EXECUTION_COUNT Ty = Tj;
 
-	double f0 =  (double) f0gcdk / (double) gcdeK;
-	double g0 =  (double) g0gcdk / (double) gcdeK;
+	double f0 =  (double) f0gcdk / (double) gcdK;
+	double g0 =  (double) g0gcdk / (double) gcdK;
 
 	VERBOSE_INFO("Tx=" << Tx << " Ty=" << Ty << "");
+	VERBOSE_INFO("Ki=" << Ki << " Kj=" << Kj << "");
+	VERBOSE_INFO("gcdT=" << gcdT << " gcdK=" << gcdK << "");
 
-	VERBOSE_INFO("f0gcdk=" << f0gcdk << " g0gcdk=" << g0gcdk << " gcdeK=" << gcdeK << "");
+
+	VERBOSE_INFO("Me=" << Me << "");
+
+
+	VERBOSE_INFO("f0gcdk=" << f0gcdk << " g0gcdk=" << g0gcdk << "");
 	VERBOSE_INFO("f0=" << f0 << " g0=" << g0 << "");
 
 	//VERBOSE_ASSERT ((f0gcdk % gcdk) == 0, "f0 Must be integer and here f0gcdk=" << f0gcdk << " with gcdk=" << gcdk << " that is (f0gcdk % gcdk)=" << f0gcdk % gcdk);
@@ -367,25 +392,31 @@ void algorithm2(const LETModel &model, const PeriodicityVector &K , const Depend
 		// Take them all
 		VERBOSE_INFO (" Case 1 : Take them all");
 		take_them_all (model, K , d, graph);
-	} else if (Ty == gcdk) {
+	} else if (Ty == gcdK) {
 
-		VERBOSE_INFO (" Case 2 : Ty == gcdk");
+		VERBOSE_INFO (" Case 2 : Ty == gcdK");
+		VERBOSE_INFO ("  g0=" << g0 << " f0=" << f0 << " Tx=" << Tx << " gcdK=" << gcdK);
 		for (auto x = 1; x <= maxX ; x++ ) {
 			VERBOSE_INFO ("  Test x =" << x);
-			double shift = ((double) ( Tx * x ) /  (double) gcdk);
+			double shift = ((double) ( - Tx * x ) /  (double) gcdK);
 
 			double gx0 =  (double) g0 +  (double) shift;
 			double fx0 =  (double) f0 +  (double) shift;
 
+			VERBOSE_INFO ("   shift = " << shift << " gx0=" << gx0 << " fx0=" << fx0);
+
 			long floorgx0 = (long) std::floor(gx0);
 			long ceilfx0 = (long) std::ceil(fx0);
 
+			VERBOSE_INFO ("   floorgx0=" << floorgx0 << " ceilfx0=" << ceilfx0);
+
+
 			if (floorgx0 == ceilfx0) {
 				// Take (x,y) for every y
-				VERBOSE_INFO ("   Take (x,y) for every y");
+				VERBOSE_INFO ("    Take (x,y) for every y");
 				take_this_ai (model, K , d, x, graph);
 			} else {
-				VERBOSE_INFO ("   Skip it");
+				VERBOSE_INFO ("    Skip it");
 
 			}
 		}
@@ -398,7 +429,7 @@ void algorithm2(const LETModel &model, const PeriodicityVector &K , const Depend
 			VERBOSE_INFO ("  Run algorithm 1 with x =" << x);
 
 			// Algorithm 1
-			algorithm1(model, K , d, graph, x, f0,  g0,  Tx, Ty, gcdk,  maxX,  maxY);
+			algorithm1(model, K , d, graph, x, f0,  g0,  f0gcdk,  g0gcdk,  Tx, Ty, gcdK,  maxX,  maxY);
 
 		}
 
