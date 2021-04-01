@@ -38,6 +38,26 @@ template <typename X, typename Y> std::ostream & operator<<(std::ostream & strea
 }
 
 
+template<typename entier>
+std::vector<entier> get_factors(entier n) {
+	std::vector<entier> factors = {1};
+	entier z = 2;
+    while (z * z <= n) {
+        if (n % z == 0) {
+        	factors.push_back(z);
+            n /= z;
+        } else {
+            z++;
+        }
+    }
+    if (n > 1) {
+    	factors.push_back(n);
+    }
+    return factors;
+}
+
+
+
 template <typename entier>
 std::pair<entier,entier> extended_euclide (entier _a, entier _b, entier _c) {
 

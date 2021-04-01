@@ -13,7 +13,7 @@ BOOST_AUTO_TEST_CASE(test_random_615623606) {
 	  size_t n = 5;
 	  size_t m = 5;
 	  size_t seed = 615623606;
-	  LETModel sample = generate_LET(n,m,seed);
+	  LETModel sample = generate_Automotive_LET(n,m,seed);
 	  auto delay = ComputeAgeLatency(sample);
 	  BOOST_CHECK_GT(delay.age_latency, 0);
 }

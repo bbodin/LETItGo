@@ -16,8 +16,10 @@
 #include <stack>
 #include <chrono>
 
-// TODO this ensure the graph generation is correct, and that the lower bound is correct.
+// TODO: this ensure the graph generation is correct, and that the lower bound is correct.
 #define SUPERDBG
+
+
 
 AgeLatencyResult ComputeAgeLatency(const LETModel &model, GenerateExpansionFun fun) {
 

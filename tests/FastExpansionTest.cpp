@@ -232,7 +232,7 @@ BOOST_AUTO_TEST_CASE(test_fast_graph_generation4) {
 	 */
 
 
-	LETModel model = generate_LET(4,1, 123);
+	LETModel model = generate_Automotive_LET(4,1, 123);
 	auto K = generate_periodicity_vector(model);
 	auto verified = generate_partial_constraint_graph(model, K) ;
 	auto new_version = new_generate_partial_constraint_graph(model, K) ;
@@ -391,7 +391,7 @@ BOOST_AUTO_TEST_CASE(test_fast_graph_random) {
 	size_t maxiter = 10000;
 	size_t maxk = 10;
 	for (size_t it = 0 ; it < maxiter ; it ++ ) {
-		LETModel model = generate_LET(2,1, 123 + it);
+		LETModel model = generate_Automotive_LET(2,1, 123 + it);
 		for (size_t k = 1; k <= maxk; k++) {
 			auto K = generate_periodicity_vector(model,k);
 			auto verified = generate_partial_constraint_graph(model, K) ;

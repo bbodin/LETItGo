@@ -3,53 +3,155 @@
  *
  */
 
-#define BOOST_TEST_MODULE Figure1And2Test
+#define BOOST_TEST_MODULE GeneratorTest
 #include <boost/test/included/unit_test.hpp>
 #include <letitgo.h>
+#include <verbose.h>
 #include <map>
 
 BOOST_AUTO_TEST_SUITE(test_generator)
 
+
+
+BOOST_AUTO_TEST_CASE(test_GeneratorCacheEntry) {
+
+	std::map<GeneratorCacheEntry,int> cache;
+
+	GeneratorCacheEntry entry1 (LETDatasetType::automotive_dt, 2,3,4);
+	GeneratorCacheEntry entry2 (LETDatasetType::automotive_dt, 2,3,4);
+	GeneratorCacheEntry entry3 (LETDatasetType::automotive_dt, 3,3,4);
+	GeneratorCacheEntry entry4 (LETDatasetType::generic_dt, 3,3,4);
+
+	BOOST_CHECK_EQUAL(entry1 , entry1);
+	BOOST_CHECK_EQUAL(entry1 , entry2);
+
+	BOOST_CHECK_NE(entry1 , entry3);
+	BOOST_CHECK_NE(entry2 , entry3);
+	BOOST_CHECK_NE(entry3 , entry4);
+
+	BOOST_CHECK_LT(entry1 , entry3);
+	BOOST_CHECK_LT(entry2 , entry3);
+
+	cache[entry1] = 1;
+	BOOST_CHECK_EQUAL(cache.size() , 1);
+	BOOST_CHECK_EQUAL(cache[entry1] , 1);
+
+	cache[entry2] = 2;
+	BOOST_CHECK_EQUAL(cache.size() , 1);
+	BOOST_CHECK_EQUAL(cache[entry1] , 2);
+	BOOST_CHECK_EQUAL(cache[entry2] , 2);
+
+	cache[entry3] = 3;
+	BOOST_CHECK_EQUAL(cache.size() , 2);
+	BOOST_CHECK_EQUAL(cache[entry1] , 2);
+	BOOST_CHECK_EQUAL(cache[entry2] , 2);
+	BOOST_CHECK_EQUAL(cache[entry3] , 3);
+
+
+}
+
+
+
+
+
+
 BOOST_AUTO_TEST_CASE(test_empty) {
 
-  LETModel sample = generate_LET(0,0);
+	  LETModel sample_auto = generate_Automotive_LET(0,0);
 
-  BOOST_CHECK_EQUAL(sample.getTaskCount() , 0);
-  BOOST_CHECK_EQUAL(sample.getDependencyCount() , 0);
+	  BOOST_CHECK_EQUAL(sample_auto.getTaskCount() , 0);
+	  BOOST_CHECK_EQUAL(sample_auto.getDependencyCount() , 0);
+
+
+	  LETModel sample_harmo = generate_Harmonic_LET(0,0);
+
+	  BOOST_CHECK_EQUAL(sample_harmo.getTaskCount() , 0);
+	  BOOST_CHECK_EQUAL(sample_harmo.getDependencyCount() , 0);
+
+
+	  LETModel sample_gen = generate_Generic_LET(0,0);
+
+	  BOOST_CHECK_EQUAL(sample_gen.getTaskCount() , 0);
+	  BOOST_CHECK_EQUAL(sample_gen.getDependencyCount() , 0);
 
 }
 
 BOOST_AUTO_TEST_CASE(test_very_small) {
 
-  LETModel sample = generate_LET(1,0);
+  LETModel sample = generate_Automotive_LET(1,0);
 
   BOOST_CHECK_EQUAL(sample.getTaskCount() , 1);
   BOOST_CHECK_EQUAL(sample.getDependencyCount() , 0);
 
 }
 
+
+BOOST_AUTO_TEST_CASE(test_generate_random_periodicity_vector) {
+
+  LETModel sample = generate_Automotive_LET(1,0);
+
+  BOOST_CHECK_EQUAL(sample.getTaskCount() , 1);
+  BOOST_CHECK_EQUAL(sample.getDependencyCount() , 0);
+
+  auto K = generate_random_periodicity_vector(sample);
+  BOOST_CHECK_GT (K[0] , 0);
+
+}
+
+
+
 BOOST_AUTO_TEST_CASE(test_small) {
 
-  LETModel sample = generate_LET(3,2);
+  LETModel sample = generate_Automotive_LET(3,2);
 
   BOOST_CHECK_EQUAL(sample.getTaskCount() , 3);
   BOOST_CHECK_EQUAL(sample.getDependencyCount() , 2);
 
 }
 
+BOOST_AUTO_TEST_CASE(test_generator_small) {
+
+  auto g = Generator::getInstance();
+  LETModel sample = g.generateAutomotive(3,2, 123);
+
+  BOOST_CHECK_EQUAL(sample.getTaskCount() , 3);
+  BOOST_CHECK_EQUAL(sample.getDependencyCount() , 2);
+
+}
 BOOST_AUTO_TEST_CASE(test_big) {
 
 	int n = 300;
 	int m = 200;
 
-  LETModel sample = generate_LET(n,m);
+	  LETModel sample = generate_Automotive_LET(n,m);
 
-  BOOST_CHECK_EQUAL(sample.getTaskCount() , n);
-  BOOST_CHECK_EQUAL(sample.getDependencyCount() , m);
+	  BOOST_CHECK_EQUAL(sample.getTaskCount() , n);
+	  BOOST_CHECK_EQUAL(sample.getDependencyCount() , m);
 
 }
 
 
+BOOST_AUTO_TEST_CASE(test_harmonic) {
+	int n = 10;
+	int m = 10;
+
+	LETModel sample = generate_Harmonic_LET(n,m);
+
+	BOOST_CHECK_EQUAL(sample.getTaskCount() , n);
+	BOOST_CHECK_EQUAL(sample.getDependencyCount() , m);
+
+	for (Task ti : sample.tasks()) {
+		for (Task tj : sample.tasks()) {
+
+			if ( ti.getT() > tj.getT()) {
+				BOOST_CHECK_EQUAL( ti.getT() % tj.getT()  , 0);
+			}
+		}
+	}
+
+
+
+}
 
 
 BOOST_AUTO_TEST_CASE(test_generation) {
@@ -61,7 +163,7 @@ BOOST_AUTO_TEST_CASE(test_generation) {
 	std::map<INTEGER_TIME_UNIT,size_t> T_counts;
 	std::map<Dependency, size_t> edge_counts;
 	for (int i = 0 ; i < MAX_ITER ; i++) {
-		LETModel sample = generate_LET(n,m);
+		LETModel sample = generate_Automotive_LET(n,m);
 
 		BOOST_CHECK_EQUAL(sample.getTaskCount() , n);
 		BOOST_CHECK_EQUAL(sample.getDependencyCount() , m);
@@ -114,4 +216,20 @@ BOOST_AUTO_TEST_CASE(test_generation) {
 
 }
 
+
+
+
+BOOST_AUTO_TEST_CASE(test_fix1) {
+	int n = 10;
+	int m = 22;
+
+	LETModel sample = generate_Automotive_LET(n, m, 133);
+	PeriodicityVector K = generate_random_periodicity_vector(sample, 133);
+
+	for (Task t : sample.tasks()) {
+		auto tid = t.getId();
+		BOOST_CHECK_GT(K[tid] , 0);
+	}
+
+}
 BOOST_AUTO_TEST_SUITE_END()

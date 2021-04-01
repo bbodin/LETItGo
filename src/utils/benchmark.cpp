@@ -31,10 +31,11 @@ double get_age_latency_execution_time (AgeLatencyFun fun, LETModel sample, size_
 	return (sum_time / n) / 1000000;
 }
 
-ExpansionBenchmarkResult  benchmark_expansion   (GenerateExpansionFun fun, size_t sample_count, size_t iter_count, size_t n, size_t m,  size_t seed) {
+ExpansionBenchmarkResult  benchmark_expansion   (GenerateExpansionFun fun, size_t sample_count, size_t iter_count, size_t n, size_t m,  bool harmonized_periodicity, size_t seed) {
 	  double sum_time = 0;
 	  long sum_edge = 0;
 	  long sum_vertex = 0;
+
 	  Generator& g = Generator::getInstance();
 
 	  VERBOSE_DEBUG("Start benchmark with n=" << n << " and " << " m=" << m << " seed=" << seed);
@@ -46,12 +47,16 @@ ExpansionBenchmarkResult  benchmark_expansion   (GenerateExpansionFun fun, size_
 	  for (size_t i = 0 ; i < sample_count ; i ++ ) {
 
 		  // Prepare problem instance
-		  LETModel sample = g.generate(n,m, seed + i);
-		  auto K = generate_random_periodicity_vector(sample, seed);
+		  LETModel sample = g.generateAutomotive(n,m, seed + i);
+		  auto K = harmonized_periodicity ?  generate_random_ni_periodicity_vector(sample, seed) : generate_random_periodicity_vector(sample, seed);
 		  INTEGER_TIME_UNIT lcm = getLCM<INTEGER_TIME_UNIT>(sample);
 		  VERBOSE_DEBUG("LCM=" << lcm);
+		  VERBOSE_DEBUG("K=" << K);
 
-
+			for (Task t : sample.tasks()) {
+				auto tid = t.getId();
+				VERBOSE_ASSERT(K[tid] , 0);
+			}
 		  // Check the instance can be solved and retrieve algo2 stats
 
 		  auto original = generate_partial_constraint_graph(sample, K);
@@ -97,7 +102,7 @@ AgeLatencyBenchmarkResult benchmark_age_latency (AgeLatencyFun fun, size_t sampl
 
 	  VERBOSE_DEBUG("Start benchmark with n=" << n << " and " << " m=" << m);
 	  for (size_t i = 0 ; i < sample_count ; i ++ ) {
-			  LETModel sample = Generator::getInstance().generate(n,m, seed + i);
+			  LETModel sample = Generator::getInstance().generateAutomotive(n,m, seed + i);
 			  INTEGER_TIME_UNIT lcm = getLCM<INTEGER_TIME_UNIT>(sample);
 			  VERBOSE_DEBUG("LCM=" << lcm);
 			  INTEGER_TIME_UNIT sum_n = getSumN<INTEGER_TIME_UNIT> (sample);
@@ -125,73 +130,93 @@ AgeLatencyBenchmarkResult benchmark_age_latency (AgeLatencyFun fun, size_t sampl
 }
 
 
-void main_benchmark_expansion (size_t begin_n, size_t end_n, size_t step_n, size_t sample_count, size_t iter_count, size_t fseed) {
+void main_benchmark_expansion (ExpansionBenchmarkConfiguration config) {
+
+	size_t begin_n = config.begin_n ;
+	size_t end_n        = config.end_n ;
+	size_t step_n       = config.step_n     ;
+	size_t sample_count = config.sample_count;
+	size_t iter_count   = config.iter_count  ;
+	size_t fseed         = config.seed       ;
 
 	size_t total = sample_count * (end_n - begin_n + step_n) / step_n;
 	VERBOSE_INFO("Start benchmark of " << total << " runs.");
 
 	  //boost::timer::progress_display show_progress( total );
-	  std::cout << "##########################################################################################" << std::endl;
-	  std::cout << "########## LET it Go Age Expansion Benchmarking                                    #######" << std::endl;
-	  std::cout << "##########################################################################################" << std::endl;
+	  std::cout << "############################################################################################" << std::endl;
+	  std::cout << "########## LET it Go Age Expansion Benchmarking                                          ###" << std::endl;
+	  std::cout << "############################################################################################" << std::endl;
 	  std::cout << "#     begin_n = " << begin_n << "" << std::endl;
 	  std::cout << "#     end_n = " << end_n << "" << std::endl;
 	  std::cout << "#     step_n = " << step_n << "" << std::endl;
 	  std::cout << "#     sample_count = " << sample_count << "" << std::endl;
 	  std::cout << "#     iter_count = " << iter_count << "" << std::endl;
 	  std::cout << "#     fseed = " << fseed << "" << std::endl;
-	  std::cout << "##########################################################################################" << std::endl;
+	  std::cout << "############################################################################################" << std::endl;
 
+	  GenerateExpansionFun f_original          = generate_partial_constraint_graph;
+	  GenerateExpansionFun f_new               = new_generate_partial_constraint_graph;
+	  GenerateExpansionFun f_new_and_optimized = opt_new_generate_partial_constraint_graph;
 
-	std::cout << "n\tm\tV\tE\torig\tnew\topt\tratio\tTC1\tTC2\tTC3" << std::endl;
+	  std::cout << std::setw(5) << "n"
+				<< std::setw(5) << "m"
+				<< std::setw(4) << "KdN"
+				<< std::setw(10) << "V"
+				<< std::setw(10) << "E"
+				<< std::setw(10) << "orig"
+				<< std::setw(10) << "new"
+				<< std::setw(10) << "opt"
+				<< std::setw(7) << "ratio"
+				<< std::setw(7) << "TC1"
+				<< std::setw(7) << "TC2"
+				<< std::setw(7) << "TC3"
+				<< std::endl;
 
 	for (size_t n = begin_n ; n <= end_n ; n+= step_n) {
-		size_t m = (n * (n - 1)) / 3;
+
+		size_t low_m  = (n * (n - 1)) / 4;
+		size_t high_m = (n * (n - 1)) / 3;
 
 		size_t seed = fseed + n;
 
-		ExpansionBenchmarkResult bench_res1  = benchmark_expansion ( generate_partial_constraint_graph , sample_count, iter_count, n, m, seed) ;
-		ExpansionBenchmarkResult bench_res2  = benchmark_expansion ( new_generate_partial_constraint_graph , sample_count, iter_count, n, m, seed) ;
-		ExpansionBenchmarkResult bench_res3  = benchmark_expansion ( opt_new_generate_partial_constraint_graph , sample_count, iter_count, n, m, seed) ;
+		for (size_t m : {low_m, high_m} ) {
+			for (bool hpf : {false, true}) {
 
-		std::cout << n << "\t" << m
-				<< "\t"  << bench_res1.total_vertex_count / (double)bench_res1.sample_count
-				<< "\t"  << bench_res1.total_edge_count / (double)bench_res1.sample_count
-				<< "\t"  << std::setprecision(2) << std::fixed << bench_res1.average_time
-			   	<< "\t"  << std::setprecision(2) << std::fixed << bench_res2.average_time
-			   	<< "\t"  << std::setprecision(2) << std::fixed << bench_res3.average_time
-			   	<< "\t"  << std::setprecision(2) << std::fixed << bench_res3.average_time /  bench_res1.average_time
-			   	<< "\t"  << std::setprecision(2) << std::fixed << bench_res2.algo2_stats.total_case1/  (double)bench_res2.sample_count
-			   	<< "\t"  << std::setprecision(2) << std::fixed << bench_res2.algo2_stats.total_case2/  (double)bench_res2.sample_count
-			   	<< "\t"  << std::setprecision(2) << std::fixed << bench_res2.algo2_stats.total_case3/  (double)bench_res2.sample_count
-				<< std::endl;
+			ExpansionBenchmarkResult bench_res1  = benchmark_expansion ( f_original , sample_count, iter_count, n, m, hpf,  seed) ;
+			ExpansionBenchmarkResult bench_res2  = benchmark_expansion ( f_new , sample_count, iter_count, n, m, hpf,  seed) ;
+			ExpansionBenchmarkResult bench_res3  = benchmark_expansion ( f_new_and_optimized , sample_count, iter_count, n, m, hpf,  seed) ;
 
-		 m = (n * (n - 1)) / 4;
-		 bench_res1  = benchmark_expansion ( generate_partial_constraint_graph , sample_count, iter_count, n, m, seed) ;
-		 bench_res2  = benchmark_expansion ( new_generate_partial_constraint_graph , sample_count, iter_count, n, m, seed) ;
-		 bench_res3  = benchmark_expansion ( opt_new_generate_partial_constraint_graph , sample_count, iter_count, n, m, seed) ;
+			std::cout << std::setw(5)  << n
+					  << std::setw(5)  << m
+					  << std::setw(4)  << hpf
+					  << std::setw(10) << bench_res1.total_vertex_count / (double) bench_res1.sample_count
+					  << std::setw(10) << bench_res1.total_edge_count / (double) bench_res1.sample_count
+					  << std::setw(10) << std::setprecision(2) << std::fixed << bench_res1.average_time
+					  << std::setw(10) << std::setprecision(2) << std::fixed << bench_res2.average_time
+					  << std::setw(10) << std::setprecision(2) << std::fixed << bench_res3.average_time
+					  << std::setw(7)  << std::setprecision(2) << std::fixed << bench_res3.average_time /  bench_res1.average_time
+					  << std::setw(7)  << std::setprecision(2) << std::fixed << bench_res2.algo2_stats.total_case1 /  (double) (bench_res2.sample_count * m)
+					  << std::setw(7)  << std::setprecision(2) << std::fixed << bench_res2.algo2_stats.total_case2 /  (double) (bench_res2.sample_count * m)
+					  << std::setw(7)  << std::setprecision(2) << std::fixed << bench_res2.algo2_stats.total_case3 /  (double) (bench_res2.sample_count * m)
+					  << std::endl;
 
-		 std::cout << n << "\t" << m
-					<< "\t"  << bench_res1.total_vertex_count / (double)bench_res1.sample_count
-					<< "\t"  << bench_res1.total_edge_count / (double)bench_res1.sample_count
-						<< "\t"  << std::setprecision(2) << std::fixed << bench_res1.average_time
-					   	<< "\t"  << std::setprecision(2) << std::fixed << bench_res2.average_time
-					   	<< "\t"  << std::setprecision(2) << std::fixed << bench_res3.average_time
-					   	<< "\t"  << std::setprecision(2) << std::fixed << bench_res3.average_time /  bench_res1.average_time
-					   	<< "\t"  << std::setprecision(2) << std::fixed << bench_res2.algo2_stats.total_case1/  (double)bench_res2.sample_count
-					   	<< "\t"  << std::setprecision(2) << std::fixed << bench_res2.algo2_stats.total_case2/  (double)bench_res2.sample_count
-					   	<< "\t"  << std::setprecision(2) << std::fixed << bench_res2.algo2_stats.total_case3/  (double)bench_res2.sample_count
-						<< std::endl;
+		}
+
 	  }
 
-
+	}
 
 
 }
 
-void main_benchmark_age_latency (size_t begin_n, size_t end_n, size_t step_n, size_t sample_count, size_t iter_count, size_t fseed) {
+void main_benchmark_age_latency (AgeLantencyBenchmarkConfiguration config) {
 
-
+	size_t begin_n = config.begin_n ;
+	size_t end_n        = config.end_n ;
+	size_t step_n       = config.step_n     ;
+	size_t sample_count = config.sample_count;
+	size_t iter_count   = config.iter_count  ;
+	size_t fseed         = config.seed       ;
 
 	  size_t total = sample_count * (end_n - begin_n + step_n) / step_n;
 	  VERBOSE_INFO("Start benchmark of " << total << " runs.");
@@ -215,8 +240,9 @@ void main_benchmark_age_latency (size_t begin_n, size_t end_n, size_t step_n, si
 		  size_t high_density_m = (n * (n - 1)) / 3;
 		  size_t low_density_m = (n * (n - 1)) / 4;
 
-		  AgeLatencyBenchmarkResult bench_low  = benchmark_age_latency ( ComputeAgeLatency, sample_count, iter_count, n, low_density_m, seed) ;
-		  AgeLatencyBenchmarkResult bench_high = benchmark_age_latency ( ComputeAgeLatency, sample_count, iter_count, n, high_density_m, seed) ;
+		  AgeLatencyFun original = ComputeAgeLatency;
+		  AgeLatencyBenchmarkResult bench_low  = benchmark_age_latency ( original, sample_count, iter_count, n, low_density_m, seed) ;
+		  AgeLatencyBenchmarkResult bench_high = benchmark_age_latency ( original, sample_count, iter_count, n, high_density_m, seed) ;
 
 		  std::cout << std::setw(10) << n
 				  << std::setw(10) << std::setprecision(2) << std::fixed << bench_low.time

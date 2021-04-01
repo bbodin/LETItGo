@@ -14,6 +14,22 @@
 #include <letitgo.h>
 #include <functional>
 
+struct BenchmarkConfiguration  {
+	size_t begin_n;
+	size_t end_n;
+	size_t step_n;
+	size_t sample_count;
+	size_t iter_count;
+	size_t seed;
+};
+struct ExpansionBenchmarkConfiguration : public BenchmarkConfiguration {
+
+};
+
+struct AgeLantencyBenchmarkConfiguration : public BenchmarkConfiguration {
+
+};
+
 struct ExpansionBenchmarkResult {
 	size_t sample_count;
 	Algorithm2_statistics algo2_stats;
@@ -55,10 +71,10 @@ entier getSumN (LETModel& m) {
 
 
 AgeLatencyBenchmarkResult benchmark_age_latency (AgeLatencyFun fun, size_t sample_count, size_t iter_count, size_t n, size_t m, size_t seed);
-ExpansionBenchmarkResult  benchmark_expansion   (GenerateExpansionFun fun, size_t sample_count, size_t iter_count, size_t n, size_t m, size_t seed);
+ExpansionBenchmarkResult  benchmark_expansion   (GenerateExpansionFun fun, size_t sample_count, size_t iter_count, size_t n, size_t m,  bool harmonized_periodicity, size_t seed);
 
-void main_benchmark_age_latency (size_t begin_n, size_t end_n, size_t step_n, size_t sample_count, size_t iter_count, size_t fseed);
-void main_benchmark_expansion (size_t begin_n, size_t end_n, size_t step_n, size_t sample_count, size_t iter_count, size_t fseed);
+void main_benchmark_age_latency (AgeLantencyBenchmarkConfiguration config);
+void main_benchmark_expansion (ExpansionBenchmarkConfiguration config);
 
 
 #endif /* INCLUDE_BENCHMARK_H_ */

@@ -26,7 +26,7 @@ BOOST_AUTO_TEST_CASE(test_FGG_performance) {
 
 
 
-				LETModel model = generate_LET(n,m, 123 + i);
+				LETModel model = generate_Automotive_LET(n,m, 123 + i);
 				auto K = generate_unitary_periodicity_vector(model);
 
 				auto verified = generate_partial_constraint_graph(model, K) ;

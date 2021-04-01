@@ -29,7 +29,17 @@ int main (int argc , char * argv[]) {
 	gflags::ParseCommandLineFlags(&argc, &argv, true);
 	utils::set_verbose_mode(FLAGS_verbose);
 
-	main_benchmark_expansion ( FLAGS_begin_n,  FLAGS_end_n,  FLAGS_step_n,  FLAGS_sample_count,  FLAGS_iter_count, FLAGS_seed) ;
+
+	ExpansionBenchmarkConfiguration config;
+
+	config.begin_n       = FLAGS_begin_n;
+	config.end_n         = FLAGS_end_n;
+	config.step_n        = FLAGS_step_n;
+	config.sample_count  = FLAGS_sample_count;
+	config.iter_count    = FLAGS_iter_count;
+	config.seed          = FLAGS_seed;
+
+	main_benchmark_expansion ( config ) ;
 
 
 	gflags::ShutDownCommandLineFlags();
