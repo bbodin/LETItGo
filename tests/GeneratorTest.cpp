@@ -6,6 +6,7 @@
 #define BOOST_TEST_MODULE GeneratorTest
 #include <boost/test/included/unit_test.hpp>
 #include <letitgo.h>
+#include <benchmark.h>
 #include <verbose.h>
 #include <map>
 
@@ -232,4 +233,24 @@ BOOST_AUTO_TEST_CASE(test_fix1) {
 	}
 
 }
+
+
+BOOST_AUTO_TEST_CASE(test_fix2) {
+	int n = 5;
+	int m = 5;
+	int seed = 130;
+
+	LETModel sample = generate_Generic_LET(n, m, seed);
+	BOOST_CHECK_EQUAL(sample.tasks().size() , n);
+	BOOST_CHECK_EQUAL(sample.dependencies().size() , m);
+	std::cout << sample << std::endl;
+	INTEGER_TIME_UNIT lcm = getLCM<INTEGER_TIME_UNIT>(sample);
+	std::cout << "LCM=" << lcm << std::endl;
+
+	ComputeAgeLatency(sample, generate_partial_constraint_graph);
+
+
+}
+
+
 BOOST_AUTO_TEST_SUITE_END()

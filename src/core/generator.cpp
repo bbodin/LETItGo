@@ -114,7 +114,7 @@ void GenerateHarmonicTasks(LETModel& sample, unsigned int n, std::mt19937& gen) 
 
 	  std::vector<INTEGER_TIME_UNIT> T = {};
 	  INTEGER_TIME_UNIT prod = 1;
-	  for (auto i = 0; i < 10; i++) {
+	  for (auto i = 0; i < 5; i++) {
 		  auto new_value = TValues_distrib(gen);
 		  T.push_back(new_value * prod);
 		  prod = std::lcm ( prod, new_value * prod);
@@ -151,7 +151,7 @@ void GenerateGenericTasks(LETModel& sample, unsigned int n, std::mt19937& gen) {
 	  // Possible release time to be taken uniformly
 	  std::vector<TIME_UNIT> R = {0,1,2,3,4,5};
 
-	  std::uniform_int_distribution<> T_distrib(1, 100);
+	  std::uniform_int_distribution<> T_distrib(1, 10);
 	  std::uniform_int_distribution<> R_distrib(0, R.size() - 1);
 
 

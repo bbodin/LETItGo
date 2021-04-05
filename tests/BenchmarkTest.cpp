@@ -29,9 +29,9 @@ BOOST_AUTO_TEST_CASE(benchmark_AgeLatency) {
 
 	AgeLantencyBenchmarkConfiguration config;
 
-	config.begin_n       = 5;
-	config.end_n         = 20;
-	config.step_n        = 5;
+	config.begin_n       = 4;
+	config.end_n         = 10;
+	config.step_n        = 2;
 	config.sample_count  = 2;
 	config.iter_count    = 2;
 	config.seed          = 123;
@@ -48,7 +48,7 @@ BOOST_AUTO_TEST_CASE(test_benchmark_expansion) {
 	size_t n = 5;
 	size_t m = 10;
 	size_t seed = 123;
-	ExpansionBenchmarkResult res = benchmark_expansion (generate_partial_constraint_graph, sample_count , iter_count ,  n,  m, false,   seed);
+	ExpansionBenchmarkResult res = benchmark_expansion (generate_partial_constraint_graph, sample_count , iter_count ,  n,  m, LETDatasetType::automotive_dt, false,   seed);
 
 	BOOST_CHECK_GT(res.total_edge_count, 0);
 }
