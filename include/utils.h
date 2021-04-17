@@ -16,7 +16,10 @@
 
 
 template <typename X> std::ostream & operator<<(std::ostream & stream, const std::vector<X> & obj) {
-	for (auto x : obj) stream << x << " ";
+	bool first = true;
+	stream << "[";
+	for (auto x : obj) {if (!first) {stream << ",";}  stream << x; first = false;}
+	stream << "]";
 	return stream;
 }
 
