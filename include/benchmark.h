@@ -21,6 +21,8 @@ struct BenchmarkConfiguration  {
 	size_t sample_count;
 	size_t iter_count;
 	size_t seed;
+	bool detailed;
+	LETDatasetType kind;
 };
 struct ExpansionBenchmarkConfiguration : public BenchmarkConfiguration {
 
@@ -51,6 +53,11 @@ struct ExpansionBenchmarkResult {
  */
 struct AgeLatencyBenchmarkResult {
 
+		// Fixed
+	  size_t n = 0, m = 0;
+	  LETDatasetType dt = LETDatasetType::unknown_dt;
+
+	    // Could be average
 	  double time  = 0; // Execution Time of the algorithm
 	  double iter  = 0; // Number of required iteration
 	  double sum_n  = 0; // Max Possible Expansion size
@@ -59,7 +66,11 @@ struct AgeLatencyBenchmarkResult {
 	  double g_ctime  = 0; // Graph generation time
 	  double p_ctime = 0; // Path computation time
 
-	  AgeLatencyBenchmarkResult (double t, double it, double sn, double s, double b, double g, double p) : time(t) , iter(it)  , sum_n(sn),  size(s), bound(b) , g_ctime(g), p_ctime(p) {}
+	  AgeLatencyBenchmarkResult (size_t n, size_t m, LETDatasetType dt) :
+		  n(n), m(m), dt(dt), time(0) , iter(0)  , sum_n(0),  size(0), bound(0) , g_ctime(0), p_ctime(0) {}
+
+	  AgeLatencyBenchmarkResult (size_t n, size_t m, LETDatasetType dt, double t, double it, double sn, double s, double b, double g, double p) :
+		  n(n), m(m), dt(dt), time(t) , iter(it)  , sum_n(sn),  size(s), bound(b) , g_ctime(g), p_ctime(p) {}
 };
 
 template <typename entier>

@@ -108,7 +108,7 @@ AgeLatencyBenchmarkResult benchmark_age_latency (AgeLatencyFun fun, size_t sampl
 
 	GenerateExpansionFun expFun = (GenerateExpansionFun) generate_partial_constraint_graph;
 
-	AgeLatencyBenchmarkResult bench_res (0,0,0,0,0,0,0);
+	AgeLatencyBenchmarkResult bench_res (n,m,dt);
 
 	VERBOSE_DEBUG("Start benchmark with n=" << n << " and " << " m=" << m);
 	for (size_t i = 0 ; i < sample_count ; i ++ ) {
@@ -234,6 +234,23 @@ void main_benchmark_expansion (ExpansionBenchmarkConfiguration config) {
 
 }
 
+inline void print_row(AgeLatencyBenchmarkResult bench) {
+		std::cout
+			  << std::setw(5) << bench.dt
+			  << std::setw(5) << bench.n
+				  << std::setw(5) << bench.m << std::flush;
+		std::cout
+				  << std::setw(10)  << std::fixed << std::setprecision(1)  << bench.sum_n
+				  << std::setw(10) << std::setprecision(2)   << std::fixed << bench.time
+				  << std::setw(10)  << std::setprecision(2)  << bench.iter
+				  << std::setw(10) << bench.size
+				  << std::setw(10) << bench.bound
+				  << std::setw(10) << bench.g_ctime
+				  << std::setw(10) << bench.p_ctime
+
+				  << std::endl;
+}
+
 void main_benchmark_age_latency (AgeLantencyBenchmarkConfiguration config) {
 
 	size_t begin_n = config.begin_n ;
@@ -242,7 +259,7 @@ void main_benchmark_age_latency (AgeLantencyBenchmarkConfiguration config) {
 	size_t sample_count = config.sample_count;
 	size_t iter_count   = config.iter_count  ;
 	size_t fseed         = config.seed       ;
-
+	LETDatasetType       dt = config.kind;
 	AgeLatencyFun original = (AgeLatencyFun) ComputeAgeLatency;
 
 
@@ -264,7 +281,7 @@ void main_benchmark_age_latency (AgeLantencyBenchmarkConfiguration config) {
 	<< std::setw(5) << "kind"
 	<< std::setw(5) << "n"
 			<< std::setw(5) << "m"
-			<< std::setw(10) << "lcm"
+			<< std::setw(10) << "sumN"
 			<< std::setw(10) << "time"
 			<< std::setw(10) << "iter"
 			<< std::setw(10) << "size"
@@ -277,31 +294,26 @@ void main_benchmark_age_latency (AgeLantencyBenchmarkConfiguration config) {
 
 		size_t seed = fseed + n;
 		size_t high_m = (n * (n - 1)) / 3;
-		size_t low_m = (n * (n - 1)) / 4;
+		size_t medium_m = (n * (n - 1)) / 4;
+		size_t low_m = (n * (n - 1)) / 5;
 
-		for (size_t m : {low_m, high_m} ) {
-			for (LETDatasetType dt : {LETDatasetType::automotive_dt, LETDatasetType::harmonic_dt} ) {
+//for (LETDatasetType dt : {LETDatasetType::automotive_dt, LETDatasetType::harmonic_dt} ) {
+		for (size_t m : {low_m, medium_m, high_m} ) {
 
 				VERBOSE_INFO ("Run benchmark_age_latency with arguments " << sample_count << "," << iter_count << "," << n << "," << m << "," << dt << "," << seed );
 
-				std::cout
-				  << std::setw(5) << dt
-				  << std::setw(5) << n
-					  << std::setw(5) << m << std::flush;
-					  AgeLatencyBenchmarkResult bench  = benchmark_age_latency ( original, sample_count, iter_count, n, m, dt, seed) ;
-					  std::cout
-					  << std::setw(10)  << std::setprecision(2)  << bench.sum_n
-					  << std::setw(10) << std::setprecision(2)   << std::fixed << bench.time
-					  << std::setw(10)  << std::setprecision(2)  << bench.iter
-					  << std::setw(10) << bench.size
-					  << std::setw(10) << bench.bound
-					  << std::setw(10) << bench.g_ctime
-					  << std::setw(10) << bench.p_ctime
-
-					  << std::endl;
+				if (config.detailed) {
+					for (size_t i = 0 ; i < sample_count ; i ++ ) {
+						AgeLatencyBenchmarkResult bench  = benchmark_age_latency ( original, 1, iter_count, n, m, dt, seed + i) ;
+						print_row(bench);
+					}
+				} else {
+					AgeLatencyBenchmarkResult bench  = benchmark_age_latency ( original, sample_count, iter_count, n, m, dt, seed) ;
+					print_row(bench);
+				}
 			}
 		}
-	}
+
 
 
 }

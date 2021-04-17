@@ -18,8 +18,12 @@ typedef std::function<LETModel(unsigned int n, unsigned int m, size_t seed)> LET
 enum LETDatasetType { unknown_dt, generic_dt, harmonic_dt, automotive_dt};
 enum PeriodicityFactorType { unknown_pf, generic_pf, harmonic_pf };
 
-//
-//
+inline LETDatasetType str2kind(std::string str) {
+	if (str == "automotive") return LETDatasetType::automotive_dt;
+	if (str == "harmonic") return LETDatasetType::harmonic_dt;
+	if (str == "generic") return LETDatasetType::generic_dt;
+	return LETDatasetType::unknown_dt;
+};
 //void GenerateAutomotiveTasks(LETModel& sample, unsigned int n, std::mt19937& gen);
 //void GenerateHarmonicTasks(LETModel& sample, unsigned int n, std::mt19937& gen);
 //void GenerateGenericTasks(LETModel& sample, unsigned int n, std::mt19937& gen) ;
