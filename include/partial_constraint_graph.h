@@ -58,7 +58,8 @@ public:
                            const PartialConstraintGraph &obj) {
     stream << "PartialConstraintGraph(" << std::endl;
     for (auto c : obj.getConstraints()) {
-      stream << "  " << c << std::endl;
+    	 stream << "  " << c ;
+    	 stream << std::endl;
     }
     stream << ")" << std::endl;
     return stream;
