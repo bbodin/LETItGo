@@ -27,13 +27,13 @@ struct AgeLatencyResult {
 			age_latency(age_latency), required_iterations(required_iterations), expansion_size(expansion_size), first_bound_error(first_bound_error) {}
 
 	  friend std::ostream &operator<<(std::ostream &stream, const AgeLatencyResult &obj) {
-	    stream << "<AgeLatencyResult "
-	    		<< "graph_computation_time=" << obj.graph_computation_time
-	    		<< "path_computation_time=" << obj.path_computation_time
-	    		<< "age_latency=" << obj.age_latency
-	    		<< ", iterations=" << obj.required_iterations
-	    		 << ", size=" << obj.expansion_size
-	    		 << ", first_bound_error=" << obj.first_bound_error
+	    stream << "<AgeLatencyResult"
+	    		<< " graph_computation_time=" << obj.graph_computation_time
+	    		<< " path_computation_time=" << obj.path_computation_time
+	    		<< " age_latency=" << obj.age_latency
+	    		<< " iterations=" << obj.required_iterations
+	    		 << " size=" << obj.expansion_size
+	    		 << " first_bound_error=" << obj.first_bound_error
 	           << ">";
 	    return stream;
 	  }
