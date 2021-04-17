@@ -20,7 +20,8 @@ struct AgeLatencyResult {
 	TIME_UNIT graph_computation_time = 0.0;
 	TIME_UNIT path_computation_time  = 0.0;
 	INTEGER_TIME_UNIT age_latency = 0;
-	std::vector<INTEGER_TIME_UNIT> expansion_sizes;
+	std::vector<INTEGER_TIME_UNIT> expansion_vertex_count;
+	std::vector<INTEGER_TIME_UNIT> expansion_edge_count;
 	std::vector<INTEGER_TIME_UNIT> upper_bounds;
 	std::vector<INTEGER_TIME_UNIT> lower_bounds;
 
@@ -34,8 +35,9 @@ struct AgeLatencyResult {
 	    		<< " graph_computation_time=" << obj.graph_computation_time
 	    		<< " path_computation_time=" << obj.path_computation_time
 	    		<< " age_latency=" << obj.age_latency
-	    		<< " iterations=" << obj.expansion_sizes.size()
-	    		 << " size=" << obj.expansion_sizes.back()
+	    		<< " iterations=" << obj.expansion_vertex_count.size()
+	    	    << " ExVSize=" << obj.expansion_vertex_count.back()
+	    		<< " ExESize=" << obj.expansion_edge_count.back()
 	    		 << " first_bound_error=" << obj.lower_bounds.front()
 	           << ">";
 	    return stream;

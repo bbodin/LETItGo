@@ -13,6 +13,7 @@
 
 std::map<TASK_ID, INTEGER_TIME_UNIT> compute_repetition_vector (const LETModel &model);
 
+size_t compute_sum_n (const LETModel &model) ;
 
 
 #endif /* INCLUDE_REPETITION_VECTOR_H_ */

@@ -125,9 +125,9 @@ AgeLatencyBenchmarkResult benchmark_age_latency (AgeLatencyFun fun, size_t sampl
 		AgeLatencyResult fun_res = fun(sample, expFun);
 		VERBOSE_DEBUG("AgeLatencyResult = " << fun_res);
 		bench_res.time  += duration;
-		bench_res.iter  += fun_res.expansion_sizes.size();
+		bench_res.iter  += fun_res.expansion_edge_count.size();
 		bench_res.sum_n  += sum_n;
-		bench_res.size  += (double) fun_res.expansion_sizes.back() / (double) sum_n;
+		bench_res.size  += (double) fun_res.expansion_vertex_count.back() / (double) sum_n;
 		double bound_error = (double) fun_res.upper_bounds.front() - (double) fun_res.lower_bounds.front();
 		bench_res.bound +=  bound_error / (double) fun_res.age_latency;
 		bench_res.g_ctime += fun_res.graph_computation_time;
@@ -237,17 +237,18 @@ void main_benchmark_expansion (ExpansionBenchmarkConfiguration config) {
 
 inline void print_detailed_al_header() {
 	std::cout
-			<< std::setw(5) << "kind"
-			<< std::setw(5) << "n"
-			<< std::setw(5) << "m"
-			<< std::setw(10) << "sum_n"
-			<< std::setw(15) << "AgeLatency"
-			<< std::setw(15) << "IterationCount"
-			<< std::setw(15) << "ExpansionSize"
-			<< std::setw(15) << "LowerBounds"
-			<< std::setw(15) << "UpperBounds"
-			<< std::setw(15) << "gen_time"
-			<< std::setw(15) << "sp_time"
+			       << "kind"
+			<< ";" << "n"
+			<< ";" << "m"
+			<< ";" << "sum_n"
+			<< ";" << "AgeLatency"
+			<< ";" << "IterationCount"
+			<< ";" << "ExpansionVertex"
+			<< ";" << "ExpansionEdges"
+			<< ";" << "LowerBounds"
+			<< ";" << "UpperBounds"
+			<< ";" << "gen_time"
+			<< ";" << "sp_time"
 			<< std::endl;
 }
 
@@ -271,18 +272,19 @@ inline void print_detailed_al_row( LETDatasetType dt,
 
 				  << std::endl;
 		*/
-	std::cout
-				  << std::setw(5) << dt
-				  << std::setw(5) << res.n
-				  << std::setw(5) << res.m
-				  << std::setw(10) << res.sum_n;
-	std::cout << std::setw(15) << std::fixed << res.age_latency;
-	std::cout << std::setw(15) << res.expansion_sizes   ;
-	std::cout << std::setw(15) << res.lower_bounds   ;
-	std::cout << std::setw(15) << res.upper_bounds   ;
-	std::cout << std::setw(15)  << std::setprecision(2) << std::fixed << res.graph_computation_time  ;
-	std::cout << std::setw(15)  << std::setprecision(2) << std::fixed << res.path_computation_time  ;
-	std::cout << std::endl;
+	std::cout     << dt
+				  << ";"  << res.n
+				  << ";"  << res.m
+				  << ";"  << res.sum_n;
+		std::cout << ";"  << std::fixed << res.age_latency;
+		std::cout << ";"  << res.expansion_vertex_count.size()   ;
+		std::cout << ";"  << "\"" << res.expansion_vertex_count << "\""   ;
+		std::cout << ";"  << "\"" << res.expansion_edge_count << "\""   ;
+		std::cout << ";"  << "\"" << res.lower_bounds  << "\""  ;
+		std::cout << ";"  << "\"" << res.upper_bounds << "\""   ;
+		std::cout << ";"  << std::setprecision(2) << std::fixed << res.graph_computation_time  ;
+		std::cout << ";"  << std::setprecision(2) << std::fixed << res.path_computation_time  ;
+		std::cout << std::endl;
 
 
 }
@@ -336,21 +338,22 @@ void main_benchmark_age_latency (AgeLantencyBenchmarkConfiguration config) {
 	size_t total = sample_count * (end_n - begin_n + step_n) / step_n;
 	VERBOSE_INFO("Start benchmark of " << total << " runs.");
 
-	//boost::timer::progress_display show_progress( total );
-	std::cout << "#######################################################################################################################################" << std::endl;
-	std::cout << "########## LET it Go Age latency Benchmarking                                      ####################################################" << std::endl;
-	std::cout << "#######################################################################################################################################" << std::endl;
-	std::cout << "#     begin_n = " << begin_n << "" << std::endl;
-	std::cout << "#     end_n = " << end_n << "" << std::endl;
-	std::cout << "#     step_n = " << step_n << "" << std::endl;
-	std::cout << "#     sample_count = " << sample_count << "" << std::endl;
-	std::cout << "#     iter_count = " << iter_count << "" << std::endl;
-	std::cout << "#     fseed = " << fseed << "" << std::endl;
-	std::cout << "#######################################################################################################################################" << std::endl;
 
 	if (config.detailed) {
 		print_detailed_al_header();
 	} else {
+		//boost::timer::progress_display show_progress( total );
+		std::cout << "#######################################################################################################################################" << std::endl;
+		std::cout << "########## LET it Go Age latency Benchmarking                                      ####################################################" << std::endl;
+		std::cout << "#######################################################################################################################################" << std::endl;
+		std::cout << "#     begin_n = " << begin_n << "" << std::endl;
+		std::cout << "#     end_n = " << end_n << "" << std::endl;
+		std::cout << "#     step_n = " << step_n << "" << std::endl;
+		std::cout << "#     sample_count = " << sample_count << "" << std::endl;
+		std::cout << "#     iter_count = " << iter_count << "" << std::endl;
+		std::cout << "#     fseed = " << fseed << "" << std::endl;
+		std::cout << "#######################################################################################################################################" << std::endl;
+
 		print_al_header();
 	}
 
