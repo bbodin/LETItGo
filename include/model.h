@@ -224,21 +224,21 @@ class Constraint {
 
 public:
 	Constraint(Execution e1, Execution e2, WEIGHT w) : ei(e1), ej(e2), w(w) {}
-	const Execution getSource() const { return ei; }
-	const Execution getDestination() const { return ej; }
-	WEIGHT getWeight() const { return w; }
+	inline const Execution getSource() const { return ei; }
+	inline const Execution getDestination() const { return ej; }
+	inline WEIGHT getWeight() const { return w; }
 
-	friend bool operator<(const Constraint &l, const Constraint &r) {
+	inline friend bool operator<(const Constraint &l, const Constraint &r) {
 		return std::tie(l.ei, l.ej, l.w) < std::tie(r.ei, r.ej, r.w);
 	}
 
-	friend std::ostream &operator<<(std::ostream &stream, const Constraint &obj) {
+	inline friend std::ostream &operator<<(std::ostream &stream, const Constraint &obj) {
 		stream << "Constraint(from:" << obj.getSource()
         		   << ", to:" << obj.getDestination() << ", weight:" << obj.getWeight()
 				   << ")";
 		return stream;
 	}
-	friend bool operator ==(const Constraint & a1, const Constraint & a2) {
+	inline friend bool operator ==(const Constraint & a1, const Constraint & a2) {
 		return (a1.ei == a2.ei) and (a1.ej == a2.ej) and (a1.w == a2.w) ;
 	}
 

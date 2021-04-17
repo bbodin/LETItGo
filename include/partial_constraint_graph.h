@@ -30,8 +30,9 @@ public:
 
 public:
   inline void add(Constraint c) {
-    executions.insert(c.getSource());
-    executions.insert(c.getDestination());
+
+	//executions.insert(c.getSource());
+    //executions.insert(c.getDestination());
     constraints.insert(c);
     inbounds[c.getDestination()].insert(c);
     outbounds[c.getSource()].insert(c);

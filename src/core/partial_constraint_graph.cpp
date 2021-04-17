@@ -180,6 +180,7 @@ void add_start_finish (const LETModel &model, const PeriodicityVector &K, Partia
 				Constraint c(s, t, 0);
 				graph.add(c);
 			}
+
 			// for any t without succ add t -> f with weight Di (i the task)
 			if (graph.getOutputs(t).size() == 0) {
 				Constraint c(t, f, Di);
