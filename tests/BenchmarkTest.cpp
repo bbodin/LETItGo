@@ -8,7 +8,6 @@
 #include <letitgo.h>
 #include <map>
 #include <chrono>
-#include <boost/timer/progress_display.hpp>
 #include <benchmark.h>
 
 BOOST_AUTO_TEST_SUITE(test_benchmark)
