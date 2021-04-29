@@ -20,7 +20,6 @@ DEFINE_int32(step_n,          5, "Step of task count");
 DEFINE_int32(sample_count,  100, "How many graph to generate per size (variety)");
 DEFINE_int32(iter_count,     50, "How many run per graph (precision)");
 DEFINE_int32(seed,          123, "Value of the first seed.");
-DEFINE_bool(K_N_only,      false, "Limit the search to random periodicity factors K that divide the repetition factors N.");
 DEFINE_bool(detailed,      false, "printout every sample");
 DEFINE_string(kind,  "automotive", "Kind of dataset to generate (automotive,generic,harmonic)");
 
