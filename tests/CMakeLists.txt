@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.19.7)
+
 
 FIND_PACKAGE(Boost 1.33.0 COMPONENTS unit_test_framework REQUIRED)
 INCLUDE_DIRECTORIES(${LETITGO_INCLUDE_DIR})
