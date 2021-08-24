@@ -33,7 +33,7 @@ int main (int argc , char * argv[]) {
 	gflags::ParseCommandLineFlags(&argc, &argv, true);
 
 
-	utils::set_verbose_mode(FLAGS_verbose);
+	letitgo::utils::set_verbose_mode(FLAGS_verbose);
 
 
 	AgeLantencyBenchmarkConfiguration config;

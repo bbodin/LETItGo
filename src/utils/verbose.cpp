@@ -9,6 +9,7 @@
 #include <iostream>
 #include <verbose.h>
 
+namespace letitgo {
 namespace utils {
 int VERBOSE_MODE = MIN_LEVEL;
 bool VERBOSE_GUESS = true;
@@ -46,3 +47,4 @@ void print_trace(const char *file, int line) {
 }
 
 } // namespace utils
+} // namespace letitgo

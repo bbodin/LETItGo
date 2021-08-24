@@ -26,6 +26,7 @@
 #endif
 #endif
 
+namespace letitgo {
 namespace utils {
 
 inline const std::string getFilename(const std::string s) {
@@ -60,23 +61,24 @@ inline void set_verbose_custom_mode(const std::string mode, bool v) {
 
 inline int is_info_verbose() { return VERBOSE_MODE >= INFO_LEVEL; }
 inline int get_verbose_mode() { return VERBOSE_MODE; }
-inline void set_verbose_color(const bool v) { utils::VERBOSE_COLOR = v; }
+inline void set_verbose_color(const bool v) { letitgo::utils::VERBOSE_COLOR = v; }
 inline void set_verbose_guess(const bool v) { VERBOSE_GUESS = v; }
 
 void myterminate(int);
 
-} // namespace commons
+} // namespace utils
+} // namespace letitgo
 
 // \033 remplace \e !!!
-#define PURPLE_COLOR (utils::VERBOSE_COLOR ? "\033[1;35m" : "")
-#define RED_COLOR (utils::VERBOSE_COLOR ? "\033[1;31m" : "")
-#define YELLOW_COLOR (utils::VERBOSE_COLOR ? "\033[0;33m" : "")
-#define GREEN_COLOR (utils::VERBOSE_COLOR ? "\033[1;32m" : "")
-#define BLUE_COLOR (utils::VERBOSE_COLOR ? "\033[1;34m" : "")
-#define RESET_COLOR (utils::VERBOSE_COLOR ? "\033[0m" : "")
+#define PURPLE_COLOR (letitgo::utils::VERBOSE_COLOR ? "\033[1;35m" : "")
+#define RED_COLOR (letitgo::utils::VERBOSE_COLOR ? "\033[1;31m" : "")
+#define YELLOW_COLOR (letitgo::utils::VERBOSE_COLOR ? "\033[0;33m" : "")
+#define GREEN_COLOR (letitgo::utils::VERBOSE_COLOR ? "\033[1;32m" : "")
+#define BLUE_COLOR (letitgo::utils::VERBOSE_COLOR ? "\033[1;34m" : "")
+#define RESET_COLOR (letitgo::utils::VERBOSE_COLOR ? "\033[0m" : "")
 
 #define __SHOW_LEVEL                                                           \
-  "[ " << __RELEASE__ << "  " << utils::getFilename(__FILE__) << ":"         \
+  "[ " << __RELEASE__ << "  " << letitgo::utils::getFilename(__FILE__) << ":"         \
        << __LINE__ << "]" << RESET_COLOR << " "
 
 #ifdef __RELEASE_MODE__
@@ -92,25 +94,25 @@ void myterminate(int);
 #endif
 
 static inline bool VERBOSE_IS_EXTRA_DEBUG() {
-  return (utils::VERBOSE_MODE >= utils::EXTRA_DEBUG_LEVEL);
+  return (letitgo::utils::VERBOSE_MODE >= letitgo::utils::EXTRA_DEBUG_LEVEL);
 }
 static inline bool VERBOSE_IS_DEBUG() {
-  return (utils::VERBOSE_MODE >= utils::DEBUG_LEVEL);
+  return (letitgo::utils::VERBOSE_MODE >= letitgo::utils::DEBUG_LEVEL);
 }
 static inline bool VERBOSE_IS_INFO() {
-  return (utils::VERBOSE_MODE >= utils::INFO_LEVEL);
+  return (letitgo::utils::VERBOSE_MODE >= letitgo::utils::INFO_LEVEL);
 }
 static inline bool VERBOSE_IS_ERROR() {
-  return (utils::VERBOSE_MODE >= utils::ERROR_LEVEL);
+  return (letitgo::utils::VERBOSE_MODE >= letitgo::utils::ERROR_LEVEL);
 }
 static inline bool VERBOSE_IS_WARNING() {
-  return (utils::VERBOSE_MODE >= utils::WARNING_LEVEL);
+  return (letitgo::utils::VERBOSE_MODE >= letitgo::utils::WARNING_LEVEL);
 }
 static inline bool VERBOSE_IS_PB() {
-  return (utils::VERBOSE_MODE >= utils::PB_LEVEL);
+  return (letitgo::utils::VERBOSE_MODE >= letitgo::utils::PB_LEVEL);
 }
 static inline bool VERBOSE_IS_ILP() {
-  return (utils::VERBOSE_MODE >= utils::ILP_LEVEL);
+  return (letitgo::utils::VERBOSE_MODE >= letitgo::utils::ILP_LEVEL);
 }
 
 #ifndef __RELEASE_MODE__
@@ -119,7 +121,7 @@ static inline bool VERBOSE_IS_ILP() {
     std::cerr << BLUE_COLOR << "[X]" << __SHOW_LEVEL << m                      \
               << std::string(20, ' ') << "\n"; // PRINT_STATE();
 #define VERBOSE_CUSTOM_DEBUG(code, m)                                          \
-  if (utils::VERBOSE_CUSTOM_MODES.count(code)) {                             \
+  if (letitgo::utils::VERBOSE_CUSTOM_MODES.count(code)) {                             \
 	  std::cerr << PURPLE_COLOR << "[C][" << code << "]" << __SHOW_LEVEL << m                      \
 	  << std::string(20, ' ') << "\n";   }
 #define VERBOSE_DEBUG(m)                                                       \
@@ -247,6 +249,6 @@ static inline bool VERBOSE_IS_ILP() {
     EXIT_ON_FAILURE();                                                         \
   }
 
-#define VERBOSE_BACKTRACE() utils::print_trace(__FILE__, __LINE__);
+#define VERBOSE_BACKTRACE() letitgo::utils::print_trace(__FILE__, __LINE__);
 
 #endif /* VERBOSE_H_ */

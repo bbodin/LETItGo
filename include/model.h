@@ -46,7 +46,7 @@ public:
 	friend bool operator<(const Task &l, const Task &r) { return l.id < r.id; }
 
 	friend std::ostream &operator<<(std::ostream &stream, const Task &obj) {
-		stream << "<Task id='" << obj.id << "' r='" << obj.r << "' C='" << obj.C << "' D='" << obj.D << "' T='" << obj.T << "'>";
+		stream << "<Task id='" << obj.id << "' r='" << obj.r << "' C='" << obj.C << "' D='" << obj.D << "' T='" << obj.T << "'/>";
 		return stream;
 	}
 
@@ -81,7 +81,7 @@ public:
 	friend bool operator<(const Dependency &l, const Dependency &r) { return std::pair<TASK_ID, TASK_ID>(l) < std::pair<TASK_ID, TASK_ID>(r); }
 
 	friend std::ostream &operator<<(std::ostream &stream, const Dependency &obj) {
-		stream << "<Dependency from='" << obj.getFirst() << "' to='" << obj.getSecond()  << "'>";
+		stream << "<Dependency from='" << obj.getFirst() << "' to='" << obj.getSecond()  << "'/>";
 		return stream;
 	}
 
@@ -113,13 +113,36 @@ private:
 
 public:
 	LETModel() : TaskIdToTask(), TaskToTaskId(), DependencyIdToDependency() {}
+	LETModel(std::string xmldata) ;
 
+	std::string getXML();
+	std::string getDOT();
+	std::string getSVG();
+
+	TASK_ID addTask(Task t) {
+		const TASK_ID id = TaskIdToTask.size();
+		const Task nt(id, t.getr(), t.getD(), t.getD(), t.getT());
+		if (t.getId() != id) {
+			VERBOSE_WARNING("The task with id " << t.getId() << " got a new id " << id);
+		}
+		TaskIdToTask.push_back(nt);
+		TaskToTaskId[nt] = id;
+		return id;
+	}
 	TASK_ID addTask(TIME_UNIT r, INTEGER_TIME_UNIT DandT) {
 		return this->addTask(r, DandT, DandT);
 	}
 	TASK_ID addTask(TIME_UNIT r, INTEGER_TIME_UNIT D, INTEGER_TIME_UNIT T) {
 		const TASK_ID id = TaskIdToTask.size();
 		const Task t(id, r, D, D, T);
+		TaskIdToTask.push_back(t);
+		TaskToTaskId[t] = id;
+		return id;
+	}
+	TASK_ID addTask(TIME_UNIT r, INTEGER_TIME_UNIT C,  INTEGER_TIME_UNIT D, INTEGER_TIME_UNIT T) {
+		VERBOSE_ASSERT(C==D, "Unsupported case");
+		const TASK_ID id = TaskIdToTask.size();
+		const Task t(id, r, C, D, T);
 		TaskIdToTask.push_back(t);
 		TaskToTaskId[t] = id;
 		return id;
@@ -131,6 +154,9 @@ public:
 
 	TASK_ID getTaskIdByTask(Task t) const { return TaskToTaskId.at(t); }
 
+	void addDependency(Dependency d) {
+		this->addDependency(d.getFirst(), d.getSecond());
+	}
 	void addDependency(TASK_ID t1, TASK_ID t2) {
 
 		if (TaskIdToTask.size() <= (size_t) std::max(t1,t2)) {

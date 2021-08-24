@@ -14,11 +14,13 @@ BOOST_AUTO_TEST_SUITE(test_figure1)
 
 BOOST_AUTO_TEST_CASE(test_figure1_graph) {
 
-	utils::set_verbose_mode(10);
-	utils::set_verbose_custom_mode("PCG", true);
+	letitgo::utils::set_verbose_mode(10);
+	letitgo::utils::set_verbose_custom_mode("PCG", true);
 	VERBOSE_INFO("info works");
 	VERBOSE_DEBUG("debug works");
 	VERBOSE_PCG("debug works");
+
+
 	LETModel figure1;
 	TASK_ID t1 = figure1.addTask(0, 3, 4);
 	TASK_ID t2 = figure1.addTask(1, 2, 3);

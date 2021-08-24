@@ -27,7 +27,7 @@ int main (int argc , char * argv[]) {
 	gflags::SetUsageMessage("LETItGo: LET Analysis tool");
 	gflags::SetVersionString("1.0.0");
 	gflags::ParseCommandLineFlags(&argc, &argv, true);
-	utils::set_verbose_mode(FLAGS_verbose);
+	letitgo::utils::set_verbose_mode(FLAGS_verbose);
 
 
 	ExpansionBenchmarkConfiguration config;

@@ -38,6 +38,8 @@ struct AgeLatencyResult {
 	    		<< " iterations=" << obj.expansion_vertex_count.size()
 	    	    << " ExVSize=" << obj.expansion_vertex_count.back()
 	    		<< " ExESize=" << obj.expansion_edge_count.back()
+	    		<< " upper_bounds=" << obj.upper_bounds
+	    		<< " lower_bounds=" << obj.lower_bounds
 	    		 << " first_bound_error=" << obj.lower_bounds.front()
 	           << ">";
 	    return stream;
