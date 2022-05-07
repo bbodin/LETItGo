@@ -66,6 +66,37 @@ PeriodicityVector generate_random_ni_periodicity_vector(const LETModel &model, s
 	return K;
 }
 
+//TODO: In order to merge the three generator function
+////typedef std::function<std::vector<INTEGER_TIME_UNIT>()> PeriodGeneratorFunction;
+
+
+/**
+ *
+ * Generate a bunch of `n` new tasks in the LET `sample` based on data found in automotive papers.
+ *
+ *  T = {1,2,5,10,20,50,100}
+ *  R = {0,1,2,3,4,5}
+ *
+ */
+void GenerateTasks(LETModel& sample,const std::vector<INTEGER_TIME_UNIT>& T,const std::vector<TIME_UNIT>& R, unsigned int n, std::mt19937& gen) {
+
+
+    std::uniform_int_distribution<> T_distrib(0, T.size() - 1);
+    std::uniform_int_distribution<> R_distrib(0, R.size() - 1);
+    std::uniform_real_distribution<> D_distrib(0, 1);
+
+
+    // Di = Hi
+    bool TiEqualDi = true;
+    for (unsigned int i = 0 ; i < n ; i++) {
+        const TIME_UNIT Ri = R[R_distrib(gen)];
+        const INTEGER_TIME_UNIT Ti = T[T_distrib(gen)];
+        const INTEGER_TIME_UNIT Di =  TiEqualDi? Ti : Ti - std::floor(D_distrib(gen) * Ti);
+        TASK_ID t = sample.addTask(Ri, Di, Ti);
+        VERBOSE_ASSERT(t == i, "addTask does not behave as expected");
+    }
+}
+
 
 /**
  *
@@ -77,26 +108,11 @@ PeriodicityVector generate_random_ni_periodicity_vector(const LETModel &model, s
  */
 void GenerateAutomotiveTasks(LETModel& sample, unsigned int n, std::mt19937& gen) {
 
-	  // Possible period to be taken uniformly
-	  std::vector<INTEGER_TIME_UNIT> T = {1,2,5,10,20,50,100};
+	// Possible period to be taken uniformly
+	const std::vector<INTEGER_TIME_UNIT> T = {1,2,5,10,20,50,100};
+      const std::vector<TIME_UNIT> R = {0,1,2,3,4,5};
+      GenerateTasks(sample, T, R, n, gen);
 
-	  // Possible release time to be taken uniformly
-	  std::vector<TIME_UNIT> R = {0,1,2,3,4,5};
-
-	  std::uniform_int_distribution<> T_distrib(0, T.size() - 1);
-	  std::uniform_int_distribution<> R_distrib(0, R.size() - 1);
-      std::uniform_real_distribution<> D_distrib(0, 1);
-
-
-	  // Di = Hi
-
-	  for (unsigned int i = 0 ; i < n ; i++) {
-		  const TIME_UNIT Ri = R[R_distrib(gen)];
-		  const INTEGER_TIME_UNIT Ti = T[T_distrib(gen)];
-          const INTEGER_TIME_UNIT Di =  Ti - std::floor(D_distrib(gen) * Ti);
-		  TASK_ID t = sample.addTask(Ri, Di, Ti);
-		  VERBOSE_ASSERT(t == i, "addTask does not behave as expected");
-	  }
 }
 
 /**
@@ -121,24 +137,8 @@ void GenerateHarmonicTasks(LETModel& sample, unsigned int n, std::mt19937& gen) 
 		  prod = std::lcm ( prod, new_value * prod);
 	  }
 
-
-	  // Possible release time to be taken uniformly
-	  std::vector<TIME_UNIT> R = {0,1,2,3,4,5};
-
-	  std::uniform_int_distribution<> T_distrib(0, T.size() - 1);
-	  std::uniform_int_distribution<> R_distrib(0, R.size() - 1);
-      std::uniform_real_distribution<> D_distrib(0, 1);
-
-
-	  // Di = Hi
-
-	  for (unsigned int i = 0 ; i < n ; i++) {
-		  const TIME_UNIT Ri = R[R_distrib(gen)];
-		  const INTEGER_TIME_UNIT Ti = T[T_distrib(gen)];
-          const INTEGER_TIME_UNIT Di =  Ti - std::floor(D_distrib(gen) * Ti);
-		  TASK_ID t = sample.addTask(Ri, Di, Ti);
-		  VERBOSE_ASSERT(t == i, "addTask does not behave as expected");
-	  }
+    std::vector<TIME_UNIT> R = {0,1,2,3,4,5};
+    GenerateTasks(sample, T, R, n, gen);
 }
 
 /*
@@ -150,24 +150,9 @@ void GenerateHarmonicTasks(LETModel& sample, unsigned int n, std::mt19937& gen) 
  */
 void GenerateGenericTasks(LETModel& sample, unsigned int n, std::mt19937& gen) {
 
-	  // Possible release time to be taken uniformly
-	  std::vector<TIME_UNIT> R = {0,1,2,3,4,5};
-
-	  std::uniform_int_distribution<> T_distrib(1, 10);
-	  std::uniform_int_distribution<> R_distrib(0, R.size() - 1);
-      std::uniform_real_distribution<> D_distrib(0, 1);
-
-
-	  // Di = Hi
-
-	  for (unsigned int i = 0 ; i < n ; i++) {
-		  const TIME_UNIT Ri = R[R_distrib(gen)];
-		  const INTEGER_TIME_UNIT Ti = T_distrib(gen);
-          const INTEGER_TIME_UNIT Di =  Ti - std::floor(D_distrib(gen) * Ti);
-
-		  TASK_ID t = sample.addTask(Ri, Di, Ti);
-		  VERBOSE_ASSERT(t == i, "addTask does not behave as expected");
-	  }
+    std::vector<INTEGER_TIME_UNIT> T = {1,2,3,4,5,6,7,8,9,10};
+    std::vector<TIME_UNIT> R = {0,1,2,3,4,5};
+    GenerateTasks(sample, T, R, n, gen);
 }
 
 void GenerateUniformConnections(LETModel& sample, unsigned int m, std::mt19937& gen) {
@@ -199,40 +184,34 @@ void GenerateUniformConnections(LETModel& sample, unsigned int m, std::mt19937& 
 
 }
 
-LETModel generate_Automotive_LET (unsigned int n, unsigned int m, size_t seed) {
+LETModel generate_LET (GeneratorRequest r) {
+	auto seed = r.seed;
 	if (seed == 0) {
 		std::random_device rd;
 		seed = rd();
 	}
-	VERBOSE_DEBUG("N=" << n << " M=" << m << " Seed=" << seed);
-	std::mt19937 gen(seed);
-	LETModel sample ;
-	GenerateAutomotiveTasks(sample, n, gen) ;
-	GenerateUniformConnections(sample, m, gen);
-	return sample;
-}
-LETModel generate_Harmonic_LET (unsigned int n, unsigned int m, size_t seed) {
-	if (seed == 0) {
-		std::random_device rd;
-		seed = rd();
-	}
-	VERBOSE_DEBUG("N=" << n << " M=" << m << " Seed=" << seed);
-	std::mt19937 gen(seed);
-	LETModel sample ;
-	GenerateHarmonicTasks(sample, n, gen) ;
-	GenerateUniformConnections(sample, m, gen);
-	return sample;
-}
-LETModel generate_Generic_LET (unsigned int n, unsigned int m, size_t seed) {
 
-	if (seed == 0) {
-		std::random_device rd;
-		seed = rd();
-	}
+	auto n = r.n;
+	auto m = r.m;
+	auto kind = r.t;
 	VERBOSE_DEBUG("N=" << n << " M=" << m << " Seed=" << seed);
 	std::mt19937 gen(seed);
 	LETModel sample ;
-	GenerateGenericTasks(sample, n, gen) ;
+
+	switch (kind) {
+		case unknown_dt:
+			break;
+		case generic_dt:
+			GenerateGenericTasks(sample, n, gen) ;
+			break;
+		case harmonic_dt:
+			GenerateHarmonicTasks(sample, n, gen) ;
+			break;
+		case automotive_dt:
+			GenerateAutomotiveTasks(sample, n, gen) ;
+			break;
+	}
+
 	GenerateUniformConnections(sample, m, gen);
 	return sample;
 

@@ -48,7 +48,8 @@ ExpansionBenchmarkResult  benchmark_expansion   (GenerateExpansionFun fun, size_
 	for (size_t i = 0 ; i < sample_count ; i ++ ) {
 
 		// Prepare problem instance
-		LETModel sample = g.generate(dt, n,m, seed + i);
+        GeneratorRequest r (n,m,seed + i, dt);
+		LETModel sample = g.generate(r);
 		auto K = harmonized_periodicity ?  generate_random_ni_periodicity_vector(sample, seed) : generate_random_periodicity_vector(sample, seed);
 		INTEGER_TIME_UNIT lcm = getLCM<INTEGER_TIME_UNIT>(sample);
 		sum_n += getSumN<INTEGER_TIME_UNIT> (sample);
@@ -81,7 +82,7 @@ ExpansionBenchmarkResult  benchmark_expansion   (GenerateExpansionFun fun, size_
 
 		//Get timings and statistics
 		double sub_sum_time = 0;
-		for (size_t i = 0 ; i < iter_count; i++) {
+		for (size_t j = 0 ; j < iter_count; j++) {
 			auto t1 = std::chrono::high_resolution_clock::now();
 			fun(sample, K);
 			auto t2 = std::chrono::high_resolution_clock::now();
@@ -114,7 +115,9 @@ AgeLatencyBenchmarkResult benchmark_age_latency (AgeLatencyFun fun, size_t sampl
 	VERBOSE_DEBUG("Start benchmark with n=" << n << " and " << " m=" << m);
 	for (size_t i = 0 ; i < sample_count ; i ++ ) {
 		VERBOSE_INFO ("Run generate with arguments n=" << n << ", m=" << m << ", dt=" << dt << ", seed=" << seed + i);
-		LETModel sample = Generator::getInstance().generate(dt, n , m , seed + i);
+
+        GeneratorRequest r (n,m,seed + i, dt);
+		LETModel sample = Generator::getInstance().generate(r);
 		INTEGER_TIME_UNIT lcm = getLCM<INTEGER_TIME_UNIT>(sample);
 		VERBOSE_DEBUG("LCM=" << lcm);
 		INTEGER_TIME_UNIT sum_n = getSumN<INTEGER_TIME_UNIT> (sample);
@@ -366,7 +369,8 @@ void main_benchmark_age_latency (AgeLantencyBenchmarkConfiguration config) {
 				if (config.detailed) {
 					for (size_t i = 0 ; i < sample_count ; i ++ ) {
 						GenerateExpansionFun expFun = (GenerateExpansionFun) generate_partial_constraint_graph;
-						LETModel sample = Generator::getInstance().generate(dt, n , m , seed + i);
+                        GeneratorRequest r (n,m,seed+i,dt);
+						LETModel sample = Generator::getInstance().generate(r);
 						AgeLatencyResult fun_res = original(sample, expFun);
 						print_detailed_al_row(dt,fun_res, out_stream);
 					}

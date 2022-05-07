@@ -23,6 +23,7 @@ DEFINE_int32(seed,          123, "Value of the first seed.");
 DEFINE_bool(detailed,      false, "printout every sample");
 DEFINE_string(kind,  "automotive", "Kind of dataset to generate (automotive,generic,harmonic)");
 DEFINE_string(logfile,  "", "Location of output file");
+DEFINE_bool(DiEqualTi,      false, "Every Di = Ti");
 
 
 
@@ -46,7 +47,8 @@ int main (int argc , char * argv[]) {
 	config.iter_count    = FLAGS_iter_count;
 	config.seed          = FLAGS_seed;
 	config.kind          = str2kind(FLAGS_kind);
-        config.detailed      = FLAGS_detailed;
+    config.detailed      = FLAGS_detailed;
+    config.DiEqualTi     = FLAGS_DiEqualTi;
 	main_benchmark_age_latency (config ) ;
 
 

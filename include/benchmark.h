@@ -22,8 +22,9 @@ struct BenchmarkConfiguration  {
 	size_t iter_count = 1;
 	size_t seed = 123;
 	bool detailed = false;
-        LETDatasetType kind = LETDatasetType::automotive_dt;
-        std::string logfile = "";
+    bool DiEqualTi = false;
+    LETDatasetType kind = LETDatasetType::automotive_dt;
+    std::string logfile = "";
 };
 struct ExpansionBenchmarkConfiguration : public BenchmarkConfiguration {
 

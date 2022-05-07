@@ -17,12 +17,12 @@ BOOST_AUTO_TEST_SUITE(test_generator)
 
 BOOST_AUTO_TEST_CASE(test_GeneratorCacheEntry) {
 
-	std::map<GeneratorCacheEntry,int> cache;
+	std::map<GeneratorRequest,int> cache;
 
-	GeneratorCacheEntry entry1 (LETDatasetType::automotive_dt, 2,3,4);
-	GeneratorCacheEntry entry2 (LETDatasetType::automotive_dt, 2,3,4);
-	GeneratorCacheEntry entry3 (LETDatasetType::automotive_dt, 3,3,4);
-	GeneratorCacheEntry entry4 (LETDatasetType::generic_dt, 3,3,4);
+    GeneratorRequest entry1 (2,3,4,LETDatasetType::automotive_dt);
+    GeneratorRequest entry2 (2,3,4,LETDatasetType::automotive_dt);
+    GeneratorRequest entry3 (3,3,4,LETDatasetType::automotive_dt);
+    GeneratorRequest entry4 (3,3,4,LETDatasetType::generic_dt);
 
 	BOOST_CHECK_EQUAL(entry1 , entry1);
 	BOOST_CHECK_EQUAL(entry1 , entry2);
@@ -59,19 +59,19 @@ BOOST_AUTO_TEST_CASE(test_GeneratorCacheEntry) {
 
 BOOST_AUTO_TEST_CASE(test_empty) {
 
-	  LETModel sample_auto = generate_Automotive_LET(0,0);
+	  LETModel sample_auto = generate_LET(GeneratorRequest(0,0,0,LETDatasetType::automotive_dt));
 
 	  BOOST_CHECK_EQUAL(sample_auto.getTaskCount() , 0);
 	  BOOST_CHECK_EQUAL(sample_auto.getDependencyCount() , 0);
 
 
-	  LETModel sample_harmo = generate_Harmonic_LET(0,0);
+	  LETModel sample_harmo = generate_LET(GeneratorRequest(0,0,0,LETDatasetType::harmonic_dt));
 
 	  BOOST_CHECK_EQUAL(sample_harmo.getTaskCount() , 0);
 	  BOOST_CHECK_EQUAL(sample_harmo.getDependencyCount() , 0);
 
 
-	  LETModel sample_gen = generate_Generic_LET(0,0);
+	  LETModel sample_gen = generate_LET(GeneratorRequest(0,0,0,LETDatasetType::generic_dt));
 
 	  BOOST_CHECK_EQUAL(sample_gen.getTaskCount() , 0);
 	  BOOST_CHECK_EQUAL(sample_gen.getDependencyCount() , 0);
@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_CASE(test_empty) {
 
 BOOST_AUTO_TEST_CASE(test_very_small) {
 
-  LETModel sample = generate_Automotive_LET(1,0);
+        LETModel sample = generate_LET(GeneratorRequest(1,0,0,LETDatasetType::automotive_dt));
 
   BOOST_CHECK_EQUAL(sample.getTaskCount() , 1);
   BOOST_CHECK_EQUAL(sample.getDependencyCount() , 0);
@@ -90,7 +90,8 @@ BOOST_AUTO_TEST_CASE(test_very_small) {
 
 BOOST_AUTO_TEST_CASE(test_generate_random_periodicity_vector) {
 
-  LETModel sample = generate_Automotive_LET(1,0);
+
+        LETModel sample = generate_LET(GeneratorRequest(1,0,0,LETDatasetType::automotive_dt));
 
   BOOST_CHECK_EQUAL(sample.getTaskCount() , 1);
   BOOST_CHECK_EQUAL(sample.getDependencyCount() , 0);
@@ -104,7 +105,7 @@ BOOST_AUTO_TEST_CASE(test_generate_random_periodicity_vector) {
 
 BOOST_AUTO_TEST_CASE(test_small) {
 
-  LETModel sample = generate_Automotive_LET(3,2);
+    LETModel sample = generate_LET(GeneratorRequest(3,2,0,LETDatasetType::automotive_dt));
 
   BOOST_CHECK_EQUAL(sample.getTaskCount() , 3);
   BOOST_CHECK_EQUAL(sample.getDependencyCount() , 2);
@@ -125,7 +126,7 @@ BOOST_AUTO_TEST_CASE(test_big) {
 	int n = 300;
 	int m = 200;
 
-	  LETModel sample = generate_Automotive_LET(n,m);
+    LETModel sample = generate_LET(GeneratorRequest(n,m,0,LETDatasetType::automotive_dt));
 
 	  BOOST_CHECK_EQUAL(sample.getTaskCount() , n);
 	  BOOST_CHECK_EQUAL(sample.getDependencyCount() , m);
@@ -137,7 +138,7 @@ BOOST_AUTO_TEST_CASE(test_harmonic) {
 	int n = 10;
 	int m = 10;
 
-	LETModel sample = generate_Harmonic_LET(n,m);
+        LETModel sample = generate_LET(GeneratorRequest(n,m,0,LETDatasetType::harmonic_dt));
 
 	BOOST_CHECK_EQUAL(sample.getTaskCount() , n);
 	BOOST_CHECK_EQUAL(sample.getDependencyCount() , m);
@@ -165,7 +166,7 @@ BOOST_AUTO_TEST_CASE(test_generation) {
 	std::map<INTEGER_TIME_UNIT,size_t> T_counts;
 	std::map<Dependency, size_t> edge_counts;
 	for (int i = 0 ; i < MAX_ITER ; i++) {
-		LETModel sample = generate_Automotive_LET(n,m);
+        LETModel sample = generate_LET(GeneratorRequest(n,m,0,LETDatasetType::automotive_dt));
 
 		BOOST_CHECK_EQUAL(sample.getTaskCount() , n);
 		BOOST_CHECK_EQUAL(sample.getDependencyCount() , m);
@@ -225,7 +226,7 @@ BOOST_AUTO_TEST_CASE(test_fix1) {
 	int n = 10;
 	int m = 22;
 
-	LETModel sample = generate_Automotive_LET(n, m, 133);
+        LETModel sample = generate_LET(GeneratorRequest(n,m,133,LETDatasetType::automotive_dt));
 	PeriodicityVector K = generate_random_periodicity_vector(sample, 133);
 
 	for (Task t : sample.tasks()) {
@@ -241,7 +242,7 @@ BOOST_AUTO_TEST_CASE(test_fix2) {
 	int m = 5;
 	int seed = 130;
 
-	LETModel sample = generate_Generic_LET(n, m, seed);
+    LETModel sample = generate_LET(GeneratorRequest(n,m,seed,LETDatasetType::generic_dt));
 	BOOST_CHECK_EQUAL(sample.tasks().size() , n);
 	BOOST_CHECK_EQUAL(sample.dependencies().size() , m);
 	std::cout << sample << std::endl;

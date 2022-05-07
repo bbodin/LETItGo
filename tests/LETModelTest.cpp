@@ -6,12 +6,11 @@
  */
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MAIN  // in only one cpp file
 #define BOOST_TEST_MODULE LETModelTest
 #include <boost/test/included/unit_test.hpp>
 #include <letitgo.h>
 
-BOOST_AUTO_TEST_SUITE(test_corner_cases)
+BOOST_AUTO_TEST_SUITE(LETModelTest)
 
 BOOST_AUTO_TEST_CASE(test_equal) {
 	 auto a1 = new LETModel();
@@ -37,6 +36,8 @@ BOOST_AUTO_TEST_CASE(test_equal) {
 
 	  BOOST_CHECK_EQUAL(*a1,*a2);
 
+      delete a1;
+      delete a2;
 }
 
 BOOST_AUTO_TEST_SUITE_END()
