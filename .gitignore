@@ -4,3 +4,7 @@
 build/
 *~
 .ipynb_checkpoints
+notebooks/*.csv
+.idea/
+cmake-build-debug/
+*.csv
