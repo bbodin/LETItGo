@@ -85,6 +85,7 @@ void GenerateAutomotiveTasks(LETModel& sample, unsigned int n, std::mt19937& gen
 
 	  std::uniform_int_distribution<> T_distrib(0, T.size() - 1);
 	  std::uniform_int_distribution<> R_distrib(0, R.size() - 1);
+      std::uniform_real_distribution<> D_distrib(0, 1);
 
 
 	  // Di = Hi
@@ -92,7 +93,7 @@ void GenerateAutomotiveTasks(LETModel& sample, unsigned int n, std::mt19937& gen
 	  for (unsigned int i = 0 ; i < n ; i++) {
 		  const TIME_UNIT Ri = R[R_distrib(gen)];
 		  const INTEGER_TIME_UNIT Ti = T[T_distrib(gen)];
-		  const INTEGER_TIME_UNIT Di = Ti;
+          const INTEGER_TIME_UNIT Di =  Ti - std::floor(D_distrib(gen) * Ti);
 		  TASK_ID t = sample.addTask(Ri, Di, Ti);
 		  VERBOSE_ASSERT(t == i, "addTask does not behave as expected");
 	  }
@@ -126,6 +127,7 @@ void GenerateHarmonicTasks(LETModel& sample, unsigned int n, std::mt19937& gen) 
 
 	  std::uniform_int_distribution<> T_distrib(0, T.size() - 1);
 	  std::uniform_int_distribution<> R_distrib(0, R.size() - 1);
+      std::uniform_real_distribution<> D_distrib(0, 1);
 
 
 	  // Di = Hi
@@ -133,7 +135,7 @@ void GenerateHarmonicTasks(LETModel& sample, unsigned int n, std::mt19937& gen) 
 	  for (unsigned int i = 0 ; i < n ; i++) {
 		  const TIME_UNIT Ri = R[R_distrib(gen)];
 		  const INTEGER_TIME_UNIT Ti = T[T_distrib(gen)];
-		  const INTEGER_TIME_UNIT Di = Ti;
+          const INTEGER_TIME_UNIT Di =  Ti - std::floor(D_distrib(gen) * Ti);
 		  TASK_ID t = sample.addTask(Ri, Di, Ti);
 		  VERBOSE_ASSERT(t == i, "addTask does not behave as expected");
 	  }
@@ -153,6 +155,7 @@ void GenerateGenericTasks(LETModel& sample, unsigned int n, std::mt19937& gen) {
 
 	  std::uniform_int_distribution<> T_distrib(1, 10);
 	  std::uniform_int_distribution<> R_distrib(0, R.size() - 1);
+      std::uniform_real_distribution<> D_distrib(0, 1);
 
 
 	  // Di = Hi
@@ -160,7 +163,8 @@ void GenerateGenericTasks(LETModel& sample, unsigned int n, std::mt19937& gen) {
 	  for (unsigned int i = 0 ; i < n ; i++) {
 		  const TIME_UNIT Ri = R[R_distrib(gen)];
 		  const INTEGER_TIME_UNIT Ti = T_distrib(gen);
-		  const INTEGER_TIME_UNIT Di = Ti;
+          const INTEGER_TIME_UNIT Di =  Ti - std::floor(D_distrib(gen) * Ti);
+
 		  TASK_ID t = sample.addTask(Ri, Di, Ti);
 		  VERBOSE_ASSERT(t == i, "addTask does not behave as expected");
 	  }

@@ -37,6 +37,9 @@ extern int VERBOSE_MODE;
 extern bool VERBOSE_COLOR;
 extern bool VERBOSE_GUESS;
 
+extern int VERBOSE_PROGRESS_START;
+extern int VERBOSE_PROGRESS_END;
+
 #ifndef __RELEASE_MODE__
 extern std::set<std::string> VERBOSE_CUSTOM_MODES;
 #endif
@@ -250,5 +253,19 @@ static inline bool VERBOSE_IS_ILP() {
   }
 
 #define VERBOSE_BACKTRACE() letitgo::utils::print_trace(__FILE__, __LINE__);
+
+
+
+#define VERBOSE_SET_PROGRESS( begin_n, end_n ) \
+std::cout << "0%   10   20   30   40   50   60   70   80   90   100%" << std::endl\
+          << "|----|----|----|----|----|----|----|----|----|----|" << std::endl; \
+letitgo::utils::VERBOSE_PROGRESS_START = begin_n;                                                  \
+letitgo::utils::VERBOSE_PROGRESS_END = end_n;
+
+#define VERBOSE_UPDATE_PROGRESS( current_n ) \
+std::cout << "\r" <<  std::setfill('*')  << std::setw (50 * (current_n - letitgo::utils::VERBOSE_PROGRESS_START) / letitgo::utils::VERBOSE_PROGRESS_END)  \
+          << ""   << std::setfill(' ')                                        \
+          << std::setw (50 - 50 * (current_n - letitgo::utils::VERBOSE_PROGRESS_START) / letitgo::utils::VERBOSE_PROGRESS_END)  << ""                       \
+          << " Current = " << current_n << "/" << letitgo::utils::VERBOSE_PROGRESS_END << std::flush;
 
 #endif /* VERBOSE_H_ */

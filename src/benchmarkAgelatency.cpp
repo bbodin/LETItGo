@@ -22,6 +22,7 @@ DEFINE_int32(iter_count,     50, "How many run per graph (precision)");
 DEFINE_int32(seed,          123, "Value of the first seed.");
 DEFINE_bool(detailed,      false, "printout every sample");
 DEFINE_string(kind,  "automotive", "Kind of dataset to generate (automotive,generic,harmonic)");
+DEFINE_string(logfile,  "", "Location of output file");
 
 
 
@@ -37,7 +38,7 @@ int main (int argc , char * argv[]) {
 
 
 	AgeLantencyBenchmarkConfiguration config;
-
+    config.logfile       = FLAGS_logfile;
 	config.begin_n       = FLAGS_begin_n;
 	config.end_n         = FLAGS_end_n;
 	config.step_n        = FLAGS_step_n;

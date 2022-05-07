@@ -34,7 +34,8 @@ BOOST_AUTO_TEST_CASE(benchmark_AgeLatency) {
 	config.sample_count  = 2;
 	config.iter_count    = 2;
 	config.seed          = 123;
-
+    config.detailed     = false;
+    config.kind = LETDatasetType::automotive_dt;
 	main_benchmark_age_latency ( config ) ;
 }
 
@@ -46,7 +47,7 @@ BOOST_AUTO_TEST_CASE(test_benchmark_expansion) {
 	size_t iter_count = 2;
 	size_t n = 5;
 	size_t m = 10;
-	size_t seed = 123;
+        size_t seed = 123;
 	ExpansionBenchmarkResult res = benchmark_expansion (generate_partial_constraint_graph, sample_count , iter_count ,  n,  m, LETDatasetType::automotive_dt, false,   seed);
 
 	BOOST_CHECK_GT(res.total_edge_count, 0);

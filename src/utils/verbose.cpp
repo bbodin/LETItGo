@@ -14,6 +14,10 @@ namespace utils {
 int VERBOSE_MODE = MIN_LEVEL;
 bool VERBOSE_GUESS = true;
 bool VERBOSE_COLOR = true;
+
+int VERBOSE_PROGRESS_START = 0;
+int VERBOSE_PROGRESS_END = 0;
+
 std::set<std::string> VERBOSE_CUSTOM_MODES;
 void myterminate(int) {
   print_trace("", 0);

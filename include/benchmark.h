@@ -23,6 +23,7 @@ struct BenchmarkConfiguration  {
 	size_t seed;
 	bool detailed;
 	LETDatasetType kind;
+    std::string logfile;
 };
 struct ExpansionBenchmarkConfiguration : public BenchmarkConfiguration {
 

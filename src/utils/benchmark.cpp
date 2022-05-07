@@ -9,6 +9,7 @@
 #include <letitgo.h>
 #include <chrono>
 #include <iomanip>
+#include <fstream>
 
 /**
  *
@@ -35,7 +36,7 @@ ExpansionBenchmarkResult  benchmark_expansion   (GenerateExpansionFun fun, size_
 	double sum_time = 0;
 	long sum_edge = 0;
 	long sum_vertex = 0;
-
+        std::ostream& out_stream = std::cout;
 	Generator& g = Generator::getInstance();
 
 	VERBOSE_DEBUG("Start benchmark with n=" << n << " and " << " m=" << m << " seed=" << seed);
@@ -66,7 +67,7 @@ ExpansionBenchmarkResult  benchmark_expansion   (GenerateExpansionFun fun, size_
 		total_stats = total_stats + Algorithm2_statistics::getSingleton();
 
 		if (res != original) {
-			std::cout << "Failed with: "  << std::endl
+                out_stream << "Failed with: "  << std::endl
 					<< " sample seed =" << seed + i << std::endl
 					<< " N =" << n << std::endl
 					<< " M =" << m << std::endl
@@ -150,6 +151,7 @@ AgeLatencyBenchmarkResult benchmark_age_latency (AgeLatencyFun fun, size_t sampl
 
 void main_benchmark_expansion (ExpansionBenchmarkConfiguration config) {
 
+        std::ostream& out_stream = std::cout;
 	size_t begin_n = config.begin_n ;
 	size_t end_n        = config.end_n ;
 	size_t step_n       = config.step_n     ;
@@ -161,22 +163,22 @@ void main_benchmark_expansion (ExpansionBenchmarkConfiguration config) {
 	VERBOSE_INFO("Start benchmark of " << total << " runs.");
 
 	//boost::timer::progress_display show_progress( total );
-	std::cout << "############################################################################################" << std::endl;
-	std::cout << "########## LET it Go Age Expansion Benchmarking                                          ###" << std::endl;
-	std::cout << "############################################################################################" << std::endl;
-	std::cout << "#     begin_n = " << begin_n << "" << std::endl;
-	std::cout << "#     end_n = " << end_n << "" << std::endl;
-	std::cout << "#     step_n = " << step_n << "" << std::endl;
-	std::cout << "#     sample_count = " << sample_count << "" << std::endl;
-	std::cout << "#     iter_count = " << iter_count << "" << std::endl;
-	std::cout << "#     fseed = " << fseed << "" << std::endl;
-	std::cout << "############################################################################################" << std::endl;
+        out_stream << "############################################################################################" << std::endl;
+        out_stream << "########## LET it Go Age Expansion Benchmarking                                          ###" << std::endl;
+        out_stream << "############################################################################################" << std::endl;
+        out_stream << "#     begin_n = " << begin_n << "" << std::endl;
+        out_stream << "#     end_n = " << end_n << "" << std::endl;
+        out_stream << "#     step_n = " << step_n << "" << std::endl;
+        out_stream << "#     sample_count = " << sample_count << "" << std::endl;
+        out_stream << "#     iter_count = " << iter_count << "" << std::endl;
+        out_stream << "#     fseed = " << fseed << "" << std::endl;
+        out_stream << "############################################################################################" << std::endl;
 
 	GenerateExpansionFun f_original          = (GenerateExpansionFun) generate_partial_constraint_graph;
 	GenerateExpansionFun f_new               = (GenerateExpansionFun) new_generate_partial_constraint_graph;
 	GenerateExpansionFun f_new_and_optimized = (GenerateExpansionFun) opt_new_generate_partial_constraint_graph;
 
-	std::cout
+        out_stream
 		<< std::setw(4) << "dt"
 		<< std::setw(4) << "KdN"
 		<< std::setw(5) << "n"
@@ -204,7 +206,7 @@ void main_benchmark_expansion (ExpansionBenchmarkConfiguration config) {
 			for (bool hpf : {false, true}) {
 				for (LETDatasetType dt : {LETDatasetType::automotive_dt, LETDatasetType::harmonic_dt} ) {
 
-					std::cout
+                    out_stream
 					<< std::setw(4)  << dt
 					<< std::setw(4)  << hpf
 					<< std::setw(5)  << n
@@ -213,7 +215,7 @@ void main_benchmark_expansion (ExpansionBenchmarkConfiguration config) {
 				ExpansionBenchmarkResult bench_res1  = benchmark_expansion ( f_original , sample_count, iter_count, n, m,dt,  hpf,  seed) ;
 				ExpansionBenchmarkResult bench_res2  = benchmark_expansion ( f_new , sample_count, iter_count, n, m, dt, hpf,  seed) ;
 				ExpansionBenchmarkResult bench_res3  = benchmark_expansion ( f_new_and_optimized , sample_count, iter_count, n, m,dt,  hpf,  seed) ;
-				std::cout
+                    out_stream
 				<< std::setw(10) << bench_res1.sum_n / (double) bench_res1.sample_count
 						<< std::setw(10) << bench_res1.total_vertex_count / (double) bench_res1.sample_count
 						<< std::setw(10) << bench_res1.total_edge_count / (double) bench_res1.sample_count
@@ -235,8 +237,8 @@ void main_benchmark_expansion (ExpansionBenchmarkConfiguration config) {
 
 }
 
-inline void print_detailed_al_header() {
-	std::cout
+inline void print_detailed_al_header(std::ostream& out_stream) {
+    out_stream
 			       << "kind"
 			<< ";" << "n"
 			<< ";" << "m"
@@ -254,43 +256,28 @@ inline void print_detailed_al_header() {
 
 
 inline void print_detailed_al_row( LETDatasetType dt,
-		  AgeLatencyResult res) {
+		  AgeLatencyResult res, std::ostream& out_stream) {
 
-		/*std::cout
-			  << std::setw(5) << dt
-			  << std::setw(5) << n
-				  << std::setw(5) << m
-				  << std::setw(10) << std::fixed << std::setprecision(1)  << sum_n
-				  << std::flush;
-				  std::cout
-				  << std::setw(10) << std::setprecision(2)  << std::fixed << bench.time
-				  << std::setw(10) << std::setprecision(2)  << std::fixed << bench.iter
-				  << std::setw(10) << bench.size
-				  << std::setw(10) << bench.bound
-				  << std::setw(10) << bench.g_ctime
-				  << std::setw(10) << bench.p_ctime
 
-				  << std::endl;
-		*/
-	std::cout     << dt
+    out_stream     << dt
 				  << ";"  << res.n
 				  << ";"  << res.m
 				  << ";"  << res.sum_n;
-		std::cout << ";"  << std::fixed << res.age_latency;
-		std::cout << ";"  << res.expansion_vertex_count.size()   ;
-		std::cout << ";"  << "\"" << res.expansion_vertex_count << "\""   ;
-		std::cout << ";"  << "\"" << res.expansion_edge_count << "\""   ;
-		std::cout << ";"  << "\"" << res.lower_bounds  << "\""  ;
-		std::cout << ";"  << "\"" << res.upper_bounds << "\""   ;
-		std::cout << ";"  << std::setprecision(2) << std::fixed << res.graph_computation_time  ;
-		std::cout << ";"  << std::setprecision(2) << std::fixed << res.path_computation_time  ;
-		std::cout << std::endl;
+    out_stream << ";"  << std::fixed << res.age_latency;
+    out_stream << ";"  << res.expansion_vertex_count.size()   ;
+    out_stream << ";"  << "\"" << res.expansion_vertex_count << "\""   ;
+    out_stream << ";"  << "\"" << res.expansion_edge_count << "\""   ;
+    out_stream << ";"  << "\"" << res.lower_bounds  << "\""  ;
+    out_stream << ";"  << "\"" << res.upper_bounds << "\""   ;
+    out_stream << ";"  << std::setprecision(2) << std::fixed << res.graph_computation_time  ;
+    out_stream << ";"  << std::setprecision(2) << std::fixed << res.path_computation_time  ;
+    out_stream << std::endl;
 
 
 }
 
-inline void print_al_header() {
-	std::cout
+inline void print_al_header(std::ostream& out_stream) {
+    out_stream
 	<< std::setw(5) << "kind"
 	<< std::setw(5) << "n"
 			<< std::setw(5) << "m"
@@ -304,12 +291,12 @@ inline void print_al_header() {
 			<< std::endl;
 }
 
-inline void print_al_row(AgeLatencyBenchmarkResult bench) {
-		std::cout
+inline void print_al_row(AgeLatencyBenchmarkResult bench, std::ostream& out_stream) {
+    out_stream
 			  << std::setw(5) << bench.dt
 			  << std::setw(5) << bench.n
 				  << std::setw(5) << bench.m << std::flush;
-		std::cout
+    out_stream
 				  << std::setw(10) << std::fixed << std::setprecision(1)  << bench.sum_n
 				  << std::setw(10) << std::setprecision(2)  << std::fixed << bench.time
 				  << std::setw(10) << std::setprecision(2)  << std::fixed << bench.iter
@@ -334,37 +321,44 @@ void main_benchmark_age_latency (AgeLantencyBenchmarkConfiguration config) {
 	LETDatasetType       dt = config.kind;
 	AgeLatencyFun original = (AgeLatencyFun) ComputeAgeLatency;
 
+    //std::ostream& out_stream = std::cout;
+    std::ofstream out_file = std::ofstream (config.logfile);
+    std::ostream* output = &std::cout;
+    if (out_file.is_open()) {
+        output = dynamic_cast<std::ostream*>(&out_file);
+    }
+    std::ostream& out_stream = *output;
+    //std::ofstream out_stream = std::ofstream (config.logfile);
+
 
 	size_t total = sample_count * (end_n - begin_n + step_n) / step_n;
 	VERBOSE_INFO("Start benchmark of " << total << " runs.");
 
+    std::cout << "######################################################################################################" << std::endl;
+    std::cout << "########## LET it Go Age latency Benchmarking                                      ###################" << std::endl;
+    std::cout << "######################################################################################################" << std::endl;
 
-	if (config.detailed) {
-		print_detailed_al_header();
+    std::cout << "#     begin_n = " << begin_n << "" << std::endl;
+    std::cout << "#     end_n = " << end_n << "" << std::endl;
+    std::cout << "#     step_n = " << step_n << "" << std::endl;
+    std::cout << "#     sample_count = " << sample_count << "" << std::endl;
+    std::cout << "#     iter_count = " << iter_count << "" << std::endl;
+    std::cout << "#     fseed = " << fseed << "" << std::endl;
+    std::cout << "######################################################################################################" << std::endl;
+
+    if (config.detailed) {
+		print_detailed_al_header(out_stream);
 	} else {
-		//boost::timer::progress_display show_progress( total );
-		std::cout << "#######################################################################################################################################" << std::endl;
-		std::cout << "########## LET it Go Age latency Benchmarking                                      ####################################################" << std::endl;
-		std::cout << "#######################################################################################################################################" << std::endl;
-		std::cout << "#     begin_n = " << begin_n << "" << std::endl;
-		std::cout << "#     end_n = " << end_n << "" << std::endl;
-		std::cout << "#     step_n = " << step_n << "" << std::endl;
-		std::cout << "#     sample_count = " << sample_count << "" << std::endl;
-		std::cout << "#     iter_count = " << iter_count << "" << std::endl;
-		std::cout << "#     fseed = " << fseed << "" << std::endl;
-		std::cout << "#######################################################################################################################################" << std::endl;
-
-		print_al_header();
+        VERBOSE_SET_PROGRESS( begin_n, end_n );
+		print_al_header(out_stream);
 	}
 
 	for (auto n = begin_n ; n <= end_n ; n+= step_n) {
-
 		size_t seed = fseed + n;
 		size_t high_m = (n * (n - 1)) / 3;
 		size_t medium_m = (n * (n - 1)) / 4;
 		size_t low_m = (n * (n - 1)) / 5;
 
-//for (LETDatasetType dt : {LETDatasetType::automotive_dt, LETDatasetType::harmonic_dt} ) {
 		for (size_t m : {low_m, medium_m, high_m} ) {
 
 				VERBOSE_INFO ("Run benchmark_age_latency with arguments " << sample_count << "," << iter_count << "," << n << "," << m << "," << dt << "," << seed );
@@ -374,11 +368,12 @@ void main_benchmark_age_latency (AgeLantencyBenchmarkConfiguration config) {
 						GenerateExpansionFun expFun = (GenerateExpansionFun) generate_partial_constraint_graph;
 						LETModel sample = Generator::getInstance().generate(dt, n , m , seed + i);
 						AgeLatencyResult fun_res = original(sample, expFun);
-						print_detailed_al_row(dt,fun_res);
+						print_detailed_al_row(dt,fun_res, out_stream);
 					}
 				} else {
 					AgeLatencyBenchmarkResult bench  = benchmark_age_latency ( original, sample_count, iter_count, n, m, dt, seed) ;
-					print_al_row(bench);
+					print_al_row(bench, out_stream);
+                    VERBOSE_UPDATE_PROGRESS( n );
 				}
 			}
 		}

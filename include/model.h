@@ -23,6 +23,13 @@ typedef long EXECUTION_COUNT;
 typedef long COUNT_T;
 typedef long WEIGHT;
 
+class ModelException : std::exception {
+public :
+  ModelException(std::string) {
+    
+  }
+};
+
 class Task {
 private:
 	TASK_ID id;
@@ -160,7 +167,7 @@ public:
 	void addDependency(TASK_ID t1, TASK_ID t2) {
 
 		if (TaskIdToTask.size() <= (size_t) std::max(t1,t2)) {
-			throw std::runtime_error("Task not found");
+			throw ModelException("Task not found");
 		}
 
 		VERBOSE_ASSERT(TaskIdToTask.size() > (size_t) t1, "Task not found");
