@@ -3,6 +3,7 @@
  *
  */
 
+#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE RosaceTest
 #include <boost/test/included/unit_test.hpp>
 #include <letitgo.h>

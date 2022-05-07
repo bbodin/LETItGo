@@ -5,6 +5,7 @@
  *      Author: toky
  */
 
+#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE MinMaxTest
 #include <boost/test/included/unit_test.hpp>
 #include <letitgo.h>

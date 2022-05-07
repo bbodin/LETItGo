@@ -15,15 +15,15 @@
 #include <functional>
 
 struct BenchmarkConfiguration  {
-	size_t begin_n;
-	size_t end_n;
-	size_t step_n;
-	size_t sample_count;
-	size_t iter_count;
-	size_t seed;
-	bool detailed;
-	LETDatasetType kind;
-    std::string logfile;
+	size_t begin_n = 5;
+	size_t end_n = 20;
+	size_t step_n = 1;
+	size_t sample_count = 1;
+	size_t iter_count = 1;
+	size_t seed = 123;
+	bool detailed = false;
+        LETDatasetType kind = LETDatasetType::automotive_dt;
+        std::string logfile = "";
 };
 struct ExpansionBenchmarkConfiguration : public BenchmarkConfiguration {
 

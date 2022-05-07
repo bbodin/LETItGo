@@ -321,14 +321,14 @@ void main_benchmark_age_latency (AgeLantencyBenchmarkConfiguration config) {
 	LETDatasetType       dt = config.kind;
 	AgeLatencyFun original = (AgeLatencyFun) ComputeAgeLatency;
 
-    //std::ostream& out_stream = std::cout;
+    
     std::ofstream out_file = std::ofstream (config.logfile);
     std::ostream* output = &std::cout;
     if (out_file.is_open()) {
         output = dynamic_cast<std::ostream*>(&out_file);
     }
     std::ostream& out_stream = *output;
-    //std::ofstream out_stream = std::ofstream (config.logfile);
+    
 
 
 	size_t total = sample_count * (end_n - begin_n + step_n) / step_n;

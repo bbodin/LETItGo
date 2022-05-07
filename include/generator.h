@@ -42,7 +42,7 @@ struct GeneratorCacheEntry {
 	size_t n;
 	size_t m;
 	size_t s;
-	GeneratorCacheEntry (LETDatasetType t, size_t n,size_t m,size_t s) : t(t), n(n),m(m),s(s) {}
+	GeneratorCacheEntry (LETDatasetType t, size_t n,size_t m, size_t s) : t(t), n(n),m(m),s(s) {}
 	friend bool operator<(const GeneratorCacheEntry& l,const GeneratorCacheEntry& r) {
 		return     (l.n  < r.n)
 				or (l.n == r.n and l.m  < r.m)

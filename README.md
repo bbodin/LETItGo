@@ -17,8 +17,6 @@
     -seed (Value of the first seed.) type: int32 default: 123
     -step_n (Step of task count) type: int32 default: 5
     -verbose (Specify the verbosity level (0-10)) type: int32 default: 0
-
-
 ```
 
 ./build/src/benchmarkAgelatency -detailed -begin_n 100 -end_n 500 -step_n 100  -sample_count 1  -iter_count 1

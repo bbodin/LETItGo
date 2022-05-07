@@ -2,7 +2,7 @@
  * BenchmarkTest.cpp
  *
  */
-
+#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE BenchmarkTest
 #include <boost/test/included/unit_test.hpp>
 #include <letitgo.h>
@@ -34,8 +34,8 @@ BOOST_AUTO_TEST_CASE(benchmark_AgeLatency) {
 	config.sample_count  = 2;
 	config.iter_count    = 2;
 	config.seed          = 123;
-    config.detailed     = false;
-    config.kind = LETDatasetType::automotive_dt;
+        config.detailed     = true;
+        config.kind = LETDatasetType::automotive_dt;
 	main_benchmark_age_latency ( config ) ;
 }
 
