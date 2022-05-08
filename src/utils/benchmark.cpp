@@ -32,7 +32,7 @@ double get_age_latency_execution_time (AgeLatencyFun fun, LETModel sample, size_
 	return (sum_time / n) / 1000000;
 }
 
-ExpansionBenchmarkResult  benchmark_expansion   (GenerateExpansionFun fun, size_t sample_count, size_t iter_count, size_t n, size_t m,  LETDatasetType dt, bool harmonized_periodicity, size_t seed) {
+ExpansionBenchmarkResult  benchmark_expansion   (GenerateExpansionFun fun, size_t sample_count, size_t iter_count, size_t n, size_t m, LETDatasetType dt, bool DiEqTi, bool harmonized_periodicity, size_t seed) {
 	double sum_time = 0;
 	long sum_edge = 0;
 	long sum_vertex = 0;
@@ -48,7 +48,7 @@ ExpansionBenchmarkResult  benchmark_expansion   (GenerateExpansionFun fun, size_
 	for (size_t i = 0 ; i < sample_count ; i ++ ) {
 
 		// Prepare problem instance
-        GeneratorRequest r (n,m,seed + i, dt);
+        GeneratorRequest r (n,m,seed + i, dt, DiEqTi);
 		LETModel sample = g.generate(r);
 		auto K = harmonized_periodicity ?  generate_random_ni_periodicity_vector(sample, seed) : generate_random_periodicity_vector(sample, seed);
 		INTEGER_TIME_UNIT lcm = getLCM<INTEGER_TIME_UNIT>(sample);
@@ -102,7 +102,7 @@ ExpansionBenchmarkResult  benchmark_expansion   (GenerateExpansionFun fun, size_
 	return ExpansionBenchmarkResult(sample_count,(double) sum_n / (double)sample_count, total_stats, (double)sum_time / (double)sample_count, sum_vertex, sum_edge);
 }
 
-AgeLatencyBenchmarkResult benchmark_age_latency (AgeLatencyFun fun, size_t sample_count, size_t iter_count, size_t n, size_t m, LETDatasetType dt, size_t seed) {
+AgeLatencyBenchmarkResult benchmark_age_latency (AgeLatencyFun fun, size_t sample_count, size_t iter_count, size_t n, size_t m, LETDatasetType dt,  bool DiEqualTi,size_t seed) {
 
 	//double sum_time = 0;
 	//double sum_iter = 0;
@@ -116,7 +116,7 @@ AgeLatencyBenchmarkResult benchmark_age_latency (AgeLatencyFun fun, size_t sampl
 	for (size_t i = 0 ; i < sample_count ; i ++ ) {
 		VERBOSE_INFO ("Run generate with arguments n=" << n << ", m=" << m << ", dt=" << dt << ", seed=" << seed + i);
 
-        GeneratorRequest r (n,m,seed + i, dt);
+        GeneratorRequest r (n,m,seed + i, dt,  DiEqualTi);
 		LETModel sample = Generator::getInstance().generate(r);
 		INTEGER_TIME_UNIT lcm = getLCM<INTEGER_TIME_UNIT>(sample);
 		VERBOSE_DEBUG("LCM=" << lcm);
@@ -161,21 +161,23 @@ void main_benchmark_expansion (ExpansionBenchmarkConfiguration config) {
 	size_t sample_count = config.sample_count;
 	size_t iter_count   = config.iter_count  ;
 	size_t fseed         = config.seed       ;
-
+    bool  DiEqualTi = config. DiEqualTi;
 	size_t total = sample_count * (end_n - begin_n + step_n) / step_n;
 	VERBOSE_INFO("Start benchmark of " << total << " runs.");
 
 	//boost::timer::progress_display show_progress( total );
-        out_stream << "############################################################################################" << std::endl;
-        out_stream << "########## LET it Go Age Expansion Benchmarking                                          ###" << std::endl;
-        out_stream << "############################################################################################" << std::endl;
-        out_stream << "#     begin_n = " << begin_n << "" << std::endl;
-        out_stream << "#     end_n = " << end_n << "" << std::endl;
-        out_stream << "#     step_n = " << step_n << "" << std::endl;
-        out_stream << "#     sample_count = " << sample_count << "" << std::endl;
-        out_stream << "#     iter_count = " << iter_count << "" << std::endl;
-        out_stream << "#     fseed = " << fseed << "" << std::endl;
-        out_stream << "############################################################################################" << std::endl;
+    std::cout << "############################################################################################" << std::endl;
+    std::cout << "########## LET it Go Age Expansion Benchmarking                                          ###" << std::endl;
+    std::cout << "############################################################################################" << std::endl;
+    std::cout << "#     begin_n = " << begin_n << "" << std::endl;
+    std::cout << "#     end_n = " << end_n << "" << std::endl;
+    std::cout << "#     step_n = " << step_n << "" << std::endl;
+    std::cout << "#     sample_count = " << sample_count << "" << std::endl;
+    std::cout << "#     iter_count = " << iter_count << "" << std::endl;
+    std::cout << "#     fseed = " << fseed << "" << std::endl;
+    std::cout << "#     DiEqualTi = " << DiEqualTi << "" << std::endl;
+    std::cout << "#     dt = " << config.kind << "" << std::endl;
+    std::cout << "############################################################################################" << std::endl;
 
 	GenerateExpansionFun f_original          = (GenerateExpansionFun) generate_partial_constraint_graph;
 	GenerateExpansionFun f_new               = (GenerateExpansionFun) new_generate_partial_constraint_graph;
@@ -215,9 +217,9 @@ void main_benchmark_expansion (ExpansionBenchmarkConfiguration config) {
 					<< std::setw(5)  << n
 							<< std::setw(5)  << m  << std::flush;
 
-				ExpansionBenchmarkResult bench_res1  = benchmark_expansion ( f_original , sample_count, iter_count, n, m,dt,  hpf,  seed) ;
-				ExpansionBenchmarkResult bench_res2  = benchmark_expansion ( f_new , sample_count, iter_count, n, m, dt, hpf,  seed) ;
-				ExpansionBenchmarkResult bench_res3  = benchmark_expansion ( f_new_and_optimized , sample_count, iter_count, n, m,dt,  hpf,  seed) ;
+				ExpansionBenchmarkResult bench_res1  = benchmark_expansion ( f_original , sample_count, iter_count, n, m,dt,  DiEqualTi, hpf,  seed) ;
+				ExpansionBenchmarkResult bench_res2  = benchmark_expansion ( f_new , sample_count, iter_count, n, m, dt,  DiEqualTi,hpf,  seed) ;
+				ExpansionBenchmarkResult bench_res3  = benchmark_expansion ( f_new_and_optimized , sample_count, iter_count, n, m,dt, DiEqualTi,  hpf,  seed) ;
                     out_stream
 				<< std::setw(10) << bench_res1.sum_n / (double) bench_res1.sample_count
 						<< std::setw(10) << bench_res1.total_vertex_count / (double) bench_res1.sample_count
@@ -242,7 +244,9 @@ void main_benchmark_expansion (ExpansionBenchmarkConfiguration config) {
 
 inline void print_detailed_al_header(std::ostream& out_stream) {
     out_stream
-			       << "kind"
+                     << "seed"
+            <<  ";" << "kind"
+            <<  ";"  << "DiEqTi"
 			<< ";" << "n"
 			<< ";" << "m"
 			<< ";" << "sum_n"
@@ -258,11 +262,13 @@ inline void print_detailed_al_header(std::ostream& out_stream) {
 }
 
 
-inline void print_detailed_al_row( LETDatasetType dt,
+inline void print_detailed_al_row(GeneratorRequest r,
 		  AgeLatencyResult res, std::ostream& out_stream) {
 
+    VERBOSE_ASSERT(r.n == res.n, "Wrong graph generated");
+    VERBOSE_ASSERT(r.m == res.m, "Wrong graph generated");
 
-    out_stream     << dt
+    out_stream     << r.seed  << ";" << r.t  << ";" << r.DiEqualTi
 				  << ";"  << res.n
 				  << ";"  << res.m
 				  << ";"  << res.sum_n;
@@ -281,7 +287,7 @@ inline void print_detailed_al_row( LETDatasetType dt,
 
 inline void print_al_header(std::ostream& out_stream) {
     out_stream
-	<< std::setw(5) << "kind"
+    << std::setw(5) << "kind"
 	<< std::setw(5) << "n"
 			<< std::setw(5) << "m"
 			<< std::setw(10) << "sumN"
@@ -322,6 +328,7 @@ void main_benchmark_age_latency (AgeLantencyBenchmarkConfiguration config) {
 	size_t iter_count   = config.iter_count  ;
 	size_t fseed         = config.seed       ;
 	LETDatasetType       dt = config.kind;
+    bool  DiEqualTi = config. DiEqualTi;
 	AgeLatencyFun original = (AgeLatencyFun) ComputeAgeLatency;
 
     
@@ -347,16 +354,25 @@ void main_benchmark_age_latency (AgeLantencyBenchmarkConfiguration config) {
     std::cout << "#     sample_count = " << sample_count << "" << std::endl;
     std::cout << "#     iter_count = " << iter_count << "" << std::endl;
     std::cout << "#     fseed = " << fseed << "" << std::endl;
+    std::cout << "#     DiEqualTi = " << DiEqualTi << "" << std::endl;
+    std::cout << "#     dt = " << config.kind << "" << std::endl;
     std::cout << "######################################################################################################" << std::endl;
 
+    if (out_file.is_open()) {
+        VERBOSE_SET_PROGRESS(begin_n, end_n);
+    }
     if (config.detailed) {
 		print_detailed_al_header(out_stream);
 	} else {
-        VERBOSE_SET_PROGRESS( begin_n, end_n );
 		print_al_header(out_stream);
 	}
 
 	for (auto n = begin_n ; n <= end_n ; n+= step_n) {
+
+        if (out_file.is_open()) {
+            VERBOSE_UPDATE_PROGRESS(n);
+        }
+
 		size_t seed = fseed + n;
 		size_t high_m = (n * (n - 1)) / 3;
 		size_t medium_m = (n * (n - 1)) / 4;
@@ -369,20 +385,19 @@ void main_benchmark_age_latency (AgeLantencyBenchmarkConfiguration config) {
 				if (config.detailed) {
 					for (size_t i = 0 ; i < sample_count ; i ++ ) {
 						GenerateExpansionFun expFun = (GenerateExpansionFun) generate_partial_constraint_graph;
-                        GeneratorRequest r (n,m,seed+i,dt);
+                        GeneratorRequest r (n,m,seed+i,dt, DiEqualTi);
 						LETModel sample = Generator::getInstance().generate(r);
 						AgeLatencyResult fun_res = original(sample, expFun);
-						print_detailed_al_row(dt,fun_res, out_stream);
+						print_detailed_al_row(r,fun_res, out_stream);
 					}
 				} else {
-					AgeLatencyBenchmarkResult bench  = benchmark_age_latency ( original, sample_count, iter_count, n, m, dt, seed) ;
+					AgeLatencyBenchmarkResult bench  = benchmark_age_latency ( original, sample_count, iter_count, n, m, dt,  DiEqualTi, seed) ;
 					print_al_row(bench, out_stream);
-                    VERBOSE_UPDATE_PROGRESS( n );
 				}
 			}
 		}
 
-
+        VERBOSE_FINISH_PROGRESS();
 
 }
 

@@ -10,6 +10,7 @@
 #include <benchmark.h>
 #include <verbose.h>
 #include <map>
+#include <age_latency.h>
 
 BOOST_AUTO_TEST_SUITE(test_generator)
 
@@ -115,7 +116,7 @@ BOOST_AUTO_TEST_CASE(test_small) {
 BOOST_AUTO_TEST_CASE(test_generator_small) {
 
   auto g = Generator::getInstance();
-  LETModel sample = g.generateAutomotive(3,2, 123);
+  LETModel sample = g.generate(GeneratorRequest(3,2, 123,automotive_dt));
 
   BOOST_CHECK_EQUAL(sample.getTaskCount() , 3);
   BOOST_CHECK_EQUAL(sample.getDependencyCount() , 2);
@@ -254,5 +255,28 @@ BOOST_AUTO_TEST_CASE(test_fix2) {
 
 }
 
+    BOOST_AUTO_TEST_CASE(test_di_ti) {
+
+        auto g = Generator::getInstance();
+        LETModel sample = g.generate(GeneratorRequest(3,2, 123,automotive_dt,true));
+
+        for (Task t : sample.tasks()) {
+            BOOST_CHECK_EQUAL(t.getD(), t.getT());
+        }
+
+        LETModel samplebis = g.generate(GeneratorRequest(3,2, 123,automotive_dt,false));
+
+        for (Task t : samplebis.tasks()) {
+            BOOST_CHECK_NE(t.getD(), t.getT());
+        }
+
+        AgeLatencyResult res = ComputeAgeLatency(sample, generate_partial_constraint_graph);
+        AgeLatencyResult resbis = ComputeAgeLatency(samplebis, generate_partial_constraint_graph);
+
+        BOOST_CHECK_NE(res.age_latency, resbis.age_latency);
+        std::cout << res << std::endl;
+        std::cout << resbis << std::endl;
+
+    }
 
 BOOST_AUTO_TEST_SUITE_END()

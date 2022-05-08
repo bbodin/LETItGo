@@ -48,7 +48,8 @@ BOOST_AUTO_TEST_CASE(test_benchmark_expansion) {
 	size_t n = 5;
 	size_t m = 10;
         size_t seed = 123;
-	ExpansionBenchmarkResult res = benchmark_expansion (generate_partial_constraint_graph, sample_count , iter_count ,  n,  m, LETDatasetType::automotive_dt, false,   seed);
+        auto DiEqualTi = true;
+	ExpansionBenchmarkResult res = benchmark_expansion (generate_partial_constraint_graph, sample_count , iter_count ,  n,  m,  LETDatasetType::automotive_dt,  DiEqualTi, false,   seed);
 
 	BOOST_CHECK_GT(res.total_edge_count, 0);
 }

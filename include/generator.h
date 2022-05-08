@@ -20,22 +20,24 @@ struct GeneratorRequest {
     size_t m;
     size_t seed;
     LETDatasetType t;
-    GeneratorRequest (size_t n,size_t m, size_t s, LETDatasetType t ) : n(n), m(m), seed(s),  t(t) {}
+    bool DiEqualTi;
+    GeneratorRequest (size_t n,size_t m, size_t s, LETDatasetType t , bool DiEqualTi = false) : n(n), m(m), seed(s),  t(t), DiEqualTi(DiEqualTi) {}
     friend bool operator<(const GeneratorRequest& l,const GeneratorRequest& r) {
         return     (l.n  < r.n)
                    or (l.n == r.n and l.m  < r.m)
                    or (l.n == r.n and l.m == r.m and l.seed  < r.seed)
-                   or (l.n == r.n and l.m == r.m and l.seed == r.seed and l.t < r.t);
+                   or (l.n == r.n and l.m == r.m and l.seed == r.seed and l.t < r.t)
+                   or (l.n == r.n and l.m == r.m and l.seed == r.seed and l.t == r.t and l.DiEqualTi < r.DiEqualTi);
     }
 
     friend bool operator==(const GeneratorRequest& l,const GeneratorRequest& r) {
-        return (l.n == r.n and l.m == r.m and l.seed == r.seed and l.t == r.t);
+        return (l.n == r.n and l.m == r.m and l.seed == r.seed and l.t == r.t and l.DiEqualTi == r.DiEqualTi);
     }
     friend bool operator!=(const GeneratorRequest& l,const GeneratorRequest& r) {
         return  not (l == r);
     }
     friend std::ostream &operator<<(std::ostream &stream, const GeneratorRequest &obj) {
-        stream << "<GeneratorCacheEntry t='" << obj.t << "' n='" << obj.n << "' m='" << obj.m << "' s='" << obj.seed << "'>";
+        stream << "<GeneratorCacheEntry t='" << obj.t << "' DEqTi='" << obj.DiEqualTi << "' n='" << obj.n << "' m='" << obj.m << "' s='" << obj.seed << "'>";
         return stream;
     }
 };
@@ -64,18 +66,7 @@ class Generator {
 	std::map <GeneratorRequest, LETModel> cache;
 
 public:
-	LETModel generateAutomotive (size_t n, size_t m, size_t seed) {
-        GeneratorRequest r (n, m , seed, LETDatasetType::automotive_dt);
-		return this->generate(r);
-	}
-	LETModel generateHarmonic (size_t n, size_t m, size_t seed) {
-        GeneratorRequest r (n, m , seed, LETDatasetType::harmonic_dt);
-        return this->generate(r);
-	}
-	LETModel generateGeneric (size_t n, size_t m, size_t seed) {
-        GeneratorRequest r (n, m , seed, LETDatasetType::generic_dt);
-        return this->generate(r);
-	}
+
 	LETModel generate (GeneratorRequest r) {
 		VERBOSE_ASSERT(r.seed > 0 , "The generator need positive seed");
 
