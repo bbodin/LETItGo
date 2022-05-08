@@ -24,7 +24,7 @@ double get_age_latency_execution_time (AgeLatencyFun fun, LETModel sample, size_
 	double sum_time = 0;
 	for (size_t i = 0 ; i < n; i++) {
 		auto t1 = std::chrono::high_resolution_clock::now();
-		fun(sample, generate_partial_constraint_graph);
+		fun(sample, generate_partial_constraint_graph, generate_partial_lowerbound_graph);
 		auto t2 = std::chrono::high_resolution_clock::now();
 		auto duration = t2 - t1;
 		sum_time += duration.count();
@@ -126,7 +126,7 @@ AgeLatencyBenchmarkResult benchmark_age_latency (AgeLatencyFun fun, size_t sampl
 		auto duration = get_age_latency_execution_time (fun, sample, iter_count);
 
 		VERBOSE_INFO ("Run get_age_latency one last time");
-		AgeLatencyResult fun_res = fun(sample, expFun);
+		AgeLatencyResult fun_res = fun(sample, expFun, generate_partial_lowerbound_graph);
 		VERBOSE_DEBUG("AgeLatencyResult = " << fun_res);
 		bench_res.time  += duration;
 		bench_res.iter  += fun_res.expansion_edge_count.size();
@@ -387,7 +387,7 @@ void main_benchmark_age_latency (AgeLantencyBenchmarkConfiguration config) {
 						GenerateExpansionFun expFun = (GenerateExpansionFun) generate_partial_constraint_graph;
                         GeneratorRequest r (n,m,seed+i,dt, DiEqualTi);
 						LETModel sample = Generator::getInstance().generate(r);
-						AgeLatencyResult fun_res = original(sample, expFun);
+						AgeLatencyResult fun_res = original(sample, expFun, generate_partial_lowerbound_graph);
 						print_detailed_al_row(r,fun_res, out_stream);
 					}
 				} else {

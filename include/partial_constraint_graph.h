@@ -81,7 +81,7 @@ public:
 	  return not (a1 == a2);
   }
 
-
+    std::string to_DOT();
 };
 
 

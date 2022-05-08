@@ -47,10 +47,11 @@ struct AgeLatencyResult {
 
 };
 
-typedef std::function<AgeLatencyResult(const LETModel &model, GenerateExpansionFun fun)> AgeLatencyFun;
+typedef std::function<AgeLatencyResult(const LETModel &model, GenerateExpansionFun ufun, GenerateExpansionFun lfun)> AgeLatencyFun;
 
 
-AgeLatencyResult ComputeAgeLatency(const LETModel &model, GenerateExpansionFun fun = generate_partial_constraint_graph) ;
+AgeLatencyResult ComputeAgeLatency(const LETModel &model, GenerateExpansionFun upper_fun = generate_partial_constraint_graph,
+                                                          GenerateExpansionFun lower_fun = generate_partial_lowerbound_graph) ;
 
 
 

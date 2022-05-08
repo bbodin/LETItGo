@@ -1,0 +1,9 @@
+<LETModel>
+ <Task id='0' r='5' C='7' D='7' T='10'/>
+ <Task id='1' r='4' C='3' D='3' T='5'/>
+ <Task id='2' r='1' C='2' D='2' T='4'/>
+ <Task id='3' r='2' C='3' D='3' T='5'/>
+ <Dependency from='0' to='3'/>
+ <Dependency from='2' to='3'/>
+ <Dependency from='1' to='2'/>
+</LETModel>

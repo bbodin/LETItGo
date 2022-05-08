@@ -19,11 +19,20 @@ DEFINE_string(filename, "",
 DEFINE_bool(agelatency, false,
                         "Perform age latency analysis");
 DEFINE_bool(outputxml, false,
-                        "Perform age latency analysis");
+                        "Output the XML of the LET model");
 
 
+PartialConstraintGraph my_generate_partial_constraint_graph (const LETModel &model,	const PeriodicityVector &K) {
+    auto tmp = generate_partial_constraint_graph(model , K);
+    std::cout << tmp.to_DOT();
+    return tmp;
+}
 
-
+PartialConstraintGraph my_generate_partial_lowerbound_graph (const LETModel &model,	const PeriodicityVector &K) {
+    auto tmp = generate_partial_lowerbound_graph(model , K);
+    std::cout << tmp.to_DOT();
+    return tmp;
+}
 
 int main (int argc , char * argv[]) {
 	gflags::SetUsageMessage("LETItGo: LET Analysis tool");
@@ -40,8 +49,8 @@ int main (int argc , char * argv[]) {
 
 	AgeLatencyFun original = (AgeLatencyFun) ComputeAgeLatency;
 	if (FLAGS_agelatency) {
-		original(*instance, generate_partial_constraint_graph);
-
+		auto res = original(*instance, my_generate_partial_constraint_graph, my_generate_partial_lowerbound_graph);
+        std::cout << "Age Latency:" << res.age_latency << std::endl;
 	}
 	if (FLAGS_outputxml) {
 		std::cout << *instance;

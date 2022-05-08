@@ -10,6 +10,32 @@
 #include <algorithm>
 #include <numeric>
 #include <cmath>
+#include <sstream>
+
+std::string PartialConstraintGraph::to_DOT() {
+
+    auto FLP = FindLongestPath(*this);
+
+    std::stringstream ss;
+    ss << "// Grahviz format using the DOT language \n";
+    ss << "// ======================================\n";
+    ss << "digraph {\n";
+    for(Execution e : this->getExecutions()) {
+        if (std::count(FLP.first.begin(), FLP.first.end(),e)) {
+            ss << "  \"" << e << "\""
+               << "[penwidth=2.0]"
+               << ";"<< std::endl;
+        }
+    }
+    for (Constraint c : this->getConstraints()) {
+        ss << "  \"" << c.getSource()<< "\"" << " -> " << "\"" << c.getDestination() << "\""
+        << "[label=\" " <<  c.getWeight() << "\"]"
+        << ";"<< std::endl;
+    }
+
+    ss << "}\n";
+    return ss.str();
+};
 
 
 std::pair<std::vector<Execution>, INTEGER_TIME_UNIT>

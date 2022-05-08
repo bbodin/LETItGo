@@ -22,7 +22,7 @@
 
 
 
-AgeLatencyResult ComputeAgeLatency(const LETModel &model, GenerateExpansionFun fun) {
+AgeLatencyResult ComputeAgeLatency(const LETModel &model, GenerateExpansionFun upper_fun, GenerateExpansionFun lower_fun) {
 
 	VERBOSE_INFO ("Run ComputeAgeLatency");
 	AgeLatencyResult res;
@@ -41,7 +41,7 @@ AgeLatencyResult ComputeAgeLatency(const LETModel &model, GenerateExpansionFun f
 
 		auto s1 = std::chrono::high_resolution_clock::now();
 		// Construct the PartialConstraintGraph and
-		PartialConstraintGraph PKG = fun(model, K);
+		PartialConstraintGraph PKG = upper_fun(model, K);
 		auto s2 = std::chrono::high_resolution_clock::now();
 #ifdef SUPERDBG
 		// TODO: Check against reference, Remove for real experiments
@@ -67,7 +67,7 @@ AgeLatencyResult ComputeAgeLatency(const LETModel &model, GenerateExpansionFun f
 #ifdef SUPERDBG
 		VERBOSE_INFO ("Iteration" << count  << " Lower bound Graph Generation");
 		// Compute the lower bound to check it is lower than the uppoer bound.
-		auto pbgbis = generate_partial_lowerbound_graph(model, K);
+		auto pbgbis = lower_fun(model, K);
 		VERBOSE_INFO ("Iteration" << count << " Lower bound Find Longest Path");
 		auto lower_bound = FindLongestPath(pbgbis);
 		VERBOSE_AGE_LATENCY(" * FindLongestPath(PKG) = " << FLP);
