@@ -24,7 +24,9 @@ size_t compute_sum_n (const LETModel &model) {
 
 
 	for (const Task t : model.tasks()) {
-		sum += (T_P / t.getT());
+        const auto tmp =  (T_P / t.getT());
+        VERBOSE_DEBUG("N[" << t.getId() << "] = " << tmp);
+        sum += tmp;
 	}
 
 	return sum;

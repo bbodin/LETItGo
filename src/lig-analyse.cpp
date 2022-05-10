@@ -21,6 +21,11 @@ DEFINE_bool(agelatency, false,
 DEFINE_bool(outputxml, false,
                         "Output the XML of the LET model");
 
+DEFINE_int32(n,          4, "Generated case: Value of N");
+DEFINE_int32(m,          4, "Generated case: Value of M");
+DEFINE_int32(seed,       1, "Generated case: Value of seed");
+DEFINE_string(kind,  "automotive", "Generated case: Kind of dataset to generate (automotive,generic,harmonic)");
+DEFINE_bool(DiEqualTi,      true, "Generated case: Every Di = Ti");
 
 PartialConstraintGraph my_generate_partial_constraint_graph (const LETModel &model,	const PeriodicityVector &K) {
     auto tmp = generate_partial_constraint_graph(model , K);
@@ -40,14 +45,24 @@ int main (int argc , char * argv[]) {
 	gflags::ParseCommandLineFlags(&argc, &argv, true);
 	letitgo::utils::set_verbose_mode(FLAGS_verbose);
 
-	std::ifstream t(FLAGS_filename);
-	std::string str((std::istreambuf_iterator<char>(t)),
-	                 std::istreambuf_iterator<char>());
+    LETModel *instance = nullptr;
 
-	LETModel* instance = new LETModel(str);
-	VERBOSE_ASSERT(instance, "Could not construct LET Instance");
+    if (FLAGS_filename != "") {
+        VERBOSE_INFO("Load file " << FLAGS_filename);
+        std::ifstream t(FLAGS_filename);
+        std::string str((std::istreambuf_iterator<char>(t)),
+                        std::istreambuf_iterator<char>());
 
-	AgeLatencyFun original = (AgeLatencyFun) ComputeAgeLatency;
+        instance = new LETModel(str);
+    } else {
+        GeneratorRequest r (FLAGS_n,FLAGS_m,FLAGS_seed, str2kind(FLAGS_kind), FLAGS_DiEqualTi);
+        VERBOSE_INFO("Generate instance " << r);
+        instance = new LETModel(generate_LET(r));
+    }
+
+    VERBOSE_ASSERT(instance, "Could not construct LET Instance");
+
+    AgeLatencyFun original = (AgeLatencyFun) ComputeAgeLatency;
 	if (FLAGS_agelatency) {
 		auto res = original(*instance, my_generate_partial_constraint_graph, my_generate_partial_lowerbound_graph);
         std::cout << "Age Latency:" << res.age_latency << std::endl;
@@ -55,6 +70,8 @@ int main (int argc , char * argv[]) {
 	if (FLAGS_outputxml) {
 		std::cout << *instance;
 	}
+
+    delete instance;
 
 	gflags::ShutDownCommandLineFlags();
 	return 0;

@@ -14,7 +14,7 @@ BOOST_AUTO_TEST_SUITE(test_rosace)
 
 BOOST_AUTO_TEST_CASE(test_rosace_delay) {
 
-	letitgo::utils::set_verbose_mode(1);
+	letitgo::utils::set_verbose_mode(10);
 	letitgo::utils::set_verbose_custom_mode("AGE_LATENCY", true);
 
 	VERBOSE_INFO("INFO");
@@ -46,6 +46,8 @@ BOOST_AUTO_TEST_CASE(test_rosace_delay) {
 	//std::cout << res << std::endl;
 
 	BOOST_CHECK_EQUAL(res.age_latency , 240);
+
+    std::cout << rosace->getXML() << std::endl;
 
 }
 
