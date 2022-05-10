@@ -19,8 +19,15 @@ std::string LETModel::getXML() {
 std::string LETModel::getDOT() {
 	std::stringstream res;
 	res << "digraph structs {" << std::endl;
+    for (auto t : this->tasks()) {
+        res << " " << t.getId()
+        << "[label=\" r=" << t.getr()
+        << " T=" << t.getT()
+        << " D=" << t.getT()<< "\"];"
+        << std::endl;
+    }
 	for (auto d : this->dependencies()) {
-		res << d.getFirst() << "-" << d.getSecond() << std::endl;
+		res << " " << d.getFirst() << " -> " << d.getSecond() << ";" << std::endl;
 	}
 	res << "}" << std::endl;
 

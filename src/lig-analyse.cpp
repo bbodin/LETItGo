@@ -19,23 +19,31 @@ DEFINE_string(filename, "",
 DEFINE_bool(agelatency, false,
                         "Perform age latency analysis");
 DEFINE_bool(outputxml, false,
-                        "Output the XML of the LET model");
+            "Output the XML of the LET model");
+DEFINE_bool(outputdot, false,
+            "Output the DOT of the LET model");
+DEFINE_bool(outputsvg, false,
+            "Output the SVG of the LET model");
 
 DEFINE_int32(n,          4, "Generated case: Value of N");
 DEFINE_int32(m,          4, "Generated case: Value of M");
 DEFINE_int32(seed,       1, "Generated case: Value of seed");
 DEFINE_string(kind,  "automotive", "Generated case: Kind of dataset to generate (automotive,generic,harmonic)");
-DEFINE_bool(DiEqualTi,      true, "Generated case: Every Di = Ti");
+DEFINE_bool(DiEqualTi,      false, "Generated case: Every Di = Ti");
 
 PartialConstraintGraph my_generate_partial_constraint_graph (const LETModel &model,	const PeriodicityVector &K) {
     auto tmp = generate_partial_constraint_graph(model , K);
-    std::cout << tmp.to_DOT();
+    std::cout << "// Upper bound with K=" << K << std::endl;
+    if (FLAGS_outputdot) std::cout << tmp.getDOT();
+    if (FLAGS_outputsvg) std::cout << tmp.getSVG();
     return tmp;
 }
 
 PartialConstraintGraph my_generate_partial_lowerbound_graph (const LETModel &model,	const PeriodicityVector &K) {
     auto tmp = generate_partial_lowerbound_graph(model , K);
-    std::cout << tmp.to_DOT();
+    std::cout << "// Lower bound with K=" << K << std::endl;
+    if (FLAGS_outputdot) std::cout << tmp.getDOT();
+    if (FLAGS_outputsvg) std::cout << tmp.getSVG();
     return tmp;
 }
 
@@ -65,11 +73,17 @@ int main (int argc , char * argv[]) {
     AgeLatencyFun original = (AgeLatencyFun) ComputeAgeLatency;
 	if (FLAGS_agelatency) {
 		auto res = original(*instance, my_generate_partial_constraint_graph, my_generate_partial_lowerbound_graph);
-        std::cout << "Age Latency:" << res.age_latency << std::endl;
+        std::cout << "// Age Latency:" << res.age_latency << std::endl;
 	}
-	if (FLAGS_outputxml) {
-		std::cout << *instance;
-	}
+    if (FLAGS_outputxml) {
+        std::cout << instance->getXML();
+    }
+    if (FLAGS_outputdot) {
+        std::cout << instance->getDOT();
+    }
+    if (FLAGS_outputsvg) {
+        std::cout << instance->getSVG();
+    }
 
     delete instance;
 

@@ -235,7 +235,8 @@ public:
 : std::pair<TASK_ID, EXECUTION_COUNT>(id, e) {}
 
 public:
-	TASK_ID getTaskId() const { return this->first; }
+    TASK_ID getTaskId() const { return this->first; }
+    TASK_ID getExecId() const { return this->second; }
 
 	friend std::ostream &operator<<(std::ostream &stream, const Execution &obj) {
 		stream << "Execution(id:" << obj.first << ", index:" << obj.second << ")";

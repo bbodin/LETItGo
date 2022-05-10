@@ -11,8 +11,32 @@
 #include <numeric>
 #include <cmath>
 #include <sstream>
+#include <graphviz/gvc.h>
 
-std::string PartialConstraintGraph::to_DOT() {
+std::string  PartialConstraintGraph::getSVG(){
+
+    std::string res;
+    GVC_t *gvc;
+    Agraph_t *g;
+
+    char* buffer;
+    unsigned int buffer_size;
+
+    std::string dot_version = this->getDOT();
+    gvc = gvContext();
+    g = agmemread(dot_version.c_str());
+    gvLayout(gvc, g, "dot");
+    gvRenderData(gvc, g, "svg", &buffer, &buffer_size);
+    res = buffer;
+    gvFreeRenderData(buffer);
+    gvFreeLayout(gvc, g);
+    agclose(g);
+    gvFreeContext(gvc);
+    return res;
+}
+
+
+std::string PartialConstraintGraph::getDOT() {
 
     auto FLP = FindLongestPath(*this);
 
@@ -21,11 +45,11 @@ std::string PartialConstraintGraph::to_DOT() {
     ss << "// ======================================\n";
     ss << "digraph {\n";
     for(Execution e : this->getExecutions()) {
+        ss << "  \"" << e.getTaskId() << "," << e.getExecId() << "\"";
         if (std::count(FLP.first.begin(), FLP.first.end(),e)) {
-            ss << "  \"" << e << "\""
-               << "[penwidth=2.0]"
-               << ";"<< std::endl;
+            ss  << "[penwidth=2.0]";
         }
+        ss << ";"<< std::endl;
     }
     for (Constraint c : this->getConstraints()) {
         ss << "  \"" << c.getSource()<< "\"" << " -> " << "\"" << c.getDestination() << "\""

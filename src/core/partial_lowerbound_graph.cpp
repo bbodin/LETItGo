@@ -11,7 +11,7 @@
 #include <numeric>
 #include <cmath>
 
-#define VERBOSE_LWB(stream) VERBOSE_DEBUG(stream)
+#define VERBOSE_LWB(stream) VERBOSE_PCG(stream)
 
 
 void add_lowerbounds (const LETModel &model, const PeriodicityVector &K , const Dependency &d, PartialConstraintGraph& graph) {
