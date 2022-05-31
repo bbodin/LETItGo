@@ -11,7 +11,8 @@
 #include <model.h>
 #include <numeric>
 
-#define VERBOSE_AGE_LATENCY(m) VERBOSE_CUSTOM_DEBUG("AGE_LATENCY", m)
+//#define VERBOSE_AGE_LATENCY(m) VERBOSE_CUSTOM_DEBUG("AGE_LATENCY", m)
+#define VERBOSE_AGE_LATENCY(m) VERBOSE_DEBUG(m)
 
 struct AgeLatencyResult {
 	size_t n = 0;

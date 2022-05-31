@@ -52,7 +52,10 @@ std::string PartialConstraintGraph::getDOT() {
         ss << ";"<< std::endl;
     }
     for (Constraint c : this->getConstraints()) {
-        ss << "  \"" << c.getSource()<< "\"" << " -> " << "\"" << c.getDestination() << "\""
+        auto es = c.getSource();
+        auto ed = c.getDestination();
+        ss << "  \"" << es.getTaskId() << "," << es.getExecId() << "\"" << " -> "
+        << "\"" << ed.getTaskId() << "," << ed.getExecId() << "\""
         << "[label=\" " <<  c.getWeight() << "\"]"
         << ";"<< std::endl;
     }
