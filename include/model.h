@@ -257,15 +257,18 @@ public:
 class Constraint {
 	Execution ei, ej;
 	WEIGHT w1,w2;
+    bool hasw2;
 
 public:
-    Constraint(Execution e1, Execution e2, WEIGHT w) : ei(e1), ej(e2), w1(w) {}
-    Constraint(Execution e1, Execution e2, WEIGHT w1, WEIGHT w2) : ei(e1), ej(e2), w1(w1) , w2(w2) {}
+    Constraint(Execution e1, Execution e2, WEIGHT w) : ei(e1), ej(e2), w1(w) , w2(w), hasw2(false) {}
+    Constraint(Execution e1, Execution e2, WEIGHT w1, WEIGHT w2) : ei(e1), ej(e2), w1(w1) , w2(w2) , hasw2(true) {}
 	inline const Execution getSource() const { return ei; }
 	inline const Execution getDestination() const { return ej; }
     inline WEIGHT getWeight() const { return w1; }
     inline WEIGHT getWeight1() const { return w1; }
     inline WEIGHT getWeight2() const { return w2; }
+    inline WEIGHT hasWeight1() const { return true; }
+    inline WEIGHT hasWeight2() const { return hasw2; }
 
 	inline friend bool operator<(const Constraint &l, const Constraint &r) {
 		return std::tie(l.ei, l.ej, l.w1, l.w2) < std::tie(r.ei, r.ej, r.w1, r.w2);

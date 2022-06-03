@@ -21,8 +21,9 @@
 
 
 class PartialConstraintGraph {
-  std::set<Execution> executions;
-  std::set<Constraint> constraints;
+    std::set<Execution> executions;
+    std::set<Constraint> constraints;
+    bool dirty = false; // set to false everytime the graph change
 
 public:
   std::map<Execution, std::set<Constraint>> inbounds;
@@ -30,7 +31,7 @@ public:
 
 public:
   inline void add(Constraint c) {
-
+    dirty = false;
 	executions.insert(c.getSource());
     executions.insert(c.getDestination());
     constraints.insert(c);
@@ -83,6 +84,11 @@ public:
 
     std::string getDOT();
     std::string getSVG();
+
+
+    std::vector<Execution> topologicalOrder;
+    std::vector<Execution> getTopologicalOrder () ;
+
 };
 
 
@@ -123,8 +129,9 @@ PartialConstraintGraph new_generate_partial_constraint_graph(const LETModel &mod
 PartialConstraintGraph opt_new_generate_partial_constraint_graph(const LETModel &model, const PeriodicityVector &K) ;
 
 
-std::vector<Execution> topologicalOrder (PartialConstraintGraph PKG) ;
 std::pair<std::vector<Execution> , INTEGER_TIME_UNIT>  FindLongestPath(PartialConstraintGraph PKG);
+std::pair<std::vector<Execution> , INTEGER_TIME_UNIT>  FindLongestPathLower(PartialConstraintGraph PKG);
+std::pair<std::vector<Execution> , INTEGER_TIME_UNIT>  FindLongestPathUpper(PartialConstraintGraph PKG);
 
 void add_upperbounds_constraints (const LETModel &model, const PeriodicityVector &K , const Dependency &d, PartialConstraintGraph& graph);
 void add_lowerbounds_constraints (const LETModel &model, const PeriodicityVector &K , const Dependency &d, PartialConstraintGraph& graph);

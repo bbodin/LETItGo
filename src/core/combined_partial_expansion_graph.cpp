@@ -12,7 +12,7 @@
 #include <cmath>
 
 
-void add_upperlowerbounds (const LETModel &model, const PeriodicityVector &K , const Dependency &d, PartialConstraintGraph& graph) {
+void add_lowerupperbounds_constraints (const LETModel &model, const PeriodicityVector &K , const Dependency &d, PartialConstraintGraph& graph) {
 
     TASK_ID ti_id = d.getFirst();
     TASK_ID tj_id = d.getSecond();
@@ -37,6 +37,7 @@ void add_upperlowerbounds (const LETModel &model, const PeriodicityVector &K , c
 
     auto gcdK = std::gcd(Ti * Ki, Tj * Kj);
 
+    std::pair<long,long> res = extended_euclide ( Ti * Ki,   Tj * Kj, gcdK);
 
     EXECUTION_COUNT TjKj_gcdK = TjKj/gcdK;
 
@@ -61,7 +62,6 @@ void add_upperlowerbounds (const LETModel &model, const PeriodicityVector &K , c
 
 
 
-            std::pair<long,long> res = extended_euclide ( Ti * Ki,   Tj * Kj, gcdK);
             EXECUTION_COUNT x0 = res.first;
 
 
@@ -105,7 +105,7 @@ generate_combined_partial_expansion_graph(const LETModel &model,	const Periodici
 
     for (Dependency d : model.dependencies()) {
 
-        add_upperlowerbounds (model, K , d, graph);
+        add_lowerupperbounds_constraints (model, K , d, graph);
     }
 
     add_start_finish (model, K, graph) ;

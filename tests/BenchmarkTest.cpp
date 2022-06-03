@@ -14,14 +14,6 @@ BOOST_AUTO_TEST_SUITE(test_benchmark)
 
 BOOST_AUTO_TEST_CASE(benchmark_Expansion) {
 
-	 // size_t begin_n = 5;
-	 // size_t end_n   = 20;
-	 // size_t step_n  = 5;
-	 // size_t sample_count = 2;
-	 // size_t iter_count   = 2;
-
-	  // TODO: fix bug first ...
-	//main_benchmark_expansion ( begin_n,  end_n,  step_n,  sample_count,  iter_count, 123) ;
 }
 
 BOOST_AUTO_TEST_CASE(benchmark_AgeLatency) {
@@ -41,7 +33,7 @@ BOOST_AUTO_TEST_CASE(benchmark_AgeLatency) {
 
 
 BOOST_AUTO_TEST_CASE(test_benchmark_expansion) {
-
+    letitgo::utils::set_verbose_mode(10);
 	GenerateExpansionFun fun = generate_partial_upperbound_graph;
 	size_t sample_count = 2;
 	size_t iter_count = 2;

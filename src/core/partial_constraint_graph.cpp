@@ -13,6 +13,7 @@
 #include <sstream>
 #include <graphviz/gvc.h>
 
+
 std::string  PartialConstraintGraph::getSVG(){
 
     std::string res;
@@ -66,21 +67,27 @@ std::string PartialConstraintGraph::getDOT() {
 
 
 std::pair<std::vector<Execution>, INTEGER_TIME_UNIT>
-FindLongestPath(PartialConstraintGraph PKG) {
+FindLongestPathUpper(PartialConstraintGraph PKG) {
+    return FindLongestPath(PKG);
+}
+std::pair<std::vector<Execution>, INTEGER_TIME_UNIT>
+FindLongestPathLower(PartialConstraintGraph PKG) {
 
 	std::map<Execution, WEIGHT> dist;
 	std::map<Execution, Execution> prev;
 
 	dist[Execution(-1, 0)] = 0;
 
-	std::vector<Execution> ordered_execution = topologicalOrder(PKG);
+	const std::vector<Execution>& ordered_execution = PKG.getTopologicalOrder();
 
 	for (Execution src : ordered_execution) {
 		if (dist.count(src)) {
 			for (Constraint c : PKG.getOutputs(src)) {
+                auto lowerWeight = c.getWeight2();
+                if (not c.hasWeight2()) continue;
 				Execution dest = c.getDestination();
-				if (dist.count(dest) == 0 || dist[dest] < dist[src] + c.getWeight()) {
-					dist[dest] = dist[src] + c.getWeight();
+				if (dist.count(dest) == 0 || dist[dest] < dist[src] + lowerWeight) {
+					dist[dest] = dist[src] + lowerWeight;
 
 					auto const result = prev.insert(std::make_pair(dest, src));
 					if (not result.second) {
@@ -118,35 +125,59 @@ FindLongestPath(PartialConstraintGraph PKG) {
 			L, dist[Execution(-1, 1)]);
 }
 
+std::pair<std::vector<Execution>, INTEGER_TIME_UNIT>
+FindLongestPath(PartialConstraintGraph PKG) {
 
+    std::map<Execution, WEIGHT> dist;
+    std::map<Execution, Execution> prev;
 
-std::vector<Execution> topologicalOrder(PartialConstraintGraph PKG) {
+    dist[Execution(-1, 0)] = 0;
 
-	std::map<Execution, std::set<Constraint>> outbounds_copy = PKG.outbounds;
-	std::map<Execution, std::set<Constraint>> inbounds_copy = PKG.inbounds;
-	std::vector<Execution> L;
-	std::vector<Execution> S = {Execution(-1, 0)};
+    const std::vector<Execution>& ordered_execution = PKG.getTopologicalOrder();
 
-	while (S.size()) {
-		Execution n = S[S.size() - 1];
-		S.pop_back();
-		L.push_back(n);
+    for (Execution src : ordered_execution) {
+        if (dist.count(src)) {
+            for (Constraint c : PKG.getOutputs(src)) {
+                Execution dest = c.getDestination();
+                if (dist.count(dest) == 0 || dist[dest] < dist[src] + c.getWeight()) {
+                    dist[dest] = dist[src] + c.getWeight();
 
-		for (Constraint e : outbounds_copy[n]) {
-			Execution m = e.getDestination();
-			// remove edge
-			inbounds_copy[m].erase(e);
+                    auto const result = prev.insert(std::make_pair(dest, src));
+                    if (not result.second) {
+                        result.first->second = src;
+                    }
 
-			if (inbounds_copy[m].size() == 0) {
-				S.push_back(m);
-			}
-		}
-		outbounds_copy[n].clear();
-	}
+                    VERBOSE_PCG(" Update " << dest << " by " << src);
+                    VERBOSE_PCG(" prev =  " << prev);
+                }
+            }
+        } else {
+            VERBOSE_ERROR("Topological order failed");
+        }
+    }
 
-	// assert all edges gone
-	return L;
+    for (Execution e : ordered_execution) {
+        VERBOSE_ASSERT(dist.count(e), "Could not find dist for execution" << e);
+        VERBOSE_PCG(e << " distance is " << dist[e]);
+    }
+
+    VERBOSE_PCG(prev);
+
+    std::vector<Execution> L;
+    Execution e = Execution(-1, 1);
+    while (prev.count(e) == 1) {
+        VERBOSE_PCG("Longest to " << e << " comes from " << prev.at(e));
+        L.push_back(e);
+        e = prev.at(e);
+    }
+    L.push_back(e);
+
+    std::reverse(L.begin(), L.end());
+
+    return std::pair<std::vector<Execution>, INTEGER_TIME_UNIT>(
+            L, dist[Execution(-1, 1)]);
 }
+
 
 
 
@@ -169,15 +200,17 @@ void add_start_finish (const LETModel &model, const PeriodicityVector &K, Partia
 			Execution t(tid, a);
 
 			// for any t without pred add s-> t with weight 0
-			if (graph.getInputs(t).size() == 0) {
-				Constraint c(s, t, 0);
-				graph.add(c);
+			//if (graph.getInputs(t).size() == 0)
+            {
+				Constraint cin(s, t, 0, 0);
+				graph.add(cin);
 			}
 
 			// for any t without succ add t -> f with weight Di (i the task)
-			if (graph.getOutputs(t).size() == 0) {
-				Constraint c(t, f, Di);
-				graph.add(c);
+			//if (graph.getOutputs(t).size() == 0)
+            {
+				Constraint cout(t, f, Di, Di);
+				graph.add(cout);
 			}
 		}
 	}

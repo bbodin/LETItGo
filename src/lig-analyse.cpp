@@ -79,7 +79,7 @@ int main (int argc , char * argv[]) {
 
     AgeLatencyFun original = (AgeLatencyFun) compute_age_latency;
 	if (FLAGS_agelatency) {
-		auto res = original(*instance, my_generate_partial_constraint_graph, my_generate_partial_lowerbound_graph);
+		auto res = original(*instance);
         std::cout << "// Age Latency:" << res.age_latency << std::endl;
 	}
     if (FLAGS_outputxml) {

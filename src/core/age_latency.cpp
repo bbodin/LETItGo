@@ -23,7 +23,9 @@
 #endif
 
 
-AgeLatencyResult compute_age_latency(const LETModel &model, GenerateExpansionFun upper_fun, GenerateExpansionFun lower_fun) {
+AgeLatencyResult compute_age_latency(const LETModel &model) {
+    GenerateExpansionFun upper_fun = generate_partial_upperbound_graph;
+    GenerateExpansionFun lower_fun = generate_partial_lowerbound_graph;
 
     auto start = std::chrono::high_resolution_clock::now();
 
@@ -165,7 +167,9 @@ AgeLatencyResult compute_age_latency(const LETModel &model, GenerateExpansionFun
 
 
 
-AgeLatencyResult NewComputeAgeLatency(const LETModel &model, GenerateExpansionFun upper_fun, GenerateExpansionFun lower_fun) {
+AgeLatencyResult NewComputeAgeLatency(const LETModel &model) {
+
+    GenerateExpansionFun lowerupper_fun = generate_combined_partial_expansion_graph;
 
     auto start = std::chrono::high_resolution_clock::now();
 
@@ -190,7 +194,7 @@ AgeLatencyResult NewComputeAgeLatency(const LETModel &model, GenerateExpansionFu
 
         auto s1 = std::chrono::high_resolution_clock::now();
         // Construct the PartialConstraintGraph and
-        PartialConstraintGraph PKG = upper_fun(model, K);
+        PartialConstraintGraph PKG = lowerupper_fun(model, K);
         auto s2 = std::chrono::high_resolution_clock::now();
 #ifdef SUPERDBG
         // TODO: Check against reference, Remove for real experiments
@@ -201,7 +205,7 @@ AgeLatencyResult NewComputeAgeLatency(const LETModel &model, GenerateExpansionFu
 
         // Find longest path and update the res
         auto s3 = std::chrono::high_resolution_clock::now();
-        auto FLP = FindLongestPath(PKG);
+        auto FLP = FindLongestPathUpper(PKG);
         auto s4 = std::chrono::high_resolution_clock::now();
 
         auto P = FLP.first;
@@ -209,9 +213,8 @@ AgeLatencyResult NewComputeAgeLatency(const LETModel &model, GenerateExpansionFu
 
         VERBOSE_INFO ("Iteration " << count  << " Lower bound Graph Generation");
         // Compute the lower bound to check it is lower than the uppoer bound.
-        auto pbgbis = lower_fun(model, K);
         VERBOSE_INFO ("Iteration " << count << " Lower bound Find Longest Path");
-        auto lower_bound = FindLongestPath(pbgbis);
+        auto lower_bound = FindLongestPathLower(PKG);
         VERBOSE_AGE_LATENCY(" * FindLongestPath(UPPER) = " << FLP);
         VERBOSE_AGE_LATENCY(" * FindLongestPath(LOWER) = " << lower_bound);
         VERBOSE_AGE_LATENCY(" * Check " << lower_bound.second << " <= " << FLP.second);

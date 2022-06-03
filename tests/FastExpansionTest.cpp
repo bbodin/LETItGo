@@ -374,11 +374,11 @@ BOOST_AUTO_TEST_CASE(test_rosace_fast_graph) {
   rosace->addDependency(t5, t3);
   rosace->addDependency(t6, t4);
 
-  auto delay = compute_age_latency(*rosace, new_generate_partial_constraint_graph);
+  auto delay = compute_age_latency(*rosace);
   BOOST_REQUIRE_EQUAL(delay.age_latency , 240);
 
 
-  delay = compute_age_latency(*rosace, opt_new_generate_partial_constraint_graph);
+  delay = compute_age_latency(*rosace);
   BOOST_REQUIRE_EQUAL(delay.age_latency , 240);
 
 }
