@@ -83,7 +83,11 @@ void add_upperbounds_constraints (const LETModel &model, const PeriodicityVector
 PartialConstraintGraph
 generate_partial_upperbound_graph(const LETModel &model,	const PeriodicityVector &K) {
 
-	PartialConstraintGraph graph;
+    long sumK;
+    for(auto it : K) {
+        sumK += it;
+    }
+    PartialConstraintGraph graph (2 + sumK);
 
 	for (Dependency d : model.dependencies()) {
 		VERBOSE_UPB(" " << d);

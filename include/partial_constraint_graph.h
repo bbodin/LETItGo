@@ -21,15 +21,23 @@
 
 
 class PartialConstraintGraph {
+
+private:
+    long task_count;
     std::set<Execution> executions;
     std::set<Constraint> constraints;
     bool dirty = false; // set to false everytime the graph change
+    PartialConstraintGraph() {};
 
 public:
   std::map<Execution, std::set<Constraint>> inbounds;
   std::map<Execution, std::set<Constraint>> outbounds;
 
 public:
+
+    PartialConstraintGraph(long task_count) : task_count(task_count){
+
+    }
   inline void add(Constraint c) {
     dirty = false;
 	executions.insert(c.getSource());
@@ -87,7 +95,7 @@ public:
 
 
     std::vector<Execution> topologicalOrder;
-    std::vector<Execution> getTopologicalOrder () ;
+    const std::vector<Execution>& getTopologicalOrder () ;
 
 };
 

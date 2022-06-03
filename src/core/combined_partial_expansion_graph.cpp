@@ -101,10 +101,13 @@ void add_lowerupperbounds_constraints (const LETModel &model, const PeriodicityV
 PartialConstraintGraph
 generate_combined_partial_expansion_graph(const LETModel &model,	const PeriodicityVector &K) {
 
-    PartialConstraintGraph graph;
+    long sumK;
+    for(auto it : K) {
+        sumK += it;
+    }
+    PartialConstraintGraph graph (2 + sumK);
 
     for (Dependency d : model.dependencies()) {
-
         add_lowerupperbounds_constraints (model, K , d, graph);
     }
 

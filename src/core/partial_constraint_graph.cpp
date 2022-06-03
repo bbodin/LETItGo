@@ -13,6 +13,39 @@
 #include <sstream>
 #include <graphviz/gvc.h>
 
+/**
+ * TODO: rewrite this one. too slow.
+ * @return
+ */
+const std::vector<Execution>& PartialConstraintGraph::getTopologicalOrder()  {
+    if (this->dirty) return this->topologicalOrder;
+
+    std::map<Execution, std::set<Constraint>> outbounds_copy = this->outbounds;
+    std::map<Execution, std::set<Constraint>> inbounds_copy = this->inbounds;
+    this->topologicalOrder.clear();
+    std::vector<Execution> S = {Execution(-1, 0)};
+
+    while (S.size()) {
+        Execution n = S[S.size() - 1];
+        S.pop_back();
+        this->topologicalOrder.push_back(n);
+
+        for (Constraint e : outbounds_copy[n]) {
+            Execution m = e.getDestination();
+            // remove edge
+            inbounds_copy[m].erase(e);
+
+            if (inbounds_copy[m].size() == 0) {
+                S.push_back(m);
+            }
+        }
+        outbounds_copy[n].clear();
+    }
+
+    // assert all edges gone
+    this->dirty = true;
+    return this->topologicalOrder;
+}
 
 std::string  PartialConstraintGraph::getSVG(){
 

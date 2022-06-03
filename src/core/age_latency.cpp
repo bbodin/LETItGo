@@ -17,10 +17,6 @@
 #include <stack>
 #include <chrono>
 
-// TODO: this ensure the graph generation is correct, and that the lower bound is correct.
-#ifndef __RELEASE__
-#define SUPERDBG
-#endif
 
 
 AgeLatencyResult compute_age_latency(const LETModel &model) {
@@ -166,7 +162,11 @@ AgeLatencyResult compute_age_latency(const LETModel &model) {
 }
 
 
-
+/**
+ * TODO: Topological order could be done si easily, it is the same as the original graph.
+ * @param model
+ * @return
+ */
 AgeLatencyResult NewComputeAgeLatency(const LETModel &model) {
 
     GenerateExpansionFun lowerupper_fun = generate_combined_partial_expansion_graph;
@@ -196,10 +196,6 @@ AgeLatencyResult NewComputeAgeLatency(const LETModel &model) {
         // Construct the PartialConstraintGraph and
         PartialConstraintGraph PKG = lowerupper_fun(model, K);
         auto s2 = std::chrono::high_resolution_clock::now();
-#ifdef SUPERDBG
-        // TODO: Check against reference, Remove for real experiments
-		VERBOSE_ASSERT_EQUALS(PKG, generate_partial_constraint_graph(model, K));
-#endif
 
         VERBOSE_INFO ("Iteration " << count  << " Find Longest Path");
 

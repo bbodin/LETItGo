@@ -371,6 +371,7 @@ void main_benchmark_age_latency (AgeLantencyBenchmarkConfiguration config) {
 		print_al_header(out_stream);
 	}
 
+    VERBOSE_ASSERT(end_n % step_n == 0, "The step is not rounding perfectly. I have OCDs, please be kind.");
 	for (auto n = begin_n ; n <= end_n ; n+= step_n) {
 
         if (out_file.is_open()) {
@@ -388,7 +389,6 @@ void main_benchmark_age_latency (AgeLantencyBenchmarkConfiguration config) {
 
 				if (config.detailed) {
 					for (size_t i = 0 ; i < sample_count ; i ++ ) {
-						GenerateExpansionFun expFun = (GenerateExpansionFun) generate_partial_upperbound_graph;
                         GeneratorRequest r (n,m,seed+i,dt, DiEqualTi);
 						LETModel sample = Generator::getInstance().generate(r);
 						AgeLatencyResult fun_res = original(sample);

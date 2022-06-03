@@ -10,3 +10,4 @@ cmake-build-*/
 *.csv
 notebooks/figures/
 notebooks/data/
+callgrind.*

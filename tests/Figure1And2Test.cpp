@@ -50,7 +50,7 @@ BOOST_AUTO_TEST_CASE(test_figure2_graph) {
 	PartialConstraintGraph PG2 = generate_partial_upperbound_graph(*figure2, K2);
 	std::cout << PG2 << std::endl;
 	// assert (PG2.getConstraints().size() == 17);
-	auto T = topologicalOrder(PG2);
+	auto T = PG2.getTopologicalOrder();
 	std::cout << "Topology: " << T << std::endl;
 	auto L = FindLongestPath(PG2);
 	std::cout << "LongestPath: " << L << std::endl;
