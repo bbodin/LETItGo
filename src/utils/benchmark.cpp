@@ -333,7 +333,7 @@ void main_benchmark_age_latency (AgeLantencyBenchmarkConfiguration config) {
 	size_t fseed         = config.seed       ;
 	LETDatasetType       dt = config.kind;
     bool  DiEqualTi = config. DiEqualTi;
-	AgeLatencyFun original = (AgeLatencyFun) ComputeAgeLatency;
+	AgeLatencyFun original = (AgeLatencyFun) NewComputeAgeLatency; //
 
     
     std::ofstream out_file = std::ofstream (config.logfile);

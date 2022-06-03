@@ -17,7 +17,7 @@
 
 typedef double TIME_UNIT;
 typedef long INTEGER_TIME_UNIT;
-typedef long TASK_ID; // TODO: Signed because -1 is a valid task id as in ComputeAgeLatency, but should not.
+typedef long TASK_ID; // TODO: Signed because -1 is a valid task id as in compute_age_latency, but should not.
 
 typedef long EXECUTION_COUNT;
 typedef long COUNT_T;
@@ -256,16 +256,19 @@ public:
 
 class Constraint {
 	Execution ei, ej;
-	WEIGHT w;
+	WEIGHT w1,w2;
 
 public:
-	Constraint(Execution e1, Execution e2, WEIGHT w) : ei(e1), ej(e2), w(w) {}
+    Constraint(Execution e1, Execution e2, WEIGHT w) : ei(e1), ej(e2), w1(w) {}
+    Constraint(Execution e1, Execution e2, WEIGHT w1, WEIGHT w2) : ei(e1), ej(e2), w1(w1) , w2(w2) {}
 	inline const Execution getSource() const { return ei; }
 	inline const Execution getDestination() const { return ej; }
-	inline WEIGHT getWeight() const { return w; }
+    inline WEIGHT getWeight() const { return w1; }
+    inline WEIGHT getWeight1() const { return w1; }
+    inline WEIGHT getWeight2() const { return w2; }
 
 	inline friend bool operator<(const Constraint &l, const Constraint &r) {
-		return std::tie(l.ei, l.ej, l.w) < std::tie(r.ei, r.ej, r.w);
+		return std::tie(l.ei, l.ej, l.w1, l.w2) < std::tie(r.ei, r.ej, r.w1, r.w2);
 	}
 
 	inline friend std::ostream &operator<<(std::ostream &stream, const Constraint &obj) {
@@ -275,7 +278,7 @@ public:
 		return stream;
 	}
 	inline friend bool operator ==(const Constraint & a1, const Constraint & a2) {
-		return (a1.ei == a2.ei) and (a1.ej == a2.ej) and (a1.w == a2.w) ;
+		return (a1.ei == a2.ei) and (a1.ej == a2.ej) and (a1.w1 == a2.w1) and (a1.w2 == a2.w2) ;
 	}
 
 };

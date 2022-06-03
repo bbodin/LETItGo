@@ -55,8 +55,8 @@ BOOST_AUTO_TEST_CASE(test_figure2_graph) {
 	auto L = FindLongestPath(PG2);
 	std::cout << "LongestPath: " << L << std::endl;
 
-	std::cout << "Start ComputeAgeLatency" << std::endl;
-	auto delay = ComputeAgeLatency(*figure2);
+	std::cout << "Start compute_age_latency" << std::endl;
+	auto delay = compute_age_latency(*figure2);
 
 	BOOST_CHECK_EQUAL(delay.age_latency, 12);
 }

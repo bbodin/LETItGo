@@ -20,7 +20,7 @@ BOOST_AUTO_TEST_SUITE(test_strange)
         auto sample = Generator::getInstance().generate(r);
 
         BOOST_CHECK_EQUAL(4, sample.getTaskCount());
-        auto res = ComputeAgeLatency(sample);
+        auto res = compute_age_latency(sample);
         std::cout << "Age latency = " << res.age_latency << std::endl;
 
         BOOST_CHECK_EQUAL(16, res.age_latency);
@@ -37,7 +37,7 @@ BOOST_AUTO_TEST_SUITE(test_strange)
         auto sample = Generator::getInstance().generate(r);
 
         BOOST_CHECK_EQUAL(4, sample.getTaskCount());
-        auto res = ComputeAgeLatency(sample);
+        auto res = compute_age_latency(sample);
         std::cout << "Age latency = " << res.age_latency << std::endl;
 
         BOOST_CHECK_EQUAL(15, res.age_latency);

@@ -42,7 +42,7 @@ BOOST_AUTO_TEST_CASE(test_rosace_delay) {
 	//std::cout << rosace->getSVG() << std::endl;
 
 
-	auto res = ComputeAgeLatency(*rosace);
+	auto res = compute_age_latency(*rosace);
 	//std::cout << res << std::endl;
 
 	BOOST_CHECK_EQUAL(res.age_latency , 240);

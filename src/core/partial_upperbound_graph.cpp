@@ -1,5 +1,5 @@
 /*
- * partial_constraint_graph.cpp
+ * partial_upperbound_graph.cpp
  *
  *  Created on: Feb 18, 2021
  *      Author: toky
@@ -10,8 +10,8 @@
 #include <algorithm>
 #include <numeric>
 #include <cmath>
-#include <sstream>
-#include <graphviz/gvc.h>
+
+#define VERBOSE_UPB(stream) VERBOSE_PCG(stream)
 
 void add_upperbounds_constraints (const LETModel &model, const PeriodicityVector &K , const Dependency &d, PartialConstraintGraph& graph) {
 
@@ -41,7 +41,7 @@ void add_upperbounds_constraints (const LETModel &model, const PeriodicityVector
 	for (auto ai = 1; ai <= Ki; ai++) {
 		for (auto aj = 1; aj <= Kj; aj++) {
 
-			VERBOSE_PCG("  "
+			VERBOSE_UPB("  "
 					<< "from " << ai << " to " << aj);
 
 			// recall: auto Me = Tj + std::ceil((ri - rj + Di) / gcdeT) * gcdeT;
@@ -52,20 +52,20 @@ void add_upperbounds_constraints (const LETModel &model, const PeriodicityVector
 			INTEGER_TIME_UNIT pi_max =
 					std::floor((-Me + Ti - alphae_ai_aj * gcdeT) / gcdeK);
 
-			VERBOSE_PCG("   "
+			VERBOSE_UPB("   "
 					<< "alphae_ai_aj= "
 					<< "(" << Ti << "*" << ai << "-" << Tj << "*" << aj
 					<< ") / " << gcdeT << " = " << alphae_ai_aj);
-			VERBOSE_PCG("   "
+			VERBOSE_UPB("   "
 					<< "pi_min= " << pi_min);
-			VERBOSE_PCG("   "
+			VERBOSE_UPB("   "
 					<< "pi_max= " << pi_max);
 
 			if (pi_min <= pi_max) {
 				// From Theorem 6 (ECRTS2020)
 				INTEGER_TIME_UNIT Lmax =
 						rj - ri + Ti - Tj - (pi_min * gcdeK + alphae_ai_aj * gcdeT);
-				VERBOSE_PCG("   "
+				VERBOSE_UPB("   "
 						<< "Lmax= " << Lmax);
 
 				Execution ei(ti_id, ai);
@@ -86,7 +86,7 @@ generate_partial_upperbound_graph(const LETModel &model,	const PeriodicityVector
 	PartialConstraintGraph graph;
 
 	for (Dependency d : model.dependencies()) {
-		VERBOSE_PCG(" " << d);
+		VERBOSE_UPB(" " << d);
         add_upperbounds_constraints (model, K , d, graph);
 	}
 

@@ -250,7 +250,7 @@ BOOST_AUTO_TEST_CASE(test_fix2) {
 	INTEGER_TIME_UNIT lcm = getLCM<INTEGER_TIME_UNIT>(sample);
 	std::cout << "LCM=" << lcm << std::endl;
 
-	ComputeAgeLatency(sample, generate_partial_upperbound_graph);
+        compute_age_latency(sample, generate_partial_upperbound_graph);
 
 
 }
@@ -270,8 +270,8 @@ BOOST_AUTO_TEST_CASE(test_fix2) {
             BOOST_CHECK_NE(t.getD(), t.getT());
         }
 
-        AgeLatencyResult res = ComputeAgeLatency(sample, generate_partial_upperbound_graph);
-        AgeLatencyResult resbis = ComputeAgeLatency(samplebis, generate_partial_upperbound_graph);
+        AgeLatencyResult res = compute_age_latency(sample, generate_partial_upperbound_graph);
+        AgeLatencyResult resbis = compute_age_latency(samplebis, generate_partial_upperbound_graph);
 
         BOOST_CHECK_NE(res.age_latency, resbis.age_latency);
         std::cout << res << std::endl;
