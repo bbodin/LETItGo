@@ -34,26 +34,6 @@ DEFINE_int32(seed,       1, "Generated case: Value of seed");
 DEFINE_string(kind,  "automotive", "Generated case: Kind of dataset to generate (automotive,generic,harmonic)");
 DEFINE_bool(DiEqualTi,      false, "Generated case: Every Di = Ti");
 
-PartialConstraintGraph my_generate_partial_constraint_graph (const LETModel &model,	const PeriodicityVector &K) {
-    auto tmp = generate_partial_upperbound_graph(model , K);
-    auto longest = FindLongestPath(tmp).second;
-    std::cout << "// Upper bound Longest path = " << longest <<  std::endl;
-    std::cout << "// Upper bound with K=" << K << std::endl;
-    if (FLAGS_outputdot) std::cout << tmp.getDOT();
-    if (FLAGS_outputsvg) std::cout << tmp.getSVG();
-    return tmp;
-}
-
-PartialConstraintGraph my_generate_partial_lowerbound_graph (const LETModel &model,	const PeriodicityVector &K) {
-    auto tmp = generate_partial_lowerbound_graph(model , K);
-    auto longest = FindLongestPath(tmp).second;
-    std::cout << "// Lower bound Longest path = " << longest <<  std::endl;
-    std::cout << "// Lower bound with K=" << K << std::endl;
-    if (FLAGS_outputdot) std::cout << tmp.getDOT();
-    if (FLAGS_outputsvg) std::cout << tmp.getSVG();
-    return tmp;
-}
-
 int main (int argc , char * argv[]) {
 	gflags::SetUsageMessage("LETItGo: LET Analysis tool");
 	gflags::SetVersionString("1.0.0");

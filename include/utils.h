@@ -8,6 +8,7 @@
 #ifndef SRC_INCLUDE_UTILS_H_
 #define SRC_INCLUDE_UTILS_H_
 
+#include <verbose.h>
 
 #include <iostream>
 #include <numeric>

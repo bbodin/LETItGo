@@ -13,6 +13,7 @@
 BOOST_AUTO_TEST_SUITE(LETModelTest)
 
 BOOST_AUTO_TEST_CASE(test_equal) {
+
 	 auto a1 = new LETModel();
      TASK_ID t11 = a1->addTask(0, 3, 4);
      TASK_ID t12 = a1->addTask(1, 2, 3);

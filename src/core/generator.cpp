@@ -154,7 +154,7 @@ void GenerateGenericTasks(LETModel& sample, unsigned int n, bool DiEqualTi, std:
     GenerateTasks(sample, T, R, DiEqualTi, n, gen);
 }
 
-void GenerateUniformConnections(LETModel& sample, unsigned int m, std::mt19937& gen) {
+void GenerateUniformConnections(LETModel& sample, long m, std::mt19937& gen) {
 
 	unsigned int n = sample.tasks().size();
 
@@ -163,13 +163,14 @@ void GenerateUniformConnections(LETModel& sample, unsigned int m, std::mt19937& 
 
 	  std::vector<std::pair<TASK_ID,TASK_ID>> edgebag;
 
+
 	  for (TASK_ID i = 0 ; i < n ; i++) {
 		  for (TASK_ID j = i + 1 ; j < n ; j++) {
 			  edgebag.push_back(std::pair<TASK_ID,TASK_ID>(i,j));
 		  }
 	  }
 
-	  for (unsigned int j = 0 ; j < m ; j++) {
+	  for (auto count = 0 ; count < m ; count++) {
 		  std::uniform_int_distribution<> edge_distrib(0, edgebag.size() -1);
 		  size_t index = edge_distrib(gen);
 		  std::pair<TASK_ID,TASK_ID> d = edgebag[index];

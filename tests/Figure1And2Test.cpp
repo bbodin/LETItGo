@@ -43,16 +43,16 @@ BOOST_AUTO_TEST_CASE(test_figure2_graph) {
 
 	PeriodicityVector K1 = generate_unitary_periodicity_vector(*figure2);
 	PeriodicityVector K2 = std::vector<EXECUTION_COUNT>({2, 4, 1, 2});
-	PartialConstraintGraph PG1 = generate_partial_upperbound_graph(*figure2, K1);
+	PartialConstraintGraph PG1 = PartialConstraintGraph(*figure2, K1);
 
 	std::cout << PG1 << std::endl;
 
-	PartialConstraintGraph PG2 = generate_partial_upperbound_graph(*figure2, K2);
+	PartialConstraintGraph PG2 = PartialConstraintGraph(*figure2, K2);
 	std::cout << PG2 << std::endl;
 	// assert (PG2.getConstraints().size() == 17);
 	auto T = PG2.getTopologicalOrder();
 	std::cout << "Topology: " << T << std::endl;
-	auto L = FindLongestPath(PG2);
+	auto L = FindLongestPathUpper(PG2);
 	std::cout << "LongestPath: " << L << std::endl;
 
 	std::cout << "Start compute_age_latency" << std::endl;

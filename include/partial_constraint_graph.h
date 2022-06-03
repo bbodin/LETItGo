@@ -12,6 +12,10 @@
 #include <periodicity_vector.h>
 #include <verbose.h>
 #include <functional>
+#include <algorithm>
+#include <numeric>
+#include <cmath>
+#include <utils.h>
 
 #ifdef ULTRA_DEBUG
 #define VERBOSE_PCG(m) VERBOSE_CUSTOM_DEBUG("PCG", m)
@@ -22,28 +26,44 @@
 
 class PartialConstraintGraph {
 
-private:
-    long task_count;
-    std::set<Execution> executions;
-    std::set<Constraint> constraints;
-    bool dirty = false; // set to false everytime the graph change
-    PartialConstraintGraph() {};
+private: // cache
+    mutable bool dirty = false; // set to true if a constraint mess with the topological order
+    mutable std::vector<Execution> topologicalOrder;
+
+private: // data
+    std::vector<Execution> executions;
+    std::vector<Constraint> constraints;
     std::map<Execution, std::set<Constraint>> inbounds;
     std::map<Execution, std::set<Constraint>> outbounds;
 
-public:
+    inline void add (Constraint c) {
+        // TODO FIXME URGENT Need to add a check for dirty
+        //executions.insert(c.getSource());
+        //executions.insert(c.getDestination());
+        constraints.push_back(c);
+        inbounds[c.getDestination()].insert(c);
+        outbounds[c.getSource()].insert(c);
+    };
 
-    PartialConstraintGraph(long task_count) : task_count(task_count){
-    }
+private: // protection against catastrophe
+    PartialConstraintGraph() {};
 
-  inline void add(Constraint c) {
-    dirty = false;
-	executions.insert(c.getSource());
-    executions.insert(c.getDestination());
-    constraints.insert(c);
-    inbounds[c.getDestination()].insert(c);
-    outbounds[c.getSource()].insert(c);
-  };
+public: // Constructor
+
+    /**
+     * This is the constructor of PCG, for a given model and periodicity vector,
+     * will generate the associated graph using a standard implementation.
+     * @param model
+     * @param K
+     */
+    PartialConstraintGraph(const LETModel& model , const PeriodicityVector& K) ;
+
+private: // Consturctor helpers
+
+    void add_start_finish_constraints (const LETModel &model, const PeriodicityVector &K) ;
+    void add_dependency_constraints (const LETModel &model, const PeriodicityVector &K , const Dependency &d) ;
+
+public: // Getters
 
   inline const std::set<Constraint> getInputs(Execution e) const {
     if (inbounds.count(e))
@@ -58,8 +78,8 @@ public:
   }
 
 
-    inline const std::set<Constraint>& getConstraints() const { return constraints; }
-    inline const std::set<Execution>& getExecutions() const { return executions; }
+    inline const std::vector<Constraint>& getConstraints() const { return constraints; }
+    inline const std::vector<Execution>& getExecutions() const { return executions; }
 
     inline size_t getConstraintsCount() const { return constraints.size(); }
     inline size_t getExecutionsCount() const { return executions.size(); }
@@ -69,21 +89,26 @@ public:
   friend std::ostream &operator<<(std::ostream &stream,
                            const PartialConstraintGraph &obj) {
     stream << "PartialConstraintGraph(" << std::endl;
-    for (auto c : obj.getConstraints()) {
+      for (auto e : obj.getExecutions()) {
+          stream << "  " << e ;
+          stream << std::endl;
+      }
+     for (auto c : obj.getConstraints()) {
     	 stream << "  " << c ;
     	 stream << std::endl;
-    }
+     }
     stream << ")" << std::endl;
     return stream;
   }
 
   friend bool operator ==(const PartialConstraintGraph & a1, const PartialConstraintGraph & a2) {
 
-      bool executions_identical = a1.executions == a2.executions;
-      if (!executions_identical) return false;
 
       bool constraints_identical = a1.constraints == a2.constraints;
       if (!constraints_identical) return false;
+
+      bool executions_identical = a1.executions == a2.executions;
+      if (!executions_identical) return false;
 
       return true;
 
@@ -93,12 +118,12 @@ public:
 	  return not (a1 == a2);
   }
 
-    std::string getDOT();
-    std::string getSVG();
+    std::string getDOT() const ;
+    std::string getSVG() const;
 
 
-    std::vector<Execution> topologicalOrder;
-    const std::vector<Execution>& getTopologicalOrder () ;
+    const std::vector<Execution>& getTopologicalOrder () const;
+
 
 };
 
@@ -133,23 +158,10 @@ struct Algorithm2_statistics {
 
 typedef std::function<PartialConstraintGraph(const LETModel &model, const PeriodicityVector& K)> GenerateExpansionFun;
 
-void add_constraints (const LETModel &model, const PeriodicityVector &K , const Dependency &d, PartialConstraintGraph& graph);
-void add_start_finish (const LETModel &model, const PeriodicityVector &K, PartialConstraintGraph& graph);
-
-PartialConstraintGraph new_generate_partial_constraint_graph(const LETModel &model, const PeriodicityVector &K) ;
-PartialConstraintGraph opt_new_generate_partial_constraint_graph(const LETModel &model, const PeriodicityVector &K) ;
-
-
-std::pair<std::vector<Execution> , INTEGER_TIME_UNIT>  FindLongestPath(PartialConstraintGraph PKG);
 std::pair<std::vector<Execution> , INTEGER_TIME_UNIT>  FindLongestPathLower(PartialConstraintGraph PKG);
 std::pair<std::vector<Execution> , INTEGER_TIME_UNIT>  FindLongestPathUpper(PartialConstraintGraph PKG);
 
-void add_upperbounds_constraints (const LETModel &model, const PeriodicityVector &K , const Dependency &d, PartialConstraintGraph& graph);
-void add_lowerbounds_constraints (const LETModel &model, const PeriodicityVector &K , const Dependency &d, PartialConstraintGraph& graph);
-void add_lowerupperbounds_constraints (const LETModel &model, const PeriodicityVector &K , const Dependency &d, PartialConstraintGraph& graph);
-PartialConstraintGraph generate_partial_lowerbound_graph (const LETModel& model , const PeriodicityVector& K) ;
-PartialConstraintGraph generate_partial_upperbound_graph (const LETModel& model , const PeriodicityVector& K) ;
-PartialConstraintGraph generate_combined_partial_expansion_graph (const LETModel& model , const PeriodicityVector& K) ;
+
 
 
 #endif /* SRC_INCLUDE_PARTIAL_CONSTRAINT_GRAPH_H_ */
