@@ -31,7 +31,7 @@ BOOST_AUTO_TEST_CASE(test_figure1_graph) {
 
 
 	auto K = generate_unitary_periodicity_vector(figure1);
-	auto pcg = generate_partial_constraint_graph(figure1, K);
+	auto pcg = generate_partial_upperbound_graph(figure1, K);
 	auto pbg = generate_partial_lowerbound_graph(figure1, K);
 	auto ulp =  FindLongestPath(pcg);
 	auto llp =  FindLongestPath(pbg);
@@ -42,7 +42,7 @@ BOOST_AUTO_TEST_CASE(test_figure1_graph) {
 
 
 	PeriodicityVector Kbis =  {3,4};
-	auto pcgbis = generate_partial_constraint_graph(figure1, Kbis);
+	auto pcgbis = generate_partial_upperbound_graph(figure1, Kbis);
 	auto pbgbis = generate_partial_lowerbound_graph(figure1, Kbis);
 	auto ulpbis =  FindLongestPath(pcgbis);
 	auto llpbis =  FindLongestPath(pbgbis);

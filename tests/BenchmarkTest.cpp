@@ -42,14 +42,14 @@ BOOST_AUTO_TEST_CASE(benchmark_AgeLatency) {
 
 BOOST_AUTO_TEST_CASE(test_benchmark_expansion) {
 
-	GenerateExpansionFun fun = generate_partial_constraint_graph;
+	GenerateExpansionFun fun = generate_partial_upperbound_graph;
 	size_t sample_count = 2;
 	size_t iter_count = 2;
 	size_t n = 5;
 	size_t m = 10;
         size_t seed = 123;
         auto DiEqualTi = true;
-	ExpansionBenchmarkResult res = benchmark_expansion (generate_partial_constraint_graph, sample_count , iter_count ,  n,  m,  LETDatasetType::automotive_dt,  DiEqualTi, false,   seed);
+	ExpansionBenchmarkResult res = benchmark_expansion (generate_partial_upperbound_graph, sample_count , iter_count ,  n,  m,  LETDatasetType::automotive_dt,  DiEqualTi, false,   seed);
 
 	BOOST_CHECK_GT(res.total_edge_count, 0);
 }

@@ -47,13 +47,13 @@ BOOST_AUTO_TEST_CASE(test_fast_graph_generation8) {
 	model.addDependency(t0, t1);
 
 	auto K = generate_periodicity_vector(model);
-	auto verified = generate_partial_constraint_graph(model, K) ;
+	auto verified = generate_partial_upperbound_graph(model, K) ;
 	auto new_version = new_generate_partial_constraint_graph(model, K) ;
 	BOOST_REQUIRE_EQUAL(verified, new_version);
 
 
 	auto SK = generate_periodicity_vector(model,4);
-	auto sverified = generate_partial_constraint_graph(model, SK) ;
+	auto sverified = generate_partial_upperbound_graph(model, SK) ;
 	//utils::set_verbose_mode(10);
 	//utils::set_verbose_custom_mode("PCG", true);
 	//utils::set_verbose_custom_mode("NPCG", true);
@@ -108,18 +108,18 @@ BOOST_AUTO_TEST_CASE(test_fast_graph_generation7) {
 	model.addDependency(t1, t2);
 	model.addDependency(t0, t3);
 	auto K = generate_periodicity_vector(model);
-	auto verified = generate_partial_constraint_graph(model, K) ;
+	auto verified = generate_partial_upperbound_graph(model, K) ;
 	auto new_version = new_generate_partial_constraint_graph(model, K) ;
 	BOOST_REQUIRE_EQUAL(verified, new_version);
 
 	auto SK = generate_periodicity_vector(model,2);
-	auto sverified = generate_partial_constraint_graph(model, SK) ;
+	auto sverified = generate_partial_upperbound_graph(model, SK) ;
 	auto snew_version = new_generate_partial_constraint_graph(model, SK) ;
 	BOOST_REQUIRE_EQUAL(sverified, snew_version);
 
 
 	SK = generate_periodicity_vector(model,2);
-	sverified = generate_partial_constraint_graph(model, SK) ;
+	sverified = generate_partial_upperbound_graph(model, SK) ;
 	snew_version = opt_new_generate_partial_constraint_graph(model, SK) ;
 	BOOST_REQUIRE_EQUAL(sverified, snew_version);
 
@@ -150,18 +150,18 @@ BOOST_AUTO_TEST_CASE(test_fast_graph_generation6) {
 	auto t2 = model.addTask(4,50,50);
 	model.addDependency(t1, t2);
 	auto K = generate_periodicity_vector(model);
-	auto verified = generate_partial_constraint_graph(model, K) ;
+	auto verified = generate_partial_upperbound_graph(model, K) ;
 	auto new_version = new_generate_partial_constraint_graph(model, K) ;
 	BOOST_REQUIRE_EQUAL(verified, new_version);
 
 	auto SK = generate_periodicity_vector(model,9);
-	auto sverified = generate_partial_constraint_graph(model, SK) ;
+	auto sverified = generate_partial_upperbound_graph(model, SK) ;
 	auto snew_version = new_generate_partial_constraint_graph(model, SK) ;
 	BOOST_REQUIRE_EQUAL(sverified, snew_version);
 
 
 	SK = generate_periodicity_vector(model,9);
-	sverified = generate_partial_constraint_graph(model, SK) ;
+	sverified = generate_partial_upperbound_graph(model, SK) ;
 	snew_version = opt_new_generate_partial_constraint_graph(model, SK) ;
 	BOOST_REQUIRE_EQUAL(sverified, snew_version);
 
@@ -194,18 +194,18 @@ BOOST_AUTO_TEST_CASE(test_fast_graph_generation5) {
 	auto t2 = model.addTask(2, 10, 10);
 	model.addDependency(t1, t2);
 	auto K = generate_periodicity_vector(model);
-	auto verified = generate_partial_constraint_graph(model, K) ;
+	auto verified = generate_partial_upperbound_graph(model, K) ;
 	auto new_version = new_generate_partial_constraint_graph(model, K) ;
 	BOOST_REQUIRE_EQUAL(verified, new_version);
 
 	auto K10 = generate_periodicity_vector(model,10);
-	auto verified10 = generate_partial_constraint_graph(model, K10) ;
+	auto verified10 = generate_partial_upperbound_graph(model, K10) ;
 	auto new_version10 = new_generate_partial_constraint_graph(model, K10) ;
 	BOOST_REQUIRE_EQUAL(verified10, new_version10);
 
 
 	auto SK = generate_periodicity_vector(model,10);
-	auto sverified = generate_partial_constraint_graph(model, SK) ;
+	auto sverified = generate_partial_upperbound_graph(model, SK) ;
 	auto snew_version = opt_new_generate_partial_constraint_graph(model, SK) ;
 	BOOST_REQUIRE_EQUAL(sverified, snew_version);
 
@@ -235,14 +235,14 @@ BOOST_AUTO_TEST_CASE(test_fast_graph_generation4) {
 
 	LETModel model = generate_LET(GeneratorRequest (4,1, 123 , automotive_dt));
 	auto K = generate_periodicity_vector(model);
-	auto verified = generate_partial_constraint_graph(model, K) ;
+	auto verified = generate_partial_upperbound_graph(model, K) ;
 	auto new_version = new_generate_partial_constraint_graph(model, K) ;
 	BOOST_REQUIRE_EQUAL(verified, new_version);
 
 
 
 	auto SK = generate_periodicity_vector(model,10);
-	auto sverified = generate_partial_constraint_graph(model, SK) ;
+	auto sverified = generate_partial_upperbound_graph(model, SK) ;
 	auto snew_version = opt_new_generate_partial_constraint_graph(model, SK) ;
 	BOOST_REQUIRE_EQUAL(sverified, snew_version);
 }
@@ -272,14 +272,14 @@ BOOST_AUTO_TEST_CASE(test_fast_graph_generation3) {
 	auto t2 = model.addTask(3, 50, 50);
 	model.addDependency(t1, t2);
 	auto K = generate_periodicity_vector(model);
-	auto verified = generate_partial_constraint_graph(model, K) ;
+	auto verified = generate_partial_upperbound_graph(model, K) ;
 	auto new_version = new_generate_partial_constraint_graph(model, K) ;
 	BOOST_REQUIRE_EQUAL(verified, new_version);
 
 
 
 	auto SK = generate_periodicity_vector(model,1);
-	auto sverified = generate_partial_constraint_graph(model, SK) ;
+	auto sverified = generate_partial_upperbound_graph(model, SK) ;
 	auto snew_version = opt_new_generate_partial_constraint_graph(model, SK) ;
 	BOOST_REQUIRE_EQUAL(sverified, snew_version);
 
@@ -309,19 +309,19 @@ BOOST_AUTO_TEST_CASE(test_fast_graph_generation2) {
 	auto t2 = model.addTask(4, 100, 100);
 	model.addDependency(t1, t2);
 	auto K = generate_periodicity_vector(model);
-	auto verified = generate_partial_constraint_graph(model, K) ;
+	auto verified = generate_partial_upperbound_graph(model, K) ;
 	auto new_version = new_generate_partial_constraint_graph(model, K) ;
 	BOOST_REQUIRE_EQUAL(verified, new_version);
 
 	auto K2 = generate_periodicity_vector(model,2);
-	auto verified2 = generate_partial_constraint_graph(model, K2) ;
+	auto verified2 = generate_partial_upperbound_graph(model, K2) ;
 	auto new_version2 = new_generate_partial_constraint_graph(model, K2) ;
 	BOOST_REQUIRE_EQUAL(verified2, new_version2);
 
 
 
 	auto SK = generate_periodicity_vector(model,2);
-	auto sverified = generate_partial_constraint_graph(model, SK) ;
+	auto sverified = generate_partial_upperbound_graph(model, SK) ;
 	auto snew_version = opt_new_generate_partial_constraint_graph(model, SK) ;
 	BOOST_REQUIRE_EQUAL(sverified, snew_version);
 
@@ -338,7 +338,7 @@ BOOST_AUTO_TEST_CASE(test_fast_graph_generation1) {
 	model.addDependency(t1, t2);
 
 	PeriodicityVector K = {1,1};
-	auto verified = generate_partial_constraint_graph(model, K) ;
+	auto verified = generate_partial_upperbound_graph(model, K) ;
 
 	auto new_version = new_generate_partial_constraint_graph(model, K) ;
 
@@ -346,7 +346,7 @@ BOOST_AUTO_TEST_CASE(test_fast_graph_generation1) {
 
 
 	auto SK = generate_periodicity_vector(model,1);
-	auto sverified = generate_partial_constraint_graph(model, SK) ;
+	auto sverified = generate_partial_upperbound_graph(model, SK) ;
 	auto snew_version = opt_new_generate_partial_constraint_graph(model, SK) ;
 	BOOST_REQUIRE_EQUAL(sverified, snew_version);
 
@@ -395,7 +395,7 @@ BOOST_AUTO_TEST_CASE(test_fast_graph_random) {
 		LETModel model = generate_LET(GeneratorRequest (2,1, 123 + it, automotive_dt));
 		for (size_t k = 1; k <= maxk; k++) {
 			auto K = generate_periodicity_vector(model,k);
-			auto verified = generate_partial_constraint_graph(model, K) ;
+			auto verified = generate_partial_upperbound_graph(model, K) ;
 			auto new_version = new_generate_partial_constraint_graph(model, K) ;
 			if (verified != new_version) {
 				std::cout << "Failed with: K =" << K << std::endl<< model << std::endl;

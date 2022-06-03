@@ -24,7 +24,7 @@ double get_age_latency_execution_time (AgeLatencyFun fun, LETModel sample, size_
 	double sum_time = 0;
 	for (size_t i = 0 ; i < n; i++) {
 		auto t1 = std::chrono::high_resolution_clock::now();
-		fun(sample, generate_partial_constraint_graph, generate_partial_lowerbound_graph);
+		fun(sample, generate_partial_upperbound_graph, generate_partial_lowerbound_graph);
 		auto t2 = std::chrono::high_resolution_clock::now();
 		auto duration = t2 - t1;
 		sum_time += duration.count();
@@ -62,7 +62,7 @@ ExpansionBenchmarkResult  benchmark_expansion   (GenerateExpansionFun fun, size_
 		}
 		// Check the instance can be solved and retrieve algo2 stats
 
-		auto original = generate_partial_constraint_graph(sample, K);
+		auto original = generate_partial_upperbound_graph(sample, K);
 		Algorithm2_statistics::getSingleton().clear();
 		PartialConstraintGraph res = fun(sample, K);
 		total_stats = total_stats + Algorithm2_statistics::getSingleton();
@@ -108,7 +108,7 @@ AgeLatencyBenchmarkResult benchmark_age_latency (AgeLatencyFun fun, size_t sampl
 	//double sum_iter = 0;
 	//double sum_size = 0;
 
-	GenerateExpansionFun expFun = (GenerateExpansionFun) generate_partial_constraint_graph;
+	GenerateExpansionFun expFun = (GenerateExpansionFun) generate_partial_upperbound_graph;
 
 	AgeLatencyBenchmarkResult bench_res (n,m,dt);
 
@@ -135,7 +135,7 @@ AgeLatencyBenchmarkResult benchmark_age_latency (AgeLatencyFun fun, size_t sampl
 		double bound_error = (double) fun_res.upper_bounds.front() - (double) fun_res.lower_bounds.front();
 		bench_res.bound +=  bound_error / (double) fun_res.age_latency;
 		bench_res.g_ctime += fun_res.graph_computation_time;
-		bench_res.p_ctime += fun_res.path_computation_time;
+		bench_res.p_ctime += fun_res.upper_computation_time;
 
 	}
 
@@ -179,7 +179,7 @@ void main_benchmark_expansion (ExpansionBenchmarkConfiguration config) {
     std::cout << "#     dt = " << config.kind << "" << std::endl;
     std::cout << "############################################################################################" << std::endl;
 
-	GenerateExpansionFun f_original          = (GenerateExpansionFun) generate_partial_constraint_graph;
+	GenerateExpansionFun f_original          = (GenerateExpansionFun) generate_partial_upperbound_graph;
 	GenerateExpansionFun f_new               = (GenerateExpansionFun) new_generate_partial_constraint_graph;
 	GenerateExpansionFun f_new_and_optimized = (GenerateExpansionFun) opt_new_generate_partial_constraint_graph;
 
@@ -257,7 +257,9 @@ inline void print_detailed_al_header(std::ostream& out_stream) {
 			<< ";" << "LowerBounds"
 			<< ";" << "UpperBounds"
 			<< ";" << "gen_time"
-			<< ";" << "sp_time"
+            << ";" << "lbp_time"
+            << ";" << "ubp_time"
+            << ";" << "total_time"
 			<< std::endl;
 }
 
@@ -279,7 +281,9 @@ inline void print_detailed_al_row(GeneratorRequest r,
     out_stream << ";"  << "\"" << res.lower_bounds  << "\""  ;
     out_stream << ";"  << "\"" << res.upper_bounds << "\""   ;
     out_stream << ";"  << std::setprecision(2) << std::fixed << res.graph_computation_time  ;
-    out_stream << ";"  << std::setprecision(2) << std::fixed << res.path_computation_time  ;
+    out_stream << ";"  << std::setprecision(2) << std::fixed << res.lower_computation_time  ;
+    out_stream << ";"  << std::setprecision(2) << std::fixed << res.upper_computation_time  ;
+    out_stream << ";"  << std::setprecision(2) << std::fixed << res.total_time  ;
     out_stream << std::endl;
 
 
@@ -384,7 +388,7 @@ void main_benchmark_age_latency (AgeLantencyBenchmarkConfiguration config) {
 
 				if (config.detailed) {
 					for (size_t i = 0 ; i < sample_count ; i ++ ) {
-						GenerateExpansionFun expFun = (GenerateExpansionFun) generate_partial_constraint_graph;
+						GenerateExpansionFun expFun = (GenerateExpansionFun) generate_partial_upperbound_graph;
                         GeneratorRequest r (n,m,seed+i,dt, DiEqualTi);
 						LETModel sample = Generator::getInstance().generate(r);
 						AgeLatencyResult fun_res = original(sample, expFun, generate_partial_lowerbound_graph);

@@ -19,7 +19,9 @@ struct AgeLatencyResult {
 	size_t m = 0;
 	size_t sum_n = 0;
 	TIME_UNIT graph_computation_time = 0.0;
-	TIME_UNIT path_computation_time  = 0.0;
+    TIME_UNIT upper_computation_time  = 0.0;
+    TIME_UNIT lower_computation_time  = 0.0;
+    TIME_UNIT total_time  = 0.0;
 	INTEGER_TIME_UNIT age_latency = 0;
 	std::vector<INTEGER_TIME_UNIT> expansion_vertex_count;
 	std::vector<INTEGER_TIME_UNIT> expansion_edge_count;
@@ -34,7 +36,9 @@ struct AgeLatencyResult {
 	    		<< " m=" << obj.m
 	    		<< " sumN=" << obj.sum_n
 	    		<< " graph_computation_time=" << obj.graph_computation_time
-	    		<< " path_computation_time=" << obj.path_computation_time
+                << " upper_computation_time=" << obj.upper_computation_time
+                << " lower_computation_time=" << obj.lower_computation_time
+                << " total=" << obj.total_time
 	    		<< " age_latency=" << obj.age_latency
 	    		<< " iterations=" << obj.expansion_vertex_count.size()
 	    	    << " ExVSize=" << obj.expansion_vertex_count.back()
@@ -51,7 +55,7 @@ struct AgeLatencyResult {
 typedef std::function<AgeLatencyResult(const LETModel &model, GenerateExpansionFun ufun, GenerateExpansionFun lfun)> AgeLatencyFun;
 
 
-AgeLatencyResult ComputeAgeLatency(const LETModel &model, GenerateExpansionFun upper_fun = generate_partial_constraint_graph,
+AgeLatencyResult ComputeAgeLatency(const LETModel &model, GenerateExpansionFun upper_fun = generate_partial_upperbound_graph,
                                                           GenerateExpansionFun lower_fun = generate_partial_lowerbound_graph) ;
 
 

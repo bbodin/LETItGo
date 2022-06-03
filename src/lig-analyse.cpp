@@ -24,6 +24,9 @@ DEFINE_bool(outputdot, false,
             "Output the DOT of the LET model");
 DEFINE_bool(outputsvg, false,
             "Output the SVG of the LET model");
+DEFINE_bool(outputtikz, false,
+            "Output the Tikz of the LET model");
+DEFINE_int32(schedule_duration,   0, "length if tikz schedule");
 
 DEFINE_int32(n,          4, "Generated case: Value of N");
 DEFINE_int32(m,          4, "Generated case: Value of M");
@@ -32,7 +35,9 @@ DEFINE_string(kind,  "automotive", "Generated case: Kind of dataset to generate 
 DEFINE_bool(DiEqualTi,      false, "Generated case: Every Di = Ti");
 
 PartialConstraintGraph my_generate_partial_constraint_graph (const LETModel &model,	const PeriodicityVector &K) {
-    auto tmp = generate_partial_constraint_graph(model , K);
+    auto tmp = generate_partial_upperbound_graph(model , K);
+    auto longest = FindLongestPath(tmp).second;
+    std::cout << "// Upper bound Longest path = " << longest <<  std::endl;
     std::cout << "// Upper bound with K=" << K << std::endl;
     if (FLAGS_outputdot) std::cout << tmp.getDOT();
     if (FLAGS_outputsvg) std::cout << tmp.getSVG();
@@ -41,6 +46,8 @@ PartialConstraintGraph my_generate_partial_constraint_graph (const LETModel &mod
 
 PartialConstraintGraph my_generate_partial_lowerbound_graph (const LETModel &model,	const PeriodicityVector &K) {
     auto tmp = generate_partial_lowerbound_graph(model , K);
+    auto longest = FindLongestPath(tmp).second;
+    std::cout << "// Lower bound Longest path = " << longest <<  std::endl;
     std::cout << "// Lower bound with K=" << K << std::endl;
     if (FLAGS_outputdot) std::cout << tmp.getDOT();
     if (FLAGS_outputsvg) std::cout << tmp.getSVG();
@@ -83,6 +90,10 @@ int main (int argc , char * argv[]) {
     }
     if (FLAGS_outputsvg) {
         std::cout << instance->getSVG();
+    }
+    if (FLAGS_outputtikz) {
+        VERBOSE_ASSERT_GreaterThan(FLAGS_schedule_duration,0);
+        std::cout << instance->getTikz(FLAGS_schedule_duration);
     }
 
     delete instance;

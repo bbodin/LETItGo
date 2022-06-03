@@ -30,7 +30,7 @@ BOOST_AUTO_TEST_CASE(test_FGG_performance) {
                 LETModel model = generate_LET(GeneratorRequest (n,m, 123 + i, automotive_dt));
 				auto K = generate_unitary_periodicity_vector(model);
 
-				auto verified = generate_partial_constraint_graph(model, K) ;
+				auto verified = generate_partial_upperbound_graph(model, K) ;
 				auto new_version = new_generate_partial_constraint_graph(model, K) ;
 
 				//std::cout << "generate_LET("<< n << ","<< m << ", "<< 123 + i << ");" << std::endl;

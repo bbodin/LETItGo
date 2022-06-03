@@ -122,7 +122,9 @@ public:
 	LETModel() : TaskIdToTask(), TaskToTaskId(), DependencyIdToDependency() {}
 	LETModel(std::string xmldata) ;
 
-	std::string getXML();
+    bool check_dependency  (Dependency d, long Vi, long Vj) const ;
+    std::string getTikz(int duration = 25);
+    std::string getXML();
 	std::string getDOT();
 	std::string getSVG();
 

@@ -18,11 +18,15 @@
 #include <chrono>
 
 // TODO: this ensure the graph generation is correct, and that the lower bound is correct.
+#ifndef __RELEASE__
 #define SUPERDBG
-
+#endif
 
 
 AgeLatencyResult ComputeAgeLatency(const LETModel &model, GenerateExpansionFun upper_fun, GenerateExpansionFun lower_fun) {
+
+    auto start = std::chrono::high_resolution_clock::now();
+
     //letitgo::utils::set_verbose_custom_mode ("AGE_LATENCY", true);
 	VERBOSE_INFO ("Run ComputeAgeLatency");
 	AgeLatencyResult res;
@@ -59,26 +63,32 @@ AgeLatencyResult ComputeAgeLatency(const LETModel &model, GenerateExpansionFun u
 		auto s4 = std::chrono::high_resolution_clock::now();
 
 		auto P = FLP.first;
-		res.upper_bounds.push_back(FLP.second);
+
+
+        VERBOSE_INFO ("Iteration " << count  << " Lower bound Graph Generation");
+        // Compute the lower bound to check it is lower than the uppoer bound.
+        auto pbgbis = lower_fun(model, K);
+        VERBOSE_INFO ("Iteration " << count << " Lower bound Find Longest Path");
+        auto lower_bound = FindLongestPath(pbgbis);
+        VERBOSE_AGE_LATENCY(" * FindLongestPath(UPPER) = " << FLP);
+        VERBOSE_AGE_LATENCY(" * FindLongestPath(LOWER) = " << lower_bound);
+        VERBOSE_AGE_LATENCY(" * Check " << lower_bound.second << " <= " << FLP.second);
+        VERBOSE_ASSERT(lower_bound.second <= FLP.second, "The lower bound function does not work");
+        res.lower_bounds.push_back(lower_bound.second);
+
+
+        auto s5 = std::chrono::high_resolution_clock::now();
+
+        res.upper_bounds.push_back(FLP.second);
 		res.expansion_vertex_count.push_back(PKG.getExecutions().size());
 		res.expansion_edge_count.push_back(PKG.getConstraints().size());
 		res.age_latency = FLP.second;
 
 		res.graph_computation_time += (s2-s1).count() / 1000000;
-		res.path_computation_time += (s4-s3).count() / 1000000;
+        res.upper_computation_time += (s4-s3).count() / 1000000;
+        res.lower_computation_time += (s5-s4).count() / 1000000;
 
-#ifdef SUPERDBG
-		VERBOSE_INFO ("Iteration " << count  << " Lower bound Graph Generation");
-		// Compute the lower bound to check it is lower than the uppoer bound.
-		auto pbgbis = lower_fun(model, K);
-		VERBOSE_INFO ("Iteration " << count << " Lower bound Find Longest Path");
-		auto lower_bound = FindLongestPath(pbgbis);
-        VERBOSE_AGE_LATENCY(" * FindLongestPath(UPPER) = " << FLP);
-        VERBOSE_AGE_LATENCY(" * FindLongestPath(LOWER) = " << lower_bound);
-        VERBOSE_AGE_LATENCY(" * Check " << lower_bound.second << " <= " << FLP.second);
-		VERBOSE_ASSERT(lower_bound.second <= FLP.second, "The lower bound function does not work");
-		res.lower_bounds.push_back(lower_bound.second);
-#endif
+
 
 		VERBOSE_INFO ("Iteration " << count  << " Conclude");
 
@@ -98,7 +108,7 @@ AgeLatencyResult ComputeAgeLatency(const LETModel &model, GenerateExpansionFun u
         VERBOSE_INFO ("Compute T_P = lcm (T in P) =" << T_P);
 		VERBOSE_ASSERT(T_P > 0, "T_P Cannot be null");
 
-		// COmpute N[T]
+		// Compute N[T]
 		std::map<TASK_ID, INTEGER_TIME_UNIT> N;
 
 		for (Execution e : P) {
@@ -149,6 +159,7 @@ AgeLatencyResult ComputeAgeLatency(const LETModel &model, GenerateExpansionFun u
 	VERBOSE_AGE_LATENCY("Final K = " << K);
 	VERBOSE_DEBUG("Final Age latency = " << res.age_latency);
 
+    res.total_time = (std::chrono::high_resolution_clock::now()-start).count() / 1000000;
 	return res;
 }
 

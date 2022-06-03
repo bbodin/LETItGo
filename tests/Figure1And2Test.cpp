@@ -43,11 +43,11 @@ BOOST_AUTO_TEST_CASE(test_figure2_graph) {
 
 	PeriodicityVector K1 = generate_unitary_periodicity_vector(*figure2);
 	PeriodicityVector K2 = {2, 4, 1, 2};
-	PartialConstraintGraph PG1 = generate_partial_constraint_graph(*figure2, K1);
+	PartialConstraintGraph PG1 = generate_partial_upperbound_graph(*figure2, K1);
 
 	std::cout << PG1 << std::endl;
 
-	PartialConstraintGraph PG2 = generate_partial_constraint_graph(*figure2, K2);
+	PartialConstraintGraph PG2 = generate_partial_upperbound_graph(*figure2, K2);
 	std::cout << PG2 << std::endl;
 	// assert (PG2.getConstraints().size() == 17);
 	auto T = topologicalOrder(PG2);

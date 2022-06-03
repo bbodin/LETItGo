@@ -119,7 +119,6 @@ typedef std::function<PartialConstraintGraph(const LETModel &model, const Period
 void add_constraints (const LETModel &model, const PeriodicityVector &K , const Dependency &d, PartialConstraintGraph& graph);
 void add_start_finish (const LETModel &model, const PeriodicityVector &K, PartialConstraintGraph& graph);
 
-PartialConstraintGraph generate_partial_constraint_graph (const LETModel& model , const PeriodicityVector& K) ;
 PartialConstraintGraph new_generate_partial_constraint_graph(const LETModel &model, const PeriodicityVector &K) ;
 PartialConstraintGraph opt_new_generate_partial_constraint_graph(const LETModel &model, const PeriodicityVector &K) ;
 
@@ -127,8 +126,12 @@ PartialConstraintGraph opt_new_generate_partial_constraint_graph(const LETModel 
 std::vector<Execution> topologicalOrder (PartialConstraintGraph PKG) ;
 std::pair<std::vector<Execution> , INTEGER_TIME_UNIT>  FindLongestPath(PartialConstraintGraph PKG);
 
-void add_lowerbounds (const LETModel &model, const PeriodicityVector &K , const Dependency &d, PartialConstraintGraph& graph);
+void add_upperbounds_constraints (const LETModel &model, const PeriodicityVector &K , const Dependency &d, PartialConstraintGraph& graph);
+void add_lowerbounds_constraints (const LETModel &model, const PeriodicityVector &K , const Dependency &d, PartialConstraintGraph& graph);
+void add_lowerupperbounds_constraints (const LETModel &model, const PeriodicityVector &K , const Dependency &d, PartialConstraintGraph& graph);
 PartialConstraintGraph generate_partial_lowerbound_graph (const LETModel& model , const PeriodicityVector& K) ;
+PartialConstraintGraph generate_partial_upperbound_graph (const LETModel& model , const PeriodicityVector& K) ;
+PartialConstraintGraph generate_combined_partial_expansion_graph (const LETModel& model , const PeriodicityVector& K) ;
 
 
 #endif /* SRC_INCLUDE_PARTIAL_CONSTRAINT_GRAPH_H_ */
