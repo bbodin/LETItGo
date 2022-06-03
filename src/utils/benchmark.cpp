@@ -91,8 +91,8 @@ ExpansionBenchmarkResult  benchmark_expansion   (GenerateExpansionFun fun, size_
 		}
 		auto duration =  (sub_sum_time / n);
 
-		sum_vertex += original.getExecutions().size();
-		sum_edge += original.getConstraints().size();
+		sum_vertex += original.getExecutionsCount();
+		sum_edge += original.getConstraintsCount();
 
 		sum_time += duration / 1000000;
 		VERBOSE_DEBUG("    **** duration=" << duration);

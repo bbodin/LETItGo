@@ -28,16 +28,14 @@ private:
     std::set<Constraint> constraints;
     bool dirty = false; // set to false everytime the graph change
     PartialConstraintGraph() {};
-
-public:
-  std::map<Execution, std::set<Constraint>> inbounds;
-  std::map<Execution, std::set<Constraint>> outbounds;
+    std::map<Execution, std::set<Constraint>> inbounds;
+    std::map<Execution, std::set<Constraint>> outbounds;
 
 public:
 
     PartialConstraintGraph(long task_count) : task_count(task_count){
-
     }
+
   inline void add(Constraint c) {
     dirty = false;
 	executions.insert(c.getSource());
@@ -59,8 +57,13 @@ public:
     return std::set<Constraint>();
   }
 
-  inline const std::set<Constraint> getConstraints() const { return constraints; }
-  inline const std::set<Execution> getExecutions() const { return executions; }
+
+    inline const std::set<Constraint>& getConstraints() const { return constraints; }
+    //inline const std::set<Execution>& getExecutions() const { return executions; }
+
+    inline size_t getConstraintsCount() const { return constraints.size(); }
+    inline size_t getExecutionsCount() const { return executions.size(); }
+
 
 
   friend std::ostream &operator<<(std::ostream &stream,

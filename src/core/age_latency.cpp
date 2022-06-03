@@ -78,8 +78,8 @@ AgeLatencyResult compute_age_latency(const LETModel &model) {
         auto s5 = std::chrono::high_resolution_clock::now();
 
         res.upper_bounds.push_back(FLP.second);
-		res.expansion_vertex_count.push_back(PKG.getExecutions().size());
-		res.expansion_edge_count.push_back(PKG.getConstraints().size());
+		res.expansion_vertex_count.push_back(PKG.getExecutionsCount());
+		res.expansion_edge_count.push_back(PKG.getConstraintsCount());
 		res.age_latency = FLP.second;
 
 		res.graph_computation_time += (s2-s1).count() / 1000000;
@@ -221,8 +221,8 @@ AgeLatencyResult NewComputeAgeLatency(const LETModel &model) {
         auto s5 = std::chrono::high_resolution_clock::now();
 
         res.upper_bounds.push_back(FLP.second);
-        res.expansion_vertex_count.push_back(PKG.getExecutions().size());
-        res.expansion_edge_count.push_back(PKG.getConstraints().size());
+        res.expansion_vertex_count.push_back(PKG.getExecutionsCount());
+        res.expansion_edge_count.push_back(PKG.getConstraintsCount());
         res.age_latency = FLP.second;
 
         res.graph_computation_time += (s2-s1).count() / 1000000;

@@ -19,6 +19,13 @@ inline PeriodicityVector generate_unitary_periodicity_vector(const LETModel &mod
 	return generate_periodicity_vector(model,1);
 }
 
+inline EXECUTION_COUNT sumK(PeriodicityVector K) {
+    EXECUTION_COUNT sum = 0;
+    for (auto it: K) {
+        sum += it;
+    }
+    return sum;
+}
 
 
 #endif /* SRC_INCLUDE_PERIODICITY_VECTOR_H_ */

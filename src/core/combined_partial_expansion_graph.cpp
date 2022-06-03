@@ -41,31 +41,19 @@ void add_lowerupperbounds_constraints (const LETModel &model, const PeriodicityV
 
     EXECUTION_COUNT TjKj_gcdK = TjKj/gcdK;
 
-
-
     auto Me = Tj + std::ceil((ri - rj + Di) / gcdeT) * gcdeT;
 
     for (auto ai = 1; ai <= Ki; ai++) {
         for (auto aj = 1; aj <= Kj; aj++) {
 
-
-
             // recall: auto Me = Tj + std::ceil((ri - rj + Di) / gcdeT) * gcdeT;
-
             INTEGER_TIME_UNIT alphae_ai_aj = (Ti * ai - Tj * aj) / gcdeT;
             INTEGER_TIME_UNIT pi_min =
                     std::ceil((-Me + gcdeT - alphae_ai_aj * gcdeT) / gcdK);
             INTEGER_TIME_UNIT pi_max =
                     std::floor((-Me + Ti - alphae_ai_aj * gcdeT) / gcdK);
 
-
-
-
-
             EXECUTION_COUNT x0 = res.first;
-
-
-
             if (x0 < 0) x0 += TjKj_gcdK;
 
             VERBOSE_ASSERT((x0 >= 0) and (x0 <= TjKj_gcdK), "Unsupported case yet, need to modula x0");
@@ -101,7 +89,7 @@ void add_lowerupperbounds_constraints (const LETModel &model, const PeriodicityV
 PartialConstraintGraph
 generate_combined_partial_expansion_graph(const LETModel &model,	const PeriodicityVector &K) {
 
-    long sumK;
+    long sumK = 0;
     for(auto it : K) {
         sumK += it;
     }

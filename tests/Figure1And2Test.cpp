@@ -42,7 +42,7 @@ BOOST_AUTO_TEST_CASE(test_figure2_graph) {
 	figure2->addDependency(t2, t3);
 
 	PeriodicityVector K1 = generate_unitary_periodicity_vector(*figure2);
-	PeriodicityVector K2 = {2, 4, 1, 2};
+	PeriodicityVector K2 = std::vector<EXECUTION_COUNT>({2, 4, 1, 2});
 	PartialConstraintGraph PG1 = generate_partial_upperbound_graph(*figure2, K1);
 
 	std::cout << PG1 << std::endl;

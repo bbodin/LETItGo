@@ -436,7 +436,7 @@ PartialConstraintGraph
 new_generate_partial_constraint_graph(const LETModel &model,
 		const PeriodicityVector &K) {
 
-    long sumK;
+    long sumK = 0;
     for(auto it : K) {
         sumK += it;
     }

@@ -78,13 +78,12 @@ std::string PartialConstraintGraph::getDOT() {
     ss << "// Grahviz format using the DOT language \n";
     ss << "// ======================================\n";
     ss << "digraph {\n";
-    for(Execution e : this->getExecutions()) {
+    for (Execution e : FLP.first) {
         ss << "  \"" << e.getTaskId() << "," << e.getExecId() << "\"";
-        if (std::count(FLP.first.begin(), FLP.first.end(),e)) {
-            ss  << "[penwidth=2.0]";
-        }
+        ss  << "[penwidth=2.0]";
         ss << ";"<< std::endl;
     }
+
     for (Constraint c : this->getConstraints()) {
         auto es = c.getSource();
         auto ed = c.getDestination();
