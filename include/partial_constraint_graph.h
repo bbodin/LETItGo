@@ -59,7 +59,7 @@ public:
 
 
     inline const std::set<Constraint>& getConstraints() const { return constraints; }
-    //inline const std::set<Execution>& getExecutions() const { return executions; }
+    inline const std::set<Execution>& getExecutions() const { return executions; }
 
     inline size_t getConstraintsCount() const { return constraints.size(); }
     inline size_t getExecutionsCount() const { return executions.size(); }
