@@ -233,62 +233,6 @@ public:
 
 
 
-class Execution : public std::pair<TASK_ID, EXECUTION_COUNT> {
-public:
-	Execution(TASK_ID id, EXECUTION_COUNT e)
-: std::pair<TASK_ID, EXECUTION_COUNT>(id, e) {}
-
-public:
-    TASK_ID getTaskId() const { return this->first; }
-    TASK_ID getExecId() const { return this->second; }
-
-	friend std::ostream &operator<<(std::ostream &stream, const Execution &obj) {
-		stream << "Execution(id:" << obj.first << ", index:" << obj.second << ")";
-		return stream;
-	}
-
-};
-
-
-
-
-
-
-
-
-class Constraint {
-	Execution ei, ej;
-	WEIGHT w1,w2;
-    bool hasw2;
-
-public:
-    Constraint(Execution e1, Execution e2, WEIGHT w) : ei(e1), ej(e2), w1(w) , w2(w), hasw2(false) {}
-    Constraint(Execution e1, Execution e2, WEIGHT w1, WEIGHT w2) : ei(e1), ej(e2), w1(w1) , w2(w2) , hasw2(true) {}
-	inline const Execution getSource() const { return ei; }
-	inline const Execution getDestination() const { return ej; }
-    inline WEIGHT getWeight() const { return w1; }
-    inline WEIGHT getWeight1() const { return w1; }
-    inline WEIGHT getWeight2() const { return w2; }
-    inline WEIGHT hasWeight1() const { return true; }
-    inline WEIGHT hasWeight2() const { return hasw2; }
-
-	inline friend bool operator<(const Constraint &l, const Constraint &r) {
-		return std::tie(l.ei, l.ej, l.w1, l.w2) < std::tie(r.ei, r.ej, r.w1, r.w2);
-	}
-
-	inline friend std::ostream &operator<<(std::ostream &stream, const Constraint &obj) {
-		stream << "Constraint(from:" << obj.getSource()
-        		   << ", to:" << obj.getDestination() << ", weight:" << obj.getWeight()
-				   << ")";
-		return stream;
-	}
-	inline friend bool operator ==(const Constraint & a1, const Constraint & a2) {
-		return (a1.ei == a2.ei) and (a1.ej == a2.ej) and (a1.w1 == a2.w1) and (a1.w2 == a2.w2) ;
-	}
-
-};
-
-
 
 
 

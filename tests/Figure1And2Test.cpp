@@ -52,7 +52,7 @@ BOOST_AUTO_TEST_CASE(test_figure2_graph) {
 	// assert (PG2.getConstraints().size() == 17);
 	auto T = PG2.getTopologicalOrder();
 	std::cout << "Topology: " << T << std::endl;
-	auto L = FindLongestPathUpper(PG2);
+	auto L = FindLongestPath(PG2, upper_wt);
 	std::cout << "LongestPath: " << L << std::endl;
 
 	std::cout << "Start compute_age_latency" << std::endl;

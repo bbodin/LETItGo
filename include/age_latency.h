@@ -52,14 +52,13 @@ struct AgeLatencyResult {
 
 };
 
+typedef std::function<bool(const PartialConstraintGraph &g)> PEGOnCreatedFun;
+typedef std::function<AgeLatencyResult(const LETModel &model, PEGOnCreatedFun& hook)> AgeLatencyWithHookFun;
 typedef std::function<AgeLatencyResult(const LETModel &model)> AgeLatencyFun;
 
 
+AgeLatencyResult compute_age_latency_with_hook(const LETModel &model, PEGOnCreatedFun& hook) ;
 AgeLatencyResult compute_age_latency(const LETModel &model) ;
-
-
-
-AgeLatencyResult NewComputeAgeLatency(const LETModel &model) ;
 
 
 

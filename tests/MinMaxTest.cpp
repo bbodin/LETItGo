@@ -32,8 +32,8 @@ BOOST_AUTO_TEST_CASE(test_figure1_graph) {
 
 	auto K = generate_unitary_periodicity_vector(figure1);
 	auto pcg = PartialConstraintGraph(figure1, K);
-	auto ulp =  FindLongestPathUpper(pcg);
-	auto llp =  FindLongestPathLower(pcg);
+	auto ulp =  FindLongestPath(pcg,upper_wt);
+	auto llp =  FindLongestPath(pcg, lower_wt);
 	VERBOSE_INFO("Upper/Lower bound graph" <<std::endl << pcg);
 	VERBOSE_INFO("Upper bound path result" <<  ulp);
 	VERBOSE_INFO("Lower bound path result" <<  llp);
@@ -41,8 +41,8 @@ BOOST_AUTO_TEST_CASE(test_figure1_graph) {
 
 	PeriodicityVector Kbis =  {3,4};
 	auto pcgbis = PartialConstraintGraph(figure1, Kbis);
-	auto ulpbis =  FindLongestPathUpper(pcgbis);
-	auto llpbis =  FindLongestPathLower(pcgbis);
+	auto ulpbis =  FindLongestPath(pcgbis,upper_wt);
+	auto llpbis =  FindLongestPath(pcgbis, lower_wt);
 	VERBOSE_INFO("Upper/lower bound graph" <<std::endl << pcgbis);
 	VERBOSE_INFO("Upper bound path result" <<  ulpbis);
 	VERBOSE_INFO("Lower bound path result" <<  llpbis);

@@ -9,6 +9,7 @@
 #define SRC_INCLUDE_PERIODICITY_VECTOR_H_
 
 #include <model.h>
+#include <sstream>
 
 typedef std::vector<EXECUTION_COUNT> PeriodicityVector;
 
@@ -25,6 +26,15 @@ inline EXECUTION_COUNT sumK(PeriodicityVector K) {
         sum += it;
     }
     return sum;
+}
+
+inline PeriodicityVector parse_periodicity_vector(std::string text) {
+    std::stringstream ss(text);
+    int n;
+    PeriodicityVector tmp;
+    while ( ss >> n )
+        tmp.push_back(n);
+    return tmp;
 }
 
 

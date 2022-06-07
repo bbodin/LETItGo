@@ -19,12 +19,17 @@
 
 
 
+AgeLatencyResult compute_age_latency(const LETModel &model) {
+    PEGOnCreatedFun hook = [](const PartialConstraintGraph &){return true;};
+    return compute_age_latency_with_hook (model, hook);
+}
+
 /**
  * TODO: Topological order could be done si easily, it is the same as the original graph.
  * @param model
  * @return
  */
-AgeLatencyResult compute_age_latency(const LETModel &model) {
+AgeLatencyResult compute_age_latency_with_hook(const LETModel &model, PEGOnCreatedFun & hook) {
 
 
     auto start = std::chrono::high_resolution_clock::now();
@@ -52,34 +57,34 @@ AgeLatencyResult compute_age_latency(const LETModel &model) {
         // Construct the PartialConstraintGraph and
         PartialConstraintGraph PKG = PartialConstraintGraph(model, K);
         auto s2 = std::chrono::high_resolution_clock::now();
-
+        VERBOSE_ASSERT(hook(PKG), "Hook should return True");
         VERBOSE_INFO ("Iteration " << count  << " Find Longest Path");
 
         // Find longest path and update the res
         auto s3 = std::chrono::high_resolution_clock::now();
-        auto FLP = FindLongestPathUpper(PKG);
+        auto upper_bound = FindLongestPath(PKG, upper_wt);
         auto s4 = std::chrono::high_resolution_clock::now();
 
-        auto P = FLP.first;
+        auto P = upper_bound.first;
 
 
         VERBOSE_INFO ("Iteration " << count  << " Lower bound Graph Generation");
         // Compute the lower bound to check it is lower than the uppoer bound.
         VERBOSE_INFO ("Iteration " << count << " Lower bound Find Longest Path");
-        auto lower_bound = FindLongestPathLower(PKG);
-        VERBOSE_AGE_LATENCY(" * FindLongestPath(UPPER) = " << FLP);
+        auto lower_bound = FindLongestPath(PKG, lower_wt);
+        VERBOSE_AGE_LATENCY(" * FindLongestPath(UPPER) = " << upper_bound);
         VERBOSE_AGE_LATENCY(" * FindLongestPath(LOWER) = " << lower_bound);
-        VERBOSE_AGE_LATENCY(" * Check " << lower_bound.second << " <= " << FLP.second);
-        VERBOSE_ASSERT(lower_bound.second <= FLP.second, "The lower bound function does not work");
+        VERBOSE_AGE_LATENCY(" * Check " << lower_bound.second << " <= " << upper_bound.second);
+        VERBOSE_ASSERT(lower_bound.second <= upper_bound.second, "The lower bound function does not work");
         res.lower_bounds.push_back(lower_bound.second);
 
 
         auto s5 = std::chrono::high_resolution_clock::now();
 
-        res.upper_bounds.push_back(FLP.second);
+        res.upper_bounds.push_back(upper_bound.second);
         res.expansion_vertex_count.push_back(PKG.getExecutionsCount());
         res.expansion_edge_count.push_back(PKG.getConstraintsCount());
-        res.age_latency = FLP.second;
+        res.age_latency = upper_bound.second;
 
         res.graph_computation_time += (s2-s1).count() / 1000000;
         res.upper_computation_time += (s4-s3).count() / 1000000;
@@ -93,7 +98,7 @@ AgeLatencyResult compute_age_latency(const LETModel &model) {
 
 
         for (Execution e : P) {
-            if (e.first == -1)
+            if (e.getTaskId() == -1)
                 continue;
             auto tid = e.getTaskId();
             auto task = model.getTaskById(tid);
@@ -109,7 +114,7 @@ AgeLatencyResult compute_age_latency(const LETModel &model) {
         std::map<TASK_ID, INTEGER_TIME_UNIT> N;
 
         for (Execution e : P) {
-            if (e.first == -1)
+            if (e.getTaskId() == -1)
                 continue;
             auto tid = e.getTaskId();
             auto task = model.getTaskById(tid);
@@ -122,7 +127,7 @@ AgeLatencyResult compute_age_latency(const LETModel &model) {
         // we check the critical cycle is max
         NeedsToContinue = false;
         for (Execution e : P) {
-            if (e.first == -1)
+            if (e.getTaskId() == -1)
                 continue;
             auto tid = e.getTaskId();
             if ((K[tid] % N[tid]) != 0) {
@@ -144,7 +149,7 @@ AgeLatencyResult compute_age_latency(const LETModel &model) {
         VERBOSE_INFO ("Iteration " << count  << " Update K");
 
         for (Execution e : P) {
-            if (e.first == -1)
+            if (e.getTaskId() == -1)
                 continue;
             auto tid = e.getTaskId();
             K[tid] = std::lcm(K[tid], N[tid]);

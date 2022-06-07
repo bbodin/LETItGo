@@ -91,5 +91,4 @@ std::pair<entier,entier> extended_euclide (entier _a, entier _b, entier _c) {
 
 
 
-
 #endif /* SRC_INCLUDE_UTILS_H_ */

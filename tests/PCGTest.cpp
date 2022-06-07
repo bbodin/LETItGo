@@ -28,7 +28,7 @@ BOOST_AUTO_TEST_CASE(test_constructor) {
     letitgo::utils::set_verbose_mode(10);
     PartialConstraintGraph pcg(model, K);
     BOOST_CHECK_EQUAL(4, pcg.getExecutions().size());
-    BOOST_CHECK_EQUAL( 1 + 2 * 2 + 1 , pcg.getConstraints().size());
+    BOOST_CHECK_EQUAL(3, pcg.getConstraints().size());
 }
 
     BOOST_AUTO_TEST_CASE(test_string) {
@@ -71,29 +71,6 @@ BOOST_AUTO_TEST_CASE(test_constructor) {
     }
 
 
-    BOOST_AUTO_TEST_CASE(test_find_longest_path) {
-
-        // LET Model
-        LETModel model ;
-        TASK_ID t11 = model.addTask(0, 3, 4);
-        TASK_ID t12 = model.addTask(1, 2, 3);
-        model.addDependency(t11, t12);
-
-        // PeriodicityVector
-        PeriodicityVector K = {1,1};
-
-        // Generate PCG
-        letitgo::utils::set_verbose_mode(10);
-        PartialConstraintGraph pcg(model, K);
-        std::cout << pcg << std::endl;
-
-        auto path = FindLongestPathUpper(pcg);
-        std::cout << path << std::endl;
-
-    }
-
-
-
     BOOST_AUTO_TEST_CASE(test_zero_task_case) {
 
         // LET Model
@@ -107,7 +84,7 @@ BOOST_AUTO_TEST_CASE(test_constructor) {
         PartialConstraintGraph pcg(model, K);
         std::cout << pcg << std::endl;
 
-        auto path = FindLongestPathUpper(pcg);
+        auto path = FindLongestPath(pcg, upper_wt);
         std::cout << path << std::endl;
 
     }
@@ -128,7 +105,7 @@ BOOST_AUTO_TEST_CASE(test_constructor) {
         // Generate PCG
         letitgo::utils::set_verbose_mode(10);
         PartialConstraintGraph pcg(model, K);
-        std::cout << pcg.getDOT() << std::endl;
+        std::cout << pcg.getDOT(upper_wt) << std::endl;
     }
 
     BOOST_AUTO_TEST_CASE(test_output_svg) {
@@ -145,7 +122,7 @@ BOOST_AUTO_TEST_CASE(test_constructor) {
         // Generate PCG
         letitgo::utils::set_verbose_mode(10);
         PartialConstraintGraph pcg(model, K);
-        std::cout << pcg.getSVG() << std::endl;
+        std::cout << pcg.getSVG(upper_wt) << std::endl;
     }
 
 

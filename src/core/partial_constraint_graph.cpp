@@ -14,25 +14,27 @@
 #include <graphviz/gvc.h>
 
 
-PartialConstraintGraph::PartialConstraintGraph (const LETModel& model , const PeriodicityVector& K) {
+PartialConstraintGraph::PartialConstraintGraph (const LETModel& model , const PeriodicityVector& K) : periodicity_vector(K) {
 
     VERBOSE_DEBUG("start PartialConstraintGraph Constructor");
 
+    
+
     // Generate execution list  (In topological order assuming constraints are)
-    executions.push_back(Execution (-1, 0));
+    this->addExecution(-1, 0);
     for (TASK_ID task_id = 0 ; task_id < (TASK_ID) K.size(); task_id++) {
         auto k = K[task_id];
         for (auto exec_index = 1 ; exec_index <= k; exec_index++) {
-            executions.push_back(Execution (task_id, exec_index));
+            this->addExecution (task_id, exec_index);
         }
     }
-    executions.push_back(Execution (-1, 1));
+    this->addExecution(-1, 1);
 
     // Generate constraints list
     for (Dependency d : model.dependencies()) {
         add_dependency_constraints (model, K , d);
     }
-    add_start_finish_constraints (model, K) ;
+    add_start_finish_constraints (model) ;
 
 }
 
@@ -43,35 +45,34 @@ PartialConstraintGraph::PartialConstraintGraph (const LETModel& model , const Pe
  * @param K
  * @param graph
  */
-void PartialConstraintGraph::add_start_finish_constraints (const LETModel &model, const PeriodicityVector &K) {
-    Execution s(-1, 0);
-    Execution f(-1, 1);
-    Constraint shortcut_for_zero_task_cases(s, f, 0, 0);
-    this->add(shortcut_for_zero_task_cases);
+void PartialConstraintGraph::add_start_finish_constraints (const LETModel &model) {
 
-    for (Task task : model.tasks()) {
-        TASK_ID tid = model.getTaskIdByTask(task);
+    Execution s = this->getExecution(-1, 0);
+    Execution f = this->getExecution(-1, 1);
+
+    for (Execution t : this->getExecutions()) {
+
+        TASK_ID tid = t.getTaskId();
+        if (tid == -1) continue;  // Skip fake tasks
+
+        // We prepare the weight w1 and w2 depending if we find or not edges.
         auto Di = model.getTaskById(tid).getD();
-
-        for (auto a = 1; a <= K[tid]; a++) {
-
-            Execution t(tid, a);
-
-            // for any t without pred add s-> t with weight 0
-            //if (graph.getInputs(t).size() == 0)
-            {
-                Constraint cin(s, t, 0, 0);
-                this->add(cin);
-            }
-
-            // for any t without succ add t -> f with weight Di (i the task)
-            //if (graph.getOutputs(t).size() == 0)
-            {
-                Constraint cout(t, f, Di, Di);
-                this->add(cout);
-            }
+        WEIGHT in_wlow = 0, in_wup = 0; // By default, the weight are set, if we find edges we unset
+        WEIGHT out_wlow = Di, out_wup = Di; // By default, the weight are set, if we find edges we unset
+        for (Constraint c : this->getInputs(t)) {
+            if (c.hasWeight(upper_wt))  in_wup = NO_CONSTRAINT;
+            if (c.hasWeight(lower_wt))  in_wlow = NO_CONSTRAINT;
         }
+        for (Constraint c : this->getOutputs(t)) {
+            if (c.hasWeight(upper_wt))  out_wup = NO_CONSTRAINT;
+            if (c.hasWeight(lower_wt))  out_wlow = NO_CONSTRAINT;
+        }
+
+        if (!(in_wup == NO_CONSTRAINT && in_wlow == NO_CONSTRAINT))  this->addConstraint(s, t, in_wlow, in_wup);
+        if (!(out_wup == NO_CONSTRAINT && out_wlow == NO_CONSTRAINT)) this->addConstraint(t, f, out_wlow, out_wup);
+
     }
+
 }
 
 
@@ -128,8 +129,8 @@ void PartialConstraintGraph::add_dependency_constraints (const LETModel &model, 
                         rj - ri + Ti - Tj - (pi_min * gcdK + alphae_ai_aj * gcdeT);
 
 
-                Execution ei(ti_id, ai);
-                Execution ej(tj_id, aj);
+                Execution ei = this->getExecution(ti_id, ai);
+                Execution ej = this->getExecution(tj_id, aj);
 
                 if (    (std::gcd(x0, TjKj_gcdK)  == 1 ) and  (pi_min + TjKj_gcdK <= pi_max + 1) ) {
 
@@ -138,9 +139,9 @@ void PartialConstraintGraph::add_dependency_constraints (const LETModel &model, 
                     INTEGER_TIME_UNIT Lmin =
                             rj - ri + Ti - Tj - (pi_max * gcdK + alphae_ai_aj * gcdeT);
 
-                    this->add(Constraint (ei, ej, Lmax, Lmin));
+                    this->addConstraint (ei, ej, Lmin, Lmax);
                 } else {
-                    this->add(Constraint (ei, ej, Lmax));
+                    this->addConstraint (ei, ej, NO_CONSTRAINT, Lmax);
 
                 }
             }
@@ -164,7 +165,7 @@ const std::vector<Execution>& PartialConstraintGraph::getTopologicalOrder()  con
     auto inbounds_copy = this->inbounds;
 
     this->topologicalOrder.clear();
-    std::vector<Execution> S = {Execution(-1, 0)};
+    std::vector<Execution> S = {this->getExecution(-1, 0)};
 
     while (S.size()) {
         Execution n = S[S.size() - 1];
@@ -187,7 +188,7 @@ const std::vector<Execution>& PartialConstraintGraph::getTopologicalOrder()  con
     return this->topologicalOrder;
 }
 
-std::string  PartialConstraintGraph::getSVG() const {
+std::string  PartialConstraintGraph::getSVG(const WeightType wt) const {
 
     std::string res;
     GVC_t *gvc;
@@ -196,7 +197,7 @@ std::string  PartialConstraintGraph::getSVG() const {
     char* buffer;
     unsigned int buffer_size;
 
-    std::string dot_version = this->getDOT();
+    std::string dot_version = this->getDOT(wt);
     gvc = gvContext();
     g = agmemread(dot_version.c_str());
     gvLayout(gvc, g, "dot");
@@ -210,10 +211,10 @@ std::string  PartialConstraintGraph::getSVG() const {
 }
 
 
-std::string PartialConstraintGraph::getDOT() const {
+std::string PartialConstraintGraph::getDOT(WeightType wt) const {
 
-    auto upper_path = FindLongestPathUpper(*this);
-    auto lower_path = FindLongestPathLower(*this);
+    auto upper_path = FindLongestPath(*this, upper_wt);
+    auto lower_path = FindLongestPath(*this, lower_wt);
 
     std::stringstream ss;
     ss << "// Grahviz format using the DOT language \n";
@@ -226,11 +227,12 @@ std::string PartialConstraintGraph::getDOT() const {
     }
 
     for (Constraint c : this->getConstraints()) {
+        if (!c.hasWeight(wt)) continue;
         auto es = c.getSource();
         auto ed = c.getDestination();
         ss << "  \"" << es.getTaskId() << "," << es.getExecId() << "\"" << " -> "
         << "\"" << ed.getTaskId() << "," << ed.getExecId() << "\""
-        << "[label=\" " <<  c.getWeight() << "\"]"
+        << "[label=\" " <<  c.getWeight(wt) << "\"]"
         << ";"<< std::endl;
     }
 
@@ -238,80 +240,33 @@ std::string PartialConstraintGraph::getDOT() const {
     return ss.str();
 };
 
-std::pair<std::vector<Execution>, INTEGER_TIME_UNIT>
-FindLongestPathLower(PartialConstraintGraph PKG) {
 
-	std::map<Execution, WEIGHT> dist;
-	std::map<Execution, Execution> prev;
-
-	dist[Execution(-1, 0)] = 0;
-
-	const std::vector<Execution>& ordered_execution = PKG.getTopologicalOrder();
-
-	for (Execution src : ordered_execution) {
-		if (dist.count(src)) {
-			for (Constraint c : PKG.getOutputs(src)) {
-                auto lowerWeight = c.getWeight2();
-                if (not c.hasWeight2()) continue;
-				Execution dest = c.getDestination();
-				if (dist.count(dest) == 0 || dist[dest] < dist[src] + lowerWeight) {
-					dist[dest] = dist[src] + lowerWeight;
-
-					auto const result = prev.insert(std::make_pair(dest, src));
-					if (not result.second) {
-						result.first->second = src;
-					}
-
-					VERBOSE_PCG(" Update " << dest << " by " << src);
-					VERBOSE_PCG(" prev =  " << prev);
-				}
-			}
-		} else {
-			VERBOSE_ERROR("Topological order failed");
-		}
-	}
-
-	for (Execution e : ordered_execution) {
-		VERBOSE_ASSERT(dist.count(e), "Could not find dist for execution" << e);
-		VERBOSE_PCG(e << " distance is " << dist[e]);
-	}
-
-	VERBOSE_PCG(prev);
-
-	std::vector<Execution> L;
-	Execution e = Execution(-1, 1);
-	while (prev.count(e) == 1) {
-		VERBOSE_PCG("Longest to " << e << " comes from " << prev.at(e));
-		L.push_back(e);
-		e = prev.at(e);
-	}
-	L.push_back(e);
-
-	std::reverse(L.begin(), L.end());
-
-	return std::pair<std::vector<Execution>, INTEGER_TIME_UNIT>(
-			L, dist[Execution(-1, 1)]);
-}
 
 std::pair<std::vector<Execution>, INTEGER_TIME_UNIT>
-FindLongestPathUpper(PartialConstraintGraph PKG) {
+FindLongestPath(const PartialConstraintGraph& PKG, const WeightType wt) {
+
+    // Special case - no tasks.
+    if (!PKG.getConstraintsCount()) {
+        return std::pair<std::vector<Execution>, INTEGER_TIME_UNIT>(
+                {}, 0);
+    }
 
 
     std::map<Execution, WEIGHT> dist;
     std::map<Execution, Execution> prev;
 
-    dist[Execution(-1, 0)] = 0;
+    dist[PKG.getExecution(-1, 0)] = 0;
 
     const std::vector<Execution>& ordered_execution = PKG.getTopologicalOrder();
-
-
 
     for (Execution src : ordered_execution) {
         if (dist.count(src)) {
             for (Constraint c : PKG.getOutputs(src)) {
+                auto weight = c.getWeight(wt);
+                if (not c.hasWeight(wt)) continue;
                 Execution dest = c.getDestination();
-                if (dist.count(dest) == 0 || dist[dest] < dist[src] + c.getWeight()) {
-                    dist[dest] = dist[src] + c.getWeight();
+                if (dist.count(dest) == 0 || dist[dest] < dist[src] + weight) {
+                    dist[dest] = dist[src] + weight;
 
                     auto const result = prev.insert(std::make_pair(dest, src));
                     if (not result.second) {
@@ -324,7 +279,6 @@ FindLongestPathUpper(PartialConstraintGraph PKG) {
             }
         } else {
             VERBOSE_ERROR("Topological order failed");
-            VERBOSE_FAILURE();
         }
     }
 
@@ -336,7 +290,7 @@ FindLongestPathUpper(PartialConstraintGraph PKG) {
     VERBOSE_PCG(prev);
 
     std::vector<Execution> L;
-    Execution e = Execution(-1, 1);
+    Execution e = PKG.getExecution(-1, 1);
     while (prev.count(e) == 1) {
         VERBOSE_PCG("Longest to " << e << " comes from " << prev.at(e));
         L.push_back(e);
@@ -347,7 +301,5 @@ FindLongestPathUpper(PartialConstraintGraph PKG) {
     std::reverse(L.begin(), L.end());
 
     return std::pair<std::vector<Execution>, INTEGER_TIME_UNIT>(
-            L, dist[Execution(-1, 1)]);
+            L, dist[PKG.getExecution(-1, 1)]);
 }
-
-
