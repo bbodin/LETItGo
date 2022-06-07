@@ -30,12 +30,11 @@
 
 class Execution {
 private:
-    size_t index;
     TASK_ID taskId;
     EXECUTION_COUNT executionCount;
 public:
-    Execution(size_t index, TASK_ID id, EXECUTION_COUNT e)
-            : index(index), taskId(id), executionCount(e) {}
+    Execution(TASK_ID id, EXECUTION_COUNT e)
+            :  taskId(id), executionCount(e) {}
 
 public:
     inline TASK_ID getTaskId() const { return this->taskId; }
@@ -107,6 +106,7 @@ private: // cache
 
 private: // data
 
+    std::map<Execution, size_t> executions2index;
     std::vector<Execution> executions;
     std::vector<Constraint> constraints;
 
@@ -130,14 +130,16 @@ public: // Constructor
 private: // Constructor helpers
 
     inline void addExecution (TASK_ID tid, EXECUTION_COUNT executionCount) {
-        Execution e (executions.size(), tid, executionCount);
+        Execution e (tid, executionCount);
+        executions2index[e] = executions.size();
         executions.push_back(e);
     }
 
     inline void addConstraint (Execution e1, Execution e2, WEIGHT wLow, WEIGHT wUp) {
-        //executions.insert(c.getSource());
-        //executions.insert(c.getDestination());
-        if (e1 > e2) this->dirty = true;
+        if (executions2index[e1] > executions2index[e2]) {
+            this->dirty = true;
+            VERBOSE_FAILURE();
+        }
         Constraint c (constraints.size(), e1, e2, wLow, wUp);
         constraints.push_back(c);
         inbounds[c.getDestination()].insert(c);
@@ -150,12 +152,12 @@ private: // Constructor helpers
 public: // Getters
 
     inline Execution getExecution (TASK_ID tid, EXECUTION_COUNT exec) const {
-        return Execution (0,tid,exec);
-        for (Execution e : this->getExecutions()) {
-            if (e.getTaskId() == tid && e.getExecId() == exec) return e;
-        }
-        VERBOSE_FAILURE();
-        return Execution (0,0,0);
+        return Execution (tid,exec);
+        //for (Execution e : this->getExecutions()) {
+        //    if (e.getTaskId() == tid && e.getExecId() == exec) return e;
+        //}
+        //VERBOSE_FAILURE();
+        return Execution (0,0);
     }
 
     const PeriodicityVector& get_periodicity_vector() const {

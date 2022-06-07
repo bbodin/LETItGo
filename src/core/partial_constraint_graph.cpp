@@ -49,7 +49,7 @@ void PartialConstraintGraph::add_start_finish_constraints (const LETModel &model
 
     Execution s = this->getExecution(-1, 0);
     Execution f = this->getExecution(-1, 1);
-
+    //TODO : This could be speed up by directly iterating through constraints vector.
     for (Execution t : this->getExecutions()) {
 
         TASK_ID tid = t.getTaskId();
@@ -57,19 +57,22 @@ void PartialConstraintGraph::add_start_finish_constraints (const LETModel &model
 
         // We prepare the weight w1 and w2 depending if we find or not edges.
         auto Di = model.getTaskById(tid).getD();
-        WEIGHT in_wlow = 0, in_wup = 0; // By default, the weight are set, if we find edges we unset
-        WEIGHT out_wlow = Di, out_wup = Di; // By default, the weight are set, if we find edges we unset
+
+        // By default, the weight are set, if we find edges we unset
+        WEIGHT in_wlow = 0, in_wup = 0;
+        WEIGHT out_wlow = Di, out_wup = Di;
+
         for (Constraint c : this->getInputs(t)) {
-            if (c.hasWeight(upper_wt))  in_wup = NO_CONSTRAINT;
-            if (c.hasWeight(lower_wt))  in_wlow = NO_CONSTRAINT;
+            if (c.hasWeight(upper_wt))  {in_wup = NO_CONSTRAINT;}
+            if (c.hasWeight(lower_wt))  {in_wlow = NO_CONSTRAINT;}
         }
         for (Constraint c : this->getOutputs(t)) {
-            if (c.hasWeight(upper_wt))  out_wup = NO_CONSTRAINT;
-            if (c.hasWeight(lower_wt))  out_wlow = NO_CONSTRAINT;
+            if (c.hasWeight(upper_wt))  {out_wup = NO_CONSTRAINT;}
+            if (c.hasWeight(lower_wt))  {out_wlow = NO_CONSTRAINT;}
         }
 
-        if (!(in_wup == NO_CONSTRAINT && in_wlow == NO_CONSTRAINT))  this->addConstraint(s, t, in_wlow, in_wup);
-        if (!(out_wup == NO_CONSTRAINT && out_wlow == NO_CONSTRAINT)) this->addConstraint(t, f, out_wlow, out_wup);
+        if ((in_wup != NO_CONSTRAINT || in_wlow != NO_CONSTRAINT))  this->addConstraint(s, t, in_wlow, in_wup);
+        if ((out_wup != NO_CONSTRAINT || out_wlow != NO_CONSTRAINT)) this->addConstraint(t, f, out_wlow, out_wup);
 
     }
 
@@ -157,6 +160,7 @@ const std::vector<Execution>& PartialConstraintGraph::getTopologicalOrder()  con
 
     // If this is not dirty, in the sense of no constraint violate (i,j) with i < j)
     // Then execution list remains valid topological order.
+
     if (not this->dirty) return this->executions;
 
     // Topological order needed.
