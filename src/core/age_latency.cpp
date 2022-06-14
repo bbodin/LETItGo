@@ -36,11 +36,8 @@ AgeLatencyResult compute_age_latency_with_hook(const LETModel &model, PEGOnCreat
 
     //letitgo::utils::set_verbose_custom_mode ("AGE_LATENCY", true);
     VERBOSE_INFO ("Run compute_age_latency");
-    AgeLatencyResult res;
-    res.n = model.tasks().size();
-    res.m = model.dependencies().size();
+    AgeLatencyResult res(model);
 
-    res.sum_n = compute_sum_n(model);
 
 
     bool NeedsToContinue = true;
@@ -86,9 +83,9 @@ AgeLatencyResult compute_age_latency_with_hook(const LETModel &model, PEGOnCreat
         res.expansion_edge_count.push_back(PKG.getConstraintsCount());
         res.age_latency = upper_bound.second;
 
-        res.graph_computation_time += (s2-s1).count() / 1000000;
-        res.upper_computation_time += (s4-s3).count() / 1000000;
-        res.lower_computation_time += (s5-s4).count() / 1000000;
+        res.graph_computation_time .push_back((s2-s1).count() / 1000000.0);
+        res.upper_computation_time.push_back((s4-s3).count() / 1000000.0);
+        res.lower_computation_time .push_back((s5-s4).count() / 1000000.0);
 
 
 

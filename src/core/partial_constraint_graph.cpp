@@ -162,34 +162,7 @@ const std::vector<Execution>& PartialConstraintGraph::getTopologicalOrder()  con
     // Then execution list remains valid topological order.
 
     if (not this->dirty) return this->executions;
-
-    // Topological order needed.
-
-    auto outbounds_copy = this->outbounds;
-    auto inbounds_copy = this->inbounds;
-
-    this->topologicalOrder.clear();
-    std::vector<Execution> S = {this->getExecution(-1, 0)};
-
-    while (S.size()) {
-        Execution n = S[S.size() - 1];
-        S.pop_back();
-        this->topologicalOrder.push_back(n);
-
-        for (Constraint e : outbounds_copy[n]) {
-            Execution m = e.getDestination();
-            // remove edge
-            inbounds_copy[m].erase(e);
-
-            if (inbounds_copy[m].size() == 0) {
-                S.push_back(m);
-            }
-        }
-        outbounds_copy[n].clear();
-    }
-
-    // assert all edges gone
-    return this->topologicalOrder;
+    VERBOSE_FAILURE();
 }
 
 std::string  PartialConstraintGraph::getSVG(const WeightType wt) const {
@@ -217,14 +190,13 @@ std::string  PartialConstraintGraph::getSVG(const WeightType wt) const {
 
 std::string PartialConstraintGraph::getDOT(WeightType wt) const {
 
-    auto upper_path = FindLongestPath(*this, upper_wt);
-    auto lower_path = FindLongestPath(*this, lower_wt);
+    auto path = FindLongestPath(*this, wt);
 
     std::stringstream ss;
     ss << "// Grahviz format using the DOT language \n";
     ss << "// ======================================\n";
     ss << "digraph {\n";
-    for (Execution e : upper_path.first) {
+    for (Execution e : path.first) {
         ss << "  \"" << e.getTaskId() << "," << e.getExecId() << "\"";
         ss  << "[penwidth=2.0]";
         ss << ";"<< std::endl;

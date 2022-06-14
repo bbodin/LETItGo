@@ -21,6 +21,7 @@ DEFINE_int32(sample_count,  1, "How many graph to generate per size (variety)");
 DEFINE_int32(iter_count,     2, "How many run per graph (precision)");
 DEFINE_int32(seed,          123, "Value of the first seed.");
 DEFINE_bool(detailed,      false, "printout every sample");
+DEFINE_bool(dryrun,      false, "printout every sample");
 DEFINE_string(kind,  "automotive", "Kind of dataset to generate (automotive,generic,harmonic)");
 DEFINE_string(logfile,  "", "Location of output file");
 DEFINE_bool(DiEqualTi,      false, "Every Di = Ti");
@@ -48,6 +49,7 @@ int main (int argc , char * argv[]) {
 	config.seed          = FLAGS_seed;
 	config.kind          = str2kind(FLAGS_kind);
     config.detailed      = FLAGS_detailed;
+    config.dryrun        = FLAGS_dryrun;
     config.DiEqualTi     = FLAGS_DiEqualTi;
 	main_benchmark_age_latency (config ) ;
 

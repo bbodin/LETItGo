@@ -21,6 +21,7 @@ struct BenchmarkConfiguration  {
 	size_t sample_count = 1;
 	size_t iter_count = 1;
 	size_t seed = 123;
+    bool dryrun = false;
 	bool detailed = false;
     bool DiEqualTi = false;
     LETDatasetType kind = LETDatasetType::automotive_dt;
@@ -98,10 +99,8 @@ entier getSumN (LETModel& m) {
 
 
 AgeLatencyBenchmarkResult benchmark_age_latency (AgeLatencyFun fun, size_t sample_count, size_t iter_count, size_t n, size_t m, LETDatasetType dt, bool DiEqualTi, size_t seed);
-ExpansionBenchmarkResult  benchmark_expansion   (GenerateExpansionFun fun, size_t sample_count, size_t iter_count, size_t n, size_t m,  LETDatasetType dt, bool DiEqualTi, bool harmonized_periodicity, size_t seed);
 
 void main_benchmark_age_latency (AgeLantencyBenchmarkConfiguration config);
-void main_benchmark_expansion (ExpansionBenchmarkConfiguration config);
 
 
 #endif /* INCLUDE_BENCHMARK_H_ */

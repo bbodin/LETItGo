@@ -101,8 +101,8 @@ class PartialConstraintGraph {
 private: // cache
     mutable bool dirty = false; // set to true if a constraint mess with the topological order
     mutable std::vector<Execution> topologicalOrder;
-    std::map<Execution, std::set<Constraint>> inbounds;
-    std::map<Execution, std::set<Constraint>> outbounds;
+    std::map<Execution, std::vector<Constraint>> inbounds;
+    std::map<Execution, std::vector<Constraint>> outbounds;
 
 private: // data
 
@@ -142,8 +142,8 @@ private: // Constructor helpers
         }
         Constraint c (constraints.size(), e1, e2, wLow, wUp);
         constraints.push_back(c);
-        inbounds[c.getDestination()].insert(c);
-        outbounds[c.getSource()].insert(c);
+        inbounds[c.getDestination()].push_back(c);
+        outbounds[c.getSource()].push_back(c);
     };
 
     void add_start_finish_constraints (const LETModel &model) ;
@@ -164,15 +164,15 @@ public: // Getters
         return this->periodicity_vector;
     }
 
-  inline const std::set<Constraint>& getInputs(const Execution& e) const {
-        static const std::set<Constraint> empty_set = std::set<Constraint>();
+  inline const std::vector<Constraint>& getInputs(const Execution& e) const {
+        static const std::vector<Constraint> empty_set = std::vector<Constraint>();
     if (inbounds.count(e))
       return inbounds.at(e);
     return empty_set;
   }
 
-  inline const std::set<Constraint>& getOutputs(const Execution& e) const {
-      static const std::set<Constraint> empty_set = std::set<Constraint>();
+  inline const std::vector<Constraint>& getOutputs(const Execution& e) const {
+      static const std::vector<Constraint> empty_set = std::vector<Constraint>();
     if (outbounds.count(e))
       return outbounds.at(e);
     return empty_set;

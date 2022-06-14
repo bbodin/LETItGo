@@ -11,6 +11,8 @@
 #include <model.h>
 #include <numeric>
 
+#include <repetition_vector.h>
+
 //#define VERBOSE_AGE_LATENCY(m) VERBOSE_CUSTOM_DEBUG("AGE_LATENCY", m)
 #define VERBOSE_AGE_LATENCY(m) VERBOSE_DEBUG(m)
 
@@ -18,17 +20,24 @@ struct AgeLatencyResult {
 	size_t n = 0;
 	size_t m = 0;
 	size_t sum_n = 0;
-	TIME_UNIT graph_computation_time = 0.0;
-    TIME_UNIT upper_computation_time  = 0.0;
-    TIME_UNIT lower_computation_time  = 0.0;
     TIME_UNIT total_time  = 0.0;
 	INTEGER_TIME_UNIT age_latency = 0;
+
+    std::vector<TIME_UNIT> graph_computation_time;
+    std::vector<TIME_UNIT> upper_computation_time;
+    std::vector<TIME_UNIT> lower_computation_time;
+
 	std::vector<INTEGER_TIME_UNIT> expansion_vertex_count;
 	std::vector<INTEGER_TIME_UNIT> expansion_edge_count;
 	std::vector<INTEGER_TIME_UNIT> upper_bounds;
 	std::vector<INTEGER_TIME_UNIT> lower_bounds;
 
-	AgeLatencyResult () {}
+    AgeLatencyResult () {}
+    AgeLatencyResult (const LETModel& model) {
+        this->n = model.tasks().size();
+        this->m = model.dependencies().size();
+        this->sum_n = compute_sum_n(model);
+    }
 
 	friend std::ostream &operator<<(std::ostream &stream, const AgeLatencyResult &obj) {
 	    stream << "<AgeLatencyResult"

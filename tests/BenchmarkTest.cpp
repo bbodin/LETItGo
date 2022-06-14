@@ -24,6 +24,7 @@ BOOST_AUTO_TEST_CASE(benchmark_AgeLatency) {
 	config.iter_count    = 2;
 	config.seed          = 123;
         config.detailed     = true;
+        config.dryrun     = false;
         config.kind = LETDatasetType::automotive_dt;
 	main_benchmark_age_latency ( config ) ;
 }

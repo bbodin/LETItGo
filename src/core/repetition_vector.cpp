@@ -31,6 +31,7 @@ size_t compute_sum_n (const LETModel &model) {
 
 	return sum;
 }
+
 std::map<TASK_ID, INTEGER_TIME_UNIT> compute_repetition_vector (const LETModel &model) {
 
 	INTEGER_TIME_UNIT T_P = 1;

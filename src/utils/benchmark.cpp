@@ -20,6 +20,15 @@
  *
  */
 
+
+inline TIME_UNIT sumT(std::vector<TIME_UNIT> K) {
+    TIME_UNIT sum = 0;
+    for (auto it: K) {
+        sum += it;
+    }
+    return sum;
+}
+
 double get_age_latency_execution_time (AgeLatencyFun fun, LETModel sample, size_t n) {
 	double sum_time = 0;
 	for (size_t i = 0 ; i < n; i++) {
@@ -64,8 +73,8 @@ AgeLatencyBenchmarkResult benchmark_age_latency (AgeLatencyFun fun, size_t sampl
 		bench_res.size  += (double) fun_res.expansion_vertex_count.back() / (double) sum_n;
 		double bound_error = (double) fun_res.upper_bounds.front() - (double) fun_res.lower_bounds.front();
 		bench_res.bound +=  bound_error / (double) fun_res.age_latency;
-		bench_res.g_ctime += fun_res.graph_computation_time;
-		bench_res.p_ctime += fun_res.upper_computation_time;
+		bench_res.g_ctime += sumT(fun_res.graph_computation_time);
+		bench_res.p_ctime += sumT(fun_res.upper_computation_time);
 
 	}
 
@@ -120,9 +129,9 @@ inline void print_detailed_al_row(GeneratorRequest r,
     out_stream << ";"  << "\"" << res.expansion_edge_count << "\""   ;
     out_stream << ";"  << "\"" << res.lower_bounds  << "\""  ;
     out_stream << ";"  << "\"" << res.upper_bounds << "\""   ;
-    out_stream << ";"  << std::setprecision(2) << std::fixed << res.graph_computation_time  ;
-    out_stream << ";"  << std::setprecision(2) << std::fixed << res.lower_computation_time  ;
-    out_stream << ";"  << std::setprecision(2) << std::fixed << res.upper_computation_time  ;
+    out_stream << ";"  << "\"" << std::setprecision(2) << std::fixed << res.graph_computation_time << "\"" ;
+    out_stream << ";"  << "\"" << std::setprecision(2) << std::fixed << res.lower_computation_time << "\"" ;
+    out_stream << ";"  << "\"" << std::setprecision(2) << std::fixed << res.upper_computation_time  << "\"" ;
     out_stream << ";"  << std::setprecision(2) << std::fixed << res.total_time  ;
     out_stream << std::endl;
 
@@ -231,8 +240,8 @@ void main_benchmark_age_latency (AgeLantencyBenchmarkConfiguration config) {
 					for (size_t i = 0 ; i < sample_count ; i ++ ) {
                         GeneratorRequest r (n,m,seed+i,dt, DiEqualTi);
 						LETModel sample = Generator::getInstance().generate(r);
-						AgeLatencyResult fun_res = original(sample);
-						print_detailed_al_row(r,fun_res, out_stream);
+                        AgeLatencyResult fun_res = config.dryrun?AgeLatencyResult(sample):original(sample);
+                        print_detailed_al_row(r,fun_res, out_stream);
 					}
 				} else {
 					AgeLatencyBenchmarkResult bench  = benchmark_age_latency ( original, sample_count, iter_count, n, m, dt,  DiEqualTi, seed) ;
