@@ -20,7 +20,7 @@ BOOST_AUTO_TEST_SUITE(PCGLongestPathTest)
         TASK_ID t11 = model.addTask(0, 3, 4);
         TASK_ID t12 = model.addTask(1, 2, 3);
         model.addDependency(t11, t12);
-
+        model.getSVG();
         // PeriodicityVector
         PeriodicityVector K = {1,1};
 

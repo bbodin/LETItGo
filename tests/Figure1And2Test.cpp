@@ -4,6 +4,7 @@
  */
 
 #define BOOST_TEST_DYN_LINK
+#define BOOST_BIND_GLOBAL_PLACEHOLDERS
 #define BOOST_TEST_MODULE Figure1And2Test
 #include <boost/test/included/unit_test.hpp>
 #include <letitgo.h>
@@ -27,6 +28,7 @@ BOOST_AUTO_TEST_SUITE(test_figure2)
 BOOST_AUTO_TEST_CASE(test_figure2_graph) {
 
 	LETModel *figure2 = new LETModel();
+    figure2->getSVG();
 
 	TASK_ID t1 = figure2->addTask(0, 1, 2);
 	TASK_ID t2 = figure2->addTask(1, 0.5, 1);

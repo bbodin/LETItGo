@@ -9,6 +9,7 @@
 #include <sstream>
 #include <graphviz/gvc.h>
 #include <numeric>
+#include <cmath>
 
 bool LETModel::check_dependency  (Dependency d, long Vi, long Vj)  const {
     TASK_ID ti_id = d.getFirst();

@@ -1,5 +1,12 @@
 # LETItGo
 
+## Install dependencies
+
+### Fedora 
+
+```sudo yum install gflags-devel graphviz-devel```
+
+
 ## How to run the experiments
 
 ```

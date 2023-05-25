@@ -1,8 +1,6 @@
-#include <libxml/xmlversion.h>
-#include <libxml/xmlwriter.h>
+
 #include <libxml/tree.h>
 #include <libxml/parser.h>
-#include <libxml/encoding.h>
 #include <string.h>
 #include <model.h>
 

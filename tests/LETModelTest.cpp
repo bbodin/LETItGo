@@ -22,6 +22,7 @@ BOOST_AUTO_TEST_SUITE(test_letmodel)
         VERBOSE_AGE_LATENCY("AGE_LATENCY");
 
         auto a1 = new LETModel();
+        a1->getSVG();
         TASK_ID t11 = a1->addTask(0, 3, 4);
         TASK_ID t12 = a1->addTask(1, 2, 3);
         a1->addDependency(t11, t12);
@@ -47,6 +48,7 @@ BOOST_AUTO_TEST_SUITE(test_letmodel)
         delete a1;
         delete a2;
 
+        VERBOSE_INFO("ENd of the test.");
 
     }
 

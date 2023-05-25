@@ -6,8 +6,6 @@
 #define BOOST_TEST_MODULE BenchmarkTest
 #include <boost/test/included/unit_test.hpp>
 #include <letitgo.h>
-#include <map>
-#include <chrono>
 #include <benchmark.h>
 
 BOOST_AUTO_TEST_SUITE(test_benchmark)
@@ -28,10 +26,5 @@ BOOST_AUTO_TEST_CASE(benchmark_AgeLatency) {
         config.kind = LETDatasetType::automotive_dt;
 	main_benchmark_age_latency ( config ) ;
 }
-
-
-
-
-
 
 BOOST_AUTO_TEST_SUITE_END()

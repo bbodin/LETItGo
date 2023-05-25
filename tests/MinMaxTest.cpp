@@ -27,6 +27,8 @@ BOOST_AUTO_TEST_CASE(test_figure1_graph) {
 	TASK_ID t2 = figure1.addTask(1, 2, 3);
 	figure1.addDependency(t1, t2);
 	auto age_latency = compute_age_latency(figure1);
+
+    figure1.getSVG();
 	VERBOSE_INFO ( " AGE LATENCY OF sample1 IS " << age_latency);
 
 
