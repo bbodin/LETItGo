@@ -18,7 +18,7 @@
 typedef double TIME_UNIT;
 typedef long INTEGER_TIME_UNIT;
 typedef long TASK_ID; // TODO: Signed because -1 is a valid task id as in compute_age_latency, but should not.
-
+typedef long DEPENDENCY_ID; 
 typedef long EXECUTION_COUNT;
 typedef long COUNT_T;
 typedef long WEIGHT;
@@ -164,12 +164,11 @@ public:
 	const Task getTaskById(TASK_ID id) const { return TaskIdToTask[id]; }
 
 	TASK_ID getTaskIdByTask(Task t) const { return TaskToTaskId.at(t); }
-
-	void addDependency(Dependency d) {
-		this->addDependency(d.getFirst(), d.getSecond());
+	DEPENDENCY_ID addDependency(Dependency d) {
+		return this->addDependency(d.getFirst(), d.getSecond());
 	}
-	void addDependency(TASK_ID t1, TASK_ID t2) {
-
+	DEPENDENCY_ID addDependency(TASK_ID t1, TASK_ID t2) {
+        const DEPENDENCY_ID id = DependencyIdToDependency.size();
 		if (TaskIdToTask.size() <= (size_t) std::max(t1,t2)) {
 			throw ModelException("Task not found");
 		}
@@ -178,6 +177,7 @@ public:
 		VERBOSE_ASSERT(TaskIdToTask.size() > (size_t) t2, "Task not found");
 		Dependency d(t1, t2);
 		DependencyIdToDependency.push_back(d);
+        return id;
 	}
 
 	size_t getTaskCount() const { return TaskIdToTask.size(); }

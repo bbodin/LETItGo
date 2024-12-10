@@ -39,7 +39,6 @@ extern bool VERBOSE_GUESS;
 
 extern int VERBOSE_PROGRESS_START;
 extern int VERBOSE_PROGRESS_END;
-
 #ifndef __RELEASE_MODE__
 extern std::set<std::string> VERBOSE_CUSTOM_MODES;
 #endif

@@ -7,6 +7,25 @@
 ```sudo yum install gflags-devel graphviz-devel```
 
 
+# C++ API 
+
+## How to use the library 
+
+It is possible to model LET applications using the library
+
+```
+	auto sample = new LETModel();
+
+    TASK_ID t0 = sample->addTask(1, 9, 9);
+    TASK_ID t1 = sample->addTask(3, 9, 9);
+    TASK_ID t2 = sample->addTask(3, 3, 8);
+    TASK_ID t3 = sample->addTask(0, 1, 3);
+
+    sample->addDependency(t0, t2);
+    sample->addDependency(t0, t3);
+    sample->addDependency(t1, t2);
+```
+
 ## How to run the experiments
 
 ```
