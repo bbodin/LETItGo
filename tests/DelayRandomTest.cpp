@@ -4,7 +4,7 @@
  */
 
 #define BOOST_TEST_MODULE DelayRandomTest
-#include <boost/test/included/unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 #include <letitgo.h>
 
 BOOST_AUTO_TEST_SUITE(test_random_graph)

@@ -36,9 +36,8 @@ extern int VERBOSE_MODE;
 extern bool VERBOSE_COLOR;
 extern bool VERBOSE_GUESS;
 
-#ifndef __RELEASE_MODE__
 extern std::set<std::string> VERBOSE_CUSTOM_MODES;
-#endif
+
 
 const int MIN_LEVEL = 0;
 const int MAX_LEVEL = 10;

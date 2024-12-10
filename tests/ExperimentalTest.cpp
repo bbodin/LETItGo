@@ -10,7 +10,7 @@
 
 
 #define BOOST_TEST_MODULE ExperimentalTest
-#include <boost/test/included/unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 #include <letitgo.h>
 
 BOOST_AUTO_TEST_SUITE(ExperimentalTest)

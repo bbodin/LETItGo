@@ -7,7 +7,7 @@
 
 
 #define BOOST_TEST_MODULE LETModelTest
-#include <boost/test/included/unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 #include <letitgo.h>
 
 BOOST_AUTO_TEST_SUITE(test_corner_cases)
@@ -36,6 +36,9 @@ BOOST_AUTO_TEST_CASE(test_equal) {
 
 	  BOOST_CHECK_EQUAL(*a1,*a2);
 
+        delete a1;
+        delete a2;
+
 }
 BOOST_AUTO_TEST_CASE(test_dep_from_unknow_task) {
 
@@ -53,6 +56,7 @@ BOOST_AUTO_TEST_CASE(test_dep_from_unknow_task) {
 
   BOOST_CHECK(error_occured);
 
+  delete figure1;
 }
 
 BOOST_AUTO_TEST_SUITE_END()

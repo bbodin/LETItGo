@@ -10,7 +10,7 @@
 
 
 #define BOOST_TEST_MODULE FastExpansionTest
-#include <boost/test/included/unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 #include <letitgo.h>
 #include <verbose.h>
 
