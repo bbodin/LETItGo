@@ -152,6 +152,8 @@ private: // Constructor helpers
 
     void add_start_finish_constraints (const LETModel &model) ;
     void add_dependency_constraints (const LETModel &model, const PeriodicityVector &K , const Dependency &d) ;
+    void add_dependency_constraints_seq (const LETModel &model, const PeriodicityVector &K , const Dependency &d) ;
+    void add_dependency_constraints_par (const LETModel &model, const PeriodicityVector &K , const Dependency &d) ;
 
 public: // Getters
 

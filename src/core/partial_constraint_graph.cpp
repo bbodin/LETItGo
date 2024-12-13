@@ -12,7 +12,11 @@
 #include <cmath>
 #include <sstream>
 #include <graphviz/gvc.h>
-
+#include <omp.h>
+#include <vector>
+#include <cmath>
+#include <utility>
+#include <optional>
 
 PartialConstraintGraph::PartialConstraintGraph (const LETModel& model , const PeriodicityVector& K) : periodicity_vector(K), model(model) {
 
@@ -265,7 +269,8 @@ std::string PartialConstraintGraph::getAlphasAsLatex(DEPENDENCY_ID edgeId) const
 
 }
 
-void PartialConstraintGraph::add_dependency_constraints (const LETModel &model, const PeriodicityVector &K , const Dependency &d) {
+
+void PartialConstraintGraph::add_dependency_constraints_seq (const LETModel &model, const PeriodicityVector &K , const Dependency &d) {
 
     TASK_ID ti_id = d.getFirst();
     TASK_ID tj_id = d.getSecond();
@@ -298,14 +303,21 @@ void PartialConstraintGraph::add_dependency_constraints (const LETModel &model, 
     VERBOSE_DEBUG("Me = " << Me);
 
     for (auto ai = 1; ai <= Ki; ai++) {
+
+        INTEGER_TIME_UNIT Ti_ai = Ti * ai;
+
         for (auto aj = 1; aj <= Kj; aj++) {
 
+            INTEGER_TIME_UNIT Tj_aj = Tj * aj;
+
             // recall: auto Me = Tj + std::ceil((ri - rj + Di) / gcdeT) * gcdeT;
-            INTEGER_TIME_UNIT alphae_ai_aj = (Ti * ai - Tj * aj) / gcdeT;
+            INTEGER_TIME_UNIT alphae_ai_aj = (Ti_ai - Tj_aj) / gcdeT;
+            INTEGER_TIME_UNIT alphae_gcdeT = alphae_ai_aj * gcdeT;
+
             INTEGER_TIME_UNIT pi_min =
-                    std::ceil((-Me + gcdeT - alphae_ai_aj * gcdeT) / gcdK);
+                    std::ceil((-Me + gcdeT - alphae_gcdeT) / gcdK);
             INTEGER_TIME_UNIT pi_max =
-                    std::floor((-Me + Ti - alphae_ai_aj * gcdeT) / gcdK);
+                    std::floor((-Me + Ti - alphae_gcdeT) / gcdK);
 
             EXECUTION_COUNT x0 = res.first;
             if (x0 < 0) x0 += TjKj_gcdK;
@@ -315,18 +327,18 @@ void PartialConstraintGraph::add_dependency_constraints (const LETModel &model, 
             if (pi_min <= pi_max) {
                 // From Theorem 6 (ECRTS2020)
                 INTEGER_TIME_UNIT Lmax =
-                        rj - ri + Ti - Tj - (pi_min * gcdK + alphae_ai_aj * gcdeT);
+                        rj - ri + Ti - Tj - (pi_min * gcdK + alphae_gcdeT);
 
 
                 Execution ei = this->getExecution(ti_id, ai);
                 Execution ej = this->getExecution(tj_id, aj);
 
-                if (    (std::gcd(x0, TjKj_gcdK)  == 1 ) and  (pi_min + TjKj_gcdK <= pi_max + 1) ) {
+                if (   (pi_min + TjKj_gcdK <= pi_max + 1) &&  (std::gcd(x0, TjKj_gcdK)  == 1 ) ) {
 
 
                     // From Theorem 6 (ECRTS2020)
                     INTEGER_TIME_UNIT Lmin =
-                            rj - ri + Ti - Tj - (pi_max * gcdK + alphae_ai_aj * gcdeT);
+                            rj - ri + Ti - Tj - (pi_max * gcdK + alphae_gcdeT);
 
                     this->addConstraint (ei, ej, Lmin, Lmax);
                 } else {
@@ -337,6 +349,107 @@ void PartialConstraintGraph::add_dependency_constraints (const LETModel &model, 
         }
     }
 }
+
+
+void PartialConstraintGraph::add_dependency_constraints_par (const LETModel &model, const PeriodicityVector &K , const Dependency &d) {
+
+    TASK_ID ti_id = d.getFirst();
+    TASK_ID tj_id = d.getSecond();
+
+    Task ti = model.getTaskById(ti_id);
+    Task tj = model.getTaskById(tj_id);
+
+    INTEGER_TIME_UNIT Ti = ti.getT();
+    INTEGER_TIME_UNIT Tj = tj.getT();
+    INTEGER_TIME_UNIT gcdeT = std::gcd(Ti, Tj);
+
+    auto Di = ti.getD();
+    //auto Dj = tj.getD();
+
+    auto ri = ti.getr();
+    auto rj = tj.getr();
+
+
+    EXECUTION_COUNT Ki = K[ti_id];
+    EXECUTION_COUNT Kj = K[tj_id];
+    EXECUTION_COUNT TjKj = Tj * Kj;
+
+    auto gcdK = std::gcd(Ti * Ki, Tj * Kj);
+
+    std::pair<long,long> res = extended_euclide ( Ti * Ki,   Tj * Kj, gcdK);
+
+    EXECUTION_COUNT TjKj_gcdK = TjKj/gcdK;
+
+    auto Me = Tj + std::ceil((ri - rj + Di) / gcdeT) * gcdeT;
+    VERBOSE_DEBUG("Me = " << Me);
+
+    using ConstraintTuple = std::tuple<int, int, INTEGER_TIME_UNIT, INTEGER_TIME_UNIT>;
+    std::vector<ConstraintTuple> constraint_matrix(Ki * Kj);
+
+        #pragma omp parallel for collapse(2)
+        for (int ai = 1; ai <= Ki; ai++) {
+            for (int aj = 1; aj <= Kj; aj++) {
+                int index = (ai - 1) * Kj + (aj - 1);
+
+                INTEGER_TIME_UNIT alphae_ai_aj = (Ti * ai - Tj * aj) / gcdeT;
+                INTEGER_TIME_UNIT pi_min =
+                        std::ceil((-Me + gcdeT - alphae_ai_aj * gcdeT) / gcdK);
+                INTEGER_TIME_UNIT pi_max =
+                        std::floor((-Me + Ti - alphae_ai_aj * gcdeT) / gcdK);
+
+                EXECUTION_COUNT x0 = res.first;
+                if (x0 < 0) x0 += TjKj_gcdK;
+
+                VERBOSE_ASSERT((x0 >= 0) and (x0 <= TjKj_gcdK), "Unsupported case yet, need to modula x0");
+
+                INTEGER_TIME_UNIT Lmin = NO_CONSTRAINT;
+                INTEGER_TIME_UNIT Lmax = NO_CONSTRAINT;
+
+                if (pi_min <= pi_max) {
+                    // From Theorem 6 (ECRTS2020)
+                    Lmax = rj - ri + Ti - Tj - (pi_min * gcdK + alphae_ai_aj * gcdeT);
+                    if ((std::gcd(x0, TjKj_gcdK) == 1) && (pi_min + TjKj_gcdK <= pi_max + 1)) {
+                        // From Theorem 6 (TBP)
+                        Lmin = rj - ri + Ti - Tj - (pi_max * gcdK + alphae_ai_aj * gcdeT);
+                    }
+                }
+                constraint_matrix[index] = ConstraintTuple(ai, aj, Lmin, Lmax);
+            }
+        }
+
+    for (const auto& constraint : constraint_matrix) {
+
+        INTEGER_TIME_UNIT Lmax = std::get<3>(constraint);
+        if (Lmax != NO_CONSTRAINT) {
+            INTEGER_TIME_UNIT Lmin = std::get<2>(constraint);
+
+            Execution ei = getExecution(ti_id, std::get<0>(constraint));
+            Execution ej = getExecution(tj_id, std::get<1>(constraint));
+
+            this->addConstraint(ei,ej,Lmin,Lmax);
+
+        }
+
+    }
+
+}
+
+
+
+
+void PartialConstraintGraph::add_dependency_constraints (const LETModel &model, const PeriodicityVector &K , const Dependency &d) {
+
+    if (K.at(d.getFirst()) > 500 and K.at(d.getSecond()) > 500 ) {
+        // The par version is not efficient yet even when K > 10000
+        add_dependency_constraints_par(model, K , d);
+    } else {
+        add_dependency_constraints_seq(model, K , d);
+
+    }
+
+
+}
+
 
 /**
  * TODO: rewrite this one. too slow.
