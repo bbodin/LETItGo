@@ -296,6 +296,7 @@ void PartialConstraintGraph::add_dependency_constraints (const LETModel &model, 
 
     auto Me = Tj + std::ceil((ri - rj + Di) / gcdeT) * gcdeT;
     VERBOSE_DEBUG("Me = " << Me);
+
     for (auto ai = 1; ai <= Ki; ai++) {
         for (auto aj = 1; aj <= Kj; aj++) {
 
@@ -565,29 +566,31 @@ FindLongestPath(const PartialConstraintGraph& PKG, const WeightType wt) {
     }
 
 
-    std::map<Execution, WEIGHT> dist;
-    std::map<Execution, Execution> prev;
+    std::vector<WEIGHT> dist(PKG.getExecutionsCount(), std::numeric_limits<WEIGHT>::min()); // Initialize with min value
+    std::vector<int> prev(PKG.getExecutionsCount(), -1); // -1 indicates no predecessor
 
-    dist[PKG.getSource()] = 0;
+    auto SourceId = PKG.getSource().getId();
+    dist[SourceId] = 0;
 
     const std::vector<Execution>& ordered_execution = PKG.getTopologicalOrder();
 
-    for (Execution src : ordered_execution) {
-        if (dist.count(src)) {
-            for (Constraint c : PKG.getOutputs(src)) {
+    for (const Execution& src : ordered_execution) {
+        int srcId = src.getId();
+        if (dist[srcId] > std::numeric_limits<WEIGHT>::min()) { // Only process reachable nodes
+            for (const Constraint& c : PKG.getOutputs(src)) {
+                if (!c.hasWeight(wt)) continue;
                 auto weight = c.getWeight(wt);
-                if (not c.hasWeight(wt)) continue;
-                Execution dest = c.getDestination();
-                if (dist.count(dest) == 0 || dist[dest] < dist[src] + weight) {
-                    dist[dest] = dist[src] + weight;
 
-                    auto const result = prev.insert(std::make_pair(dest, src));
-                    if (not result.second) {
-                        result.first->second = src;
-                    }
+                const Execution& dest = c.getDestination();
+                int destId = dest.getId();
+
+                if (dist[destId] < dist[srcId] + weight) {
+                    dist[destId] = dist[srcId] + weight;
+                    prev[destId] = srcId;
+
 
                     VERBOSE_PCG(" Update " << dest << " by " << src);
-                    VERBOSE_PCG(" prev =  " << prev);
+                    VERBOSE_PCG(" prev[" << destId << "] = " << srcId);
                 }
             }
         } else {
@@ -595,24 +598,18 @@ FindLongestPath(const PartialConstraintGraph& PKG, const WeightType wt) {
         }
     }
 
-    for (Execution e : ordered_execution) {
-        VERBOSE_ASSERT(dist.count(e), "Could not find dist for execution" << e);
-        VERBOSE_PCG(e << " distance is " << dist[e]);
-    }
-
-    VERBOSE_PCG(prev);
 
     std::vector<Execution> L;
     Execution e = PKG.getTarget();
-    while (prev.count(e) == 1) {
+    while (prev[e.getId()] != -1) {
         VERBOSE_PCG("Longest to " << e << " comes from " << prev.at(e));
         L.push_back(e);
-        e = prev.at(e);
+        e = PKG.getExecution(prev[e.getId()]);
     }
     L.push_back(e);
 
     std::reverse(L.begin(), L.end());
 
     return std::pair<std::vector<Execution>, INTEGER_TIME_UNIT>(
-            L, dist[PKG.getTarget()]);
+            L, dist[PKG.getTarget().getId()]);
 }
