@@ -63,7 +63,7 @@ AgeLatencyResult compute_age_latency_with_hook(const LETModel &model, PEGOnCreat
         VERBOSE_ASSERT(hook(PKG), "Hook should return True");
         VERBOSE_INFO ("Iteration " << count  << " Find Longest Path");
 
-        // Find longest path and update the res
+        // Find the longest path and update the res
         auto s3 = std::chrono::high_resolution_clock::now();
         auto upper_bound = FindLongestPath(PKG, upper_wt);
         auto s4 = std::chrono::high_resolution_clock::now();
