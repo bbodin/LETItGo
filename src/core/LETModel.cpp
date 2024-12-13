@@ -175,25 +175,62 @@ std::string LETModel::getDOT() {
 
 	return res.str();
 }
+#include <string>
+#include <stdexcept> // For exception handling
 
-std::string  LETModel::getSVG(){
+std::string LETModel::getSVG() {
+    std::string res;
+    GVC_t* gvc = nullptr;
+    Agraph_t* g = nullptr;
+    char* buffer = nullptr;
 
-	std::string res;
-    GVC_t *gvc;
-    Agraph_t *g;
-
-    char* buffer;
-    unsigned int buffer_size;
-
+    // Get DOT representation of the graph
     std::string dot_version = this->getDOT();
-    gvc = gvContext();
-    g = agmemread(dot_version.c_str());
-    gvLayout(gvc, g, "dot");
-    gvRenderData(gvc, g, "svg", &buffer, &buffer_size);
-    res = buffer;
-    gvFreeRenderData(buffer);
-    gvFreeLayout(gvc, g);
-    agclose(g);
-    gvFreeContext(gvc);
+
+    try {
+
+        // Initialize Graphviz context
+        gvc = gvContext();
+        if (!gvc) {
+            throw std::runtime_error("Failed to create Graphviz context");
+        }
+
+        // Create graph from DOT string
+        g = agmemread(dot_version.c_str());
+        if (!g) {
+            throw std::runtime_error("Failed to read DOT graph");
+        }
+
+        // Layout graph
+        if (gvLayout(gvc, g, "dot") != 0) {
+            throw std::runtime_error("Failed to layout graph");
+        }
+
+        // Render graph to SVG
+        unsigned int buffer_size = 0;
+        if (gvRenderData(gvc, g, "svg", &buffer, &buffer_size) != 0) {
+            throw std::runtime_error("Failed to render graph to SVG");
+        }
+
+        // Copy buffer to result string
+        res.assign(buffer, buffer_size);
+
+        // Free render data
+        gvFreeRenderData(buffer);
+
+        // Clean up Graphviz objects
+        gvFreeLayout(gvc, g);
+        agclose(g);
+        gvFreeContext(gvc);
+
+    } catch (...) {
+        // Ensure proper cleanup in case of an error
+        if (buffer) gvFreeRenderData(buffer);
+        if (g) agclose(g);
+        if (gvc) gvFreeContext(gvc);
+
+        throw; // Re-throw the exception for the caller to handle
+    }
+
     return res;
 }
