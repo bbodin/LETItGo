@@ -155,11 +155,17 @@ private: // Constructor helpers
 
 public: // Getters
 
-    inline Execution getSource () const { // TODO Need the execution id here!!!
-        return Execution (-1,-1,0);
+    inline Execution getSource () const {
+        auto index = executions2index.at(Execution (-1,-1,0));
+        return executions[index];
     }
-    inline Execution getTarget () const { // TODO Need the execution id here!!!
-        return Execution (-1,-1,1);
+    inline Execution getTarget () const {
+        auto index = executions2index.at(Execution (-1,-1,1));
+        return executions[index];
+    }
+
+    inline Execution getExecution (EXECUTION_ID idx) const {
+        return this->executions[idx];
     }
 
     inline Execution getExecution (TASK_ID tid, EXECUTION_COUNT exec) const {
