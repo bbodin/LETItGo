@@ -30,30 +30,33 @@
 
 class Execution {
 private:
+private:
+    EXECUTION_ID execId;
     TASK_ID taskId;
-    EXECUTION_COUNT executionCount;
+    EXECUTION_COUNT executionIndex;
 public:
-    Execution(TASK_ID id, EXECUTION_COUNT e)
-            :  taskId(id), executionCount(e) {}
+    Execution(EXECUTION_ID execId, TASK_ID taskId, EXECUTION_COUNT taskExecutionIndex)
+            : execId(execId), taskId(taskId), executionIndex(taskExecutionIndex) {}
 
 public:
+    inline EXECUTION_COUNT getId() const {return execId;}
     inline TASK_ID getTaskId() const { return this->taskId; }
-    inline TASK_ID getExecId() const { return this->executionCount; }
+    inline TASK_ID getExecId() const { return this->executionIndex; }
 
     friend std::ostream &operator<<(std::ostream &stream, const Execution &obj) {
-        stream << "Execution(id:" << obj.taskId << ", index:" << obj.executionCount << ")";
+        stream << "Execution(id:" << obj.taskId << ", index:" << obj.executionIndex << ")";
         return stream;
     }
     inline friend bool operator<(const Execution &l, const Execution &r) {
-        return std::tie(l.taskId, l.executionCount) < std::tie(r.taskId, r.executionCount);
+        return std::tie(l.taskId, l.executionIndex) < std::tie(r.taskId, r.executionIndex);
     }
 
     inline friend bool operator>(const Execution &l, const Execution &r) {
-        return std::tie(l.taskId, l.executionCount) > std::tie(r.taskId, r.executionCount);
+        return std::tie(l.taskId, l.executionIndex) > std::tie(r.taskId, r.executionIndex);
     }
 
     inline friend bool operator ==(const Execution & a1, const Execution & a2) {
-        return (a1.taskId == a2.taskId) and (a1.executionCount == a2.executionCount) ;
+        return (a1.taskId == a2.taskId) and (a1.executionIndex == a2.executionIndex) ;
     }
 
 };
@@ -73,7 +76,7 @@ public:
     inline const Execution getSource() const { return ei; }
     inline const Execution getDestination() const { return ej; }
     [[nodiscard]] inline constexpr WEIGHT getWeight(const WeightType wt) const { if (wt == lower_wt) return wLow; else return wUp; }
-    [[nodiscard]] inline constexpr WEIGHT hasWeight(const WeightType wt) const { if (wt == lower_wt) return hasLow; else return hasUp; }
+    [[nodiscard]] inline constexpr bool   hasWeight(const WeightType wt) const { if (wt == lower_wt) return hasLow; else return hasUp; }
 
     inline friend bool operator<(const Constraint &l, const Constraint &r) {
         return std::tie(l.ei, l.ej, l.wLow, l.wUp) < std::tie(r.ei, r.ej, r.wLow, r.wUp);
@@ -110,7 +113,8 @@ private: // data
     std::vector<Execution> executions;
     std::vector<Constraint> constraints;
 
-    PeriodicityVector periodicity_vector;
+    const PeriodicityVector periodicity_vector;
+    const LETModel model;
 
 
 
@@ -130,7 +134,7 @@ public: // Constructor
 private: // Constructor helpers
 
     inline void addExecution (TASK_ID tid, EXECUTION_COUNT executionCount) {
-        Execution e (tid, executionCount);
+        Execution e (executions.size(), tid, executionCount);
         executions2index[e] = executions.size();
         executions.push_back(e);
     }
@@ -151,13 +155,17 @@ private: // Constructor helpers
 
 public: // Getters
 
+    inline Execution getSource () const { // TODO Need the execution id here!!!
+        return Execution (-1,-1,0);
+    }
+    inline Execution getTarget () const { // TODO Need the execution id here!!!
+        return Execution (-1,-1,1);
+    }
+
     inline Execution getExecution (TASK_ID tid, EXECUTION_COUNT exec) const {
-        return Execution (tid,exec);
-        //for (Execution e : this->getExecutions()) {
-        //    if (e.getTaskId() == tid && e.getExecId() == exec) return e;
-        //}
-        //VERBOSE_FAILURE();
-        return Execution (0,0);
+        Execution tmp = Execution (-1,tid,exec);
+        size_t idx = this->executions2index.at(tmp);
+        return this->executions[idx];
     }
 
     const PeriodicityVector& get_periodicity_vector() const {
@@ -221,10 +229,15 @@ public: // Getters
 
     std::string getDOT(WeightType wt) const ;
     std::string getSVG(WeightType wt) const;
+    std::string getTikZ() const;
+
+    std::string getAlphasAsLatex(DEPENDENCY_ID edgeId)const ;
 
 
     const std::vector<Execution>& getTopologicalOrder () const;
 
+
+    const LETModel &getModel() const;
 
 };
 

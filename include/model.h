@@ -18,6 +18,7 @@
 typedef double TIME_UNIT;
 typedef long INTEGER_TIME_UNIT;
 typedef long TASK_ID; // TODO: Signed because -1 is a valid task id as in compute_age_latency, but should not.
+typedef long EXECUTION_ID; // TODO: Signed because -1 is an invalid execution index
 typedef long DEPENDENCY_ID; 
 typedef long EXECUTION_COUNT;
 typedef long COUNT_T;
@@ -80,10 +81,14 @@ public:
 
 
 class Dependency : private std::pair<TASK_ID, TASK_ID> {
+private:
+    DEPENDENCY_ID id;
 public:
-	Dependency(TASK_ID t1, TASK_ID t2) : std::pair<TASK_ID, TASK_ID>(t1, t2) {}
+    Dependency(TASK_ID t1, TASK_ID t2) : std::pair<TASK_ID, TASK_ID>(t1, t2) , id(0) {}
+	Dependency(DEPENDENCY_ID id, TASK_ID t1, TASK_ID t2) : std::pair<TASK_ID, TASK_ID>(t1, t2) , id(id) {}
 	TASK_ID getFirst() const { return this->first; }
 	TASK_ID getSecond() const { return this->second; }
+    DEPENDENCY_ID getId() const { return this->id; }
 
 	friend bool operator<(const Dependency &l, const Dependency &r) { return std::pair<TASK_ID, TASK_ID>(l) < std::pair<TASK_ID, TASK_ID>(r); }
 
@@ -125,7 +130,9 @@ public:
 	LETModel(std::string xmldata) ;
 
     bool check_dependency  (Dependency d, long Vi, long Vj) const ;
-    std::string getTikz(int duration = 25);
+    std::string getTikzSchedule(int duration = 25) const;
+    std::string getTabular() const;
+    std::string getTikzDAG() const;
     std::string getXML();
 	std::string getDOT();
 	std::string getSVG();
@@ -161,7 +168,8 @@ public:
 
 	const std::vector<Task> &tasks() const { return TaskIdToTask; }
 
-	const Task getTaskById(TASK_ID id) const { return TaskIdToTask[id]; }
+    const Task getTaskById(TASK_ID id) const { return TaskIdToTask[id]; }
+    const Dependency getDependencyById(DEPENDENCY_ID id) const { return DependencyIdToDependency[id]; }
 
 	TASK_ID getTaskIdByTask(Task t) const { return TaskToTaskId.at(t); }
 	DEPENDENCY_ID addDependency(Dependency d) {
@@ -175,7 +183,7 @@ public:
 
 		VERBOSE_ASSERT(TaskIdToTask.size() > (size_t) t1, "Task not found");
 		VERBOSE_ASSERT(TaskIdToTask.size() > (size_t) t2, "Task not found");
-		Dependency d(t1, t2);
+		Dependency d(id, t1, t2);
 		DependencyIdToDependency.push_back(d);
         return id;
 	}

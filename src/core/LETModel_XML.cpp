@@ -102,7 +102,7 @@ Dependency parseDependencyNode (xmlNodePtr cur_node) {
 		}
 
 	}
-	return Dependency (from,to);
+	return Dependency (0,from,to); //NOTE: Fictitious id because we can
 }
 
 

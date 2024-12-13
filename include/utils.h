@@ -32,12 +32,14 @@ template <typename X, typename Y> std::ostream & operator<<(std::ostream & strea
 
 
 template <typename X, typename Y> std::ostream & operator<<(std::ostream & stream, const  std::map<X,Y> & obj) {
-	stream << "map (" << std::endl ;
+	stream << "map (";
+    bool first = true;
 	for (auto key : obj) {
-		stream << key.first << " : "  <<  key.second << std::endl;
-
+        if (!first) stream << ", ";
+		stream << key.first << " -> "  <<  key.second;
+        first = false;
 	}
-	stream << ")" << std::endl ;
+	stream << ")";
 	return stream;
 }
 

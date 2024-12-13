@@ -3,7 +3,6 @@
  *
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE GeneratorTest
 #include <boost/test/unit_test.hpp>
 #include <letitgo.h>

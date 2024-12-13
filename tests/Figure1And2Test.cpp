@@ -3,8 +3,7 @@
  *
  */
 
-#define BOOST_TEST_DYN_LINK
-#define BOOST_BIND_GLOBAL_PLACEHOLDERS
+
 #define BOOST_TEST_MODULE Figure1And2Test
 #include <boost/test/unit_test.hpp>
 #include <letitgo.h>

@@ -3,9 +3,8 @@
  *
  */
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE LETModelTest
-#include <boost/test/included/unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 #include <letitgo.h>
 #include <benchmark.h>
 #include <verbose.h>

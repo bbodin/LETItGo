@@ -25,8 +25,17 @@ DEFINE_bool(outputdot, false,
             "Output the DOT of the LET model");
 DEFINE_bool(outputsvg, false,
             "Output the SVG of the LET model");
-DEFINE_bool(outputtikz, false,
+DEFINE_bool(outputtikzdag, false,
             "Output the Tikz of the LET model");
+DEFINE_bool(outputtikzPEG, false,
+            "Output the Tikz of the Partial Expansion graphs");
+DEFINE_bool(outputtikzschedule, false,
+            "Output the Tikz of the LET model");
+DEFINE_bool(outputtabular, false,
+            "Output the Latex tabular of the LET model");
+DEFINE_bool(outputalphas, false,
+            "Output the Latex tabular of the PEG Alphas.");
+
 DEFINE_int32(schedule_duration,   0, "length if tikz schedule");
 
 DEFINE_int32(n,          4, "Generated case: Value of N");
@@ -39,15 +48,33 @@ DEFINE_string(peg, "",
 
 bool onPCGCreated (const PartialConstraintGraph& pcg) {
 
-    auto upper = FindLongestPath(pcg, upper_wt).second;
-    std::cout << "// Upper bound Longest path = " << upper <<  std::endl;
-    std::cout << "// Upper bound with K=" << pcg.get_periodicity_vector() << std::endl;
+    auto upper_res = FindLongestPath(pcg, upper_wt);
+    auto lower_res = FindLongestPath(pcg, lower_wt);
+    std::vector<long> rv_vec;
+    for (auto v : compute_repetition_vector(pcg.getModel())) {
+        rv_vec.push_back(v.second);
+    }
+    std::cout << "// N=" <<  rv_vec
+            << " K=" << pcg.get_periodicity_vector()
+            << " LB/UP: " << lower_res.second << "/" << upper_res.second
+            << " len(UP): " << upper_res.first.size() - 2
+    << std::endl;
+    if (FLAGS_outputalphas) {
+        std::cout << "// Alpha values " << std::endl;
+        for (Dependency e : pcg.getModel().dependencies()) {
+            std::cout << "// Alpha values for the first edge " << e << std::endl;
+            std::cout << pcg.getAlphasAsLatex(e.getId()) << std::endl;
+        }
+    }
+
+    if (FLAGS_outputtikzPEG) std::cout << "// Partial expansion Graph Low/Up"<< std::endl;
+    if (FLAGS_outputtikzPEG) std::cout << pcg.getTikZ();
+
+    if (FLAGS_outputsvg || FLAGS_outputdot) std::cout << "// Upper bound graph"<< std::endl;
     if (FLAGS_outputsvg) std::cout << pcg.getSVG(upper_wt);
     if (FLAGS_outputdot) std::cout << pcg.getDOT(upper_wt);
 
-    auto lower = FindLongestPath(pcg, lower_wt).second;
-    std::cout << "// Lower bound Longest path = " << lower <<  std::endl;
-    std::cout << "// Lower bound with K=" << pcg.get_periodicity_vector() << std::endl;
+    if (FLAGS_outputsvg || FLAGS_outputdot) std::cout << "// Lower bound graph"<< std::endl;
     if (FLAGS_outputsvg) std::cout << pcg.getSVG(lower_wt);
     if (FLAGS_outputdot) std::cout << pcg.getDOT(lower_wt);
 
@@ -88,7 +115,7 @@ int main (int argc , char * argv[]) {
         std::cout << "// Age Latency:" << res.age_latency << std::endl;
 	}
 
-    if (FLAGS_peg != "") {
+    if (!FLAGS_peg.empty()) {
         //PeriodicityVector K = generate_periodicity_vector(*instance);
         PeriodicityVector K = parse_periodicity_vector(FLAGS_peg);
         PartialConstraintGraph PKG = PartialConstraintGraph(*instance, K);
@@ -111,11 +138,18 @@ int main (int argc , char * argv[]) {
     }
 
 
-    if (FLAGS_outputtikz) {
+    if (FLAGS_outputtikzschedule) {
         VERBOSE_ASSERT_GreaterThan(FLAGS_schedule_duration,0);
-        std::cout << instance->getTikz(FLAGS_schedule_duration);
+        std::cout << instance->getTikzSchedule(FLAGS_schedule_duration);
     }
 
+    if (FLAGS_outputtikzdag) {
+        std::cout << instance->getTikzDAG();
+    }
+
+    if (FLAGS_outputtabular) {
+        std::cout << instance->getTabular();
+    }
     delete instance;
 
 	gflags::ShutDownCommandLineFlags();

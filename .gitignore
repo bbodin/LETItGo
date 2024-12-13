@@ -11,3 +11,4 @@ cmake-build-*/
 notebooks/figures/
 notebooks/data/
 callgrind.*
+\#*

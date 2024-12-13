@@ -52,11 +52,67 @@ bool LETModel::check_dependency  (Dependency d, long Vi, long Vj)  const {
 
 }
 
-std::string LETModel::getTikz(int duration) {
+std::string LETModel::getTikzDAG() const {
+    std::ostringstream latex;
+    latex << "\\begin{tikzpicture}[scale=0.90]\n";
+
+    // Add nodes
+    for (const auto &task : this->tasks()) {
+        latex << "\\node[circle,draw] (" << task.getId()  << ") at ("
+              << task.getId() * 2 << ","
+              << ((task.getId() % 2 == 0) ? 1 : -1) << ") {$t_" << task.getId()  << "$};\n";
+    }
+
+    // Add edges
+    for (const auto &dependency : this->dependencies()) {
+        latex << "\\draw[->]  (" << dependency.getFirst()  << ") -- (" << dependency.getSecond()  << ");\n";
+    }
+
+    latex << "\\end{tikzpicture}\n";
+
+    return latex.str();
+}
+std::string LETModel::getTabular() const {
+    std::stringstream latex;
+    latex << "\\begin{tabular}{|c|c|c|c|c|}\n"
+          << "\\hline\n"
+          << "$t_i$ &";
+
+    // Task IDs
+    for (const auto &task : this->tasks()) {
+        latex << " $t_" << task.getId()  << "$ &";
+    }
+    latex.seekp(-1, std::ios_base::end);
+    latex << "\\\\\\hline\n$r_i$ &";
+
+    // Release times
+    for (const auto &task : this->tasks()) {
+        latex << " $" << task.getr() << "$ &";
+    }
+    latex.seekp(-1, std::ios_base::end);
+    latex << "\\\\\\hline\n$D_i$ &";
+
+    // Deadlines
+    for (const auto &task : this->tasks()) {
+        latex << " $" << task.getD() << "$ &";
+    }
+    latex.seekp(-1, std::ios_base::end);
+    latex << "\\\\\\hline\n$T_i$ &";
+
+    // Periods
+    for (const auto &task : this->tasks()) {
+        latex << " $" << task.getT() << "$ &";
+    }
+    latex.seekp(-1, std::ios_base::end);
+    latex << "\\\\\\hline\n"
+          << "\\end{tabular}\n";
+    return latex.str();
+}
+
+std::string LETModel::getTikzSchedule(int duration) const {
     std::stringstream res;
     res << "" << std::endl;
-    res << "\\begin{tikzpicture}[transform shape,scale=0.5]" << std::endl;
-    res << "\\LETSchedule{" << this->getTaskCount() << "}{" << duration << "}" << std::endl;
+    res << "\\begin{LET}{" << this->getTaskCount() << "}{" << duration << "}" << std::endl;
 
     for (auto t : this->tasks()) {
         res << "\\LETTask{"<< t.getId() <<"}"
@@ -90,7 +146,7 @@ std::string LETModel::getTikz(int duration) {
         }
     }
 
-    res << "\\end{tikzpicture}" << std::endl;
+    res << "\\end{LET}" << std::endl;
     res << "" << std::endl;
     return res.str();
 

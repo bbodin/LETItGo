@@ -275,6 +275,7 @@ std::cout << "\r" <<  std::setfill('*')  << std::setw (50 * (current_n - letitgo
           << " Current = " << current_n << "/" << letitgo::utils::VERBOSE_PROGRESS_END << std::flush;
 
 #define VERBOSE_FINISH_PROGRESS() \
-std::cout << "\rFinished\n" << std::flush;
+std::cout << "\r" <<  std::setfill('*')  << std::setw (50)  \
+          << ""   << " Finished = " << letitgo::utils::VERBOSE_PROGRESS_END << "/" << letitgo::utils::VERBOSE_PROGRESS_END  << "\n" << std::flush;
 
 #endif /* VERBOSE_H_ */

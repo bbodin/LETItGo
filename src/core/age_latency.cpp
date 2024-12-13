@@ -31,6 +31,8 @@ AgeLatencyResult compute_age_latency(const LETModel &model) {
  */
 AgeLatencyResult compute_age_latency_with_hook(const LETModel &model, PEGOnCreatedFun & hook) {
 
+    // Compute Global Repetition Vector
+    auto repetition_vector = compute_repetition_vector(model);
 
     auto start = std::chrono::high_resolution_clock::now();
 
@@ -40,14 +42,18 @@ AgeLatencyResult compute_age_latency_with_hook(const LETModel &model, PEGOnCreat
 
 
 
+
+
+
     bool NeedsToContinue = true;
     PeriodicityVector K = generate_periodicity_vector(model);
+
 
     while (NeedsToContinue) {
 
         auto count = res.expansion_vertex_count.size();
 
-        VERBOSE_INFO ("Iteration " << count<< " K = " << K);
+        VERBOSE_INFO ("Iteration " << count<< " K = " << K << " N = " << repetition_vector);
         VERBOSE_INFO ("Iteration " << count<< " Graph Generation");
 
         auto s1 = std::chrono::high_resolution_clock::now();
