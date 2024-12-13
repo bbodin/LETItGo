@@ -26,8 +26,8 @@ BOOST_AUTO_TEST_CASE(test_constructor) {
     // Generate PCG
     letitgo::utils::set_verbose_mode(10);
     PartialConstraintGraph pcg(model, K);
-    BOOST_CHECK_EQUAL(4, pcg.getExecutions().size());
-    BOOST_CHECK_EQUAL(3, pcg.getConstraints().size());
+    BOOST_CHECK_EQUAL(4, pcg.getExecutionsCount());
+    BOOST_CHECK_EQUAL(3, pcg.getConstraintsCount());
 }
 
     BOOST_AUTO_TEST_CASE(test_string) {
@@ -64,7 +64,7 @@ BOOST_AUTO_TEST_CASE(test_constructor) {
         std::cout << pcg << std::endl;
 
         auto order = pcg.getTopologicalOrder();
-        std::cout << order << std::endl;
+        std::cout << order.size() << std::endl;
 
 
     }

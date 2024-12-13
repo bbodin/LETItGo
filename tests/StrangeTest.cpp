@@ -68,8 +68,8 @@ BOOST_AUTO_TEST_SUITE(test_strange)
 
 	    // Bother orders are topological
 	    
-	    std::cout << pcg.getExecutions() << std::endl;
-	    std::cout << pcg.getTopologicalOrder() << std::endl;
+	    std::cout << pcg.getExecutions().size() << std::endl;
+	    std::cout << pcg.getTopologicalOrder().size() << std::endl;
 	
     }
 

@@ -52,7 +52,7 @@ BOOST_AUTO_TEST_CASE(test_figure2_graph) {
 	std::cout << PG2 << std::endl;
 	// assert (PG2.getConstraints().size() == 17);
 	auto T = PG2.getTopologicalOrder();
-	std::cout << "Topology: " << T << std::endl;
+	std::cout << "Topology: " << T.size() << std::endl;
 	auto L = FindLongestPath(PG2, upper_wt);
 	std::cout << "LongestPath: " << L << std::endl;
 
