@@ -10,10 +10,21 @@
 #include <verbose.h>
 #include <map>
 #include <age_latency.h>
+#include <random>
+
 
 BOOST_AUTO_TEST_SUITE(test_generator)
 
 
+std::vector<INTEGER_TIME_UNIT>  GenerateTaskTSet(std::mt19937& gen) ;
+BOOST_AUTO_TEST_CASE(test_GeneratorHarmonicSet) {
+    int seed = 133;
+        VERBOSE_DEBUG("generate_random_periodicity_vector Seed=" << seed);
+        std::mt19937 gen(seed);
+        std::vector<INTEGER_TIME_UNIT>  set =   GenerateTaskTSet(gen);
+        std::cout << set;
+
+}
 
 BOOST_AUTO_TEST_CASE(test_GeneratorCacheEntry) {
 

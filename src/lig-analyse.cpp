@@ -13,6 +13,8 @@
 #include <iomanip>
 #include <fstream>
 
+#define STRING_FLAG_UNSET "UNSET"
+
 DEFINE_int32(verbose,   0, "Specify the verbosity level (0-10)");
 DEFINE_string(filename, "",
                         "Path Location of the file to open. (Supports LETItGo XML Format)");
@@ -31,9 +33,11 @@ DEFINE_bool(outputtikzPEG, false,
             "Output the Tikz of the Partial Expansion graphs");
 DEFINE_bool(outputtikzschedule, false,
             "Output the Tikz of the LET model");
-DEFINE_bool(outputtabular, false,
+DEFINE_bool(outputtabularLET, false,
             "Output the Latex tabular of the LET model");
-DEFINE_bool(outputalphas, false,
+DEFINE_bool(outputtabularAlgo, false,
+            "Output the Latex tabular of the Age LAtency Algorithm");
+DEFINE_string(outputalphas, STRING_FLAG_UNSET,
             "Output the Latex tabular of the PEG Alphas.");
 
 DEFINE_int32(schedule_duration,   0, "length if tikz schedule");
@@ -46,7 +50,10 @@ DEFINE_bool(DiEqualTi,      false, "Generated case: Every Di = Ti");
 DEFINE_string(peg, "",
             "Generate the PEG with a particular periodicity vector");
 
+std::string algo_tabular = "";
+int iteration_count = 0;
 bool onPCGCreated (const PartialConstraintGraph& pcg) {
+    std::ostringstream table;
 
     auto upper_res = FindLongestPath(pcg, upper_wt);
     auto lower_res = FindLongestPath(pcg, lower_wt);
@@ -54,18 +61,34 @@ bool onPCGCreated (const PartialConstraintGraph& pcg) {
     for (auto v : compute_repetition_vector(pcg.getModel())) {
         rv_vec.push_back(v.second);
     }
-    std::cout << "// N=" <<  rv_vec
+    std::cout << "% N=" <<  rv_vec
             << " K=" << pcg.get_periodicity_vector()
             << " LB/UP: " << lower_res.second << "/" << upper_res.second
-            << " len(UP): " << upper_res.first.size() - 2
+            << " UP: " << upper_res.first
     << std::endl;
-    if (FLAGS_outputalphas) {
-        std::cout << "// Alpha values " << std::endl;
-        for (Dependency e : pcg.getModel().dependencies()) {
-            std::cout << "// Alpha values for the first edge " << e << std::endl;
-            std::cout << pcg.getAlphasAsLatex(e.getId()) << std::endl;
+    iteration_count++;
+    table   << iteration_count << " & "
+            << "$" << pcg.get_periodicity_vector() << "$  & "
+
+          << lower_res.second << "  & "
+          << upper_res.second << "  & \\errorrate{"
+          << lower_res.second << "}{"
+          << upper_res.second << "} \\\\\n";
+    algo_tabular += table.str();
+    if (FLAGS_outputalphas == STRING_FLAG_UNSET) {
+        VERBOSE_DEBUG("Will not print alphas");
+    } else  {
+        try {
+            EXECUTION_ID alpha = std::stol(FLAGS_outputalphas);
+            std::cout << pcg.getAlphasAsLatex(alpha) << std::endl;
+        } catch (...) {
+            for (Dependency e: pcg.getModel().dependencies()) {
+                std::cout << pcg.getAlphasAsLatex(e.getId()) << std::endl;
+            }
         }
     }
+
+
 
     if (FLAGS_outputtikzPEG) std::cout << "// Partial expansion Graph Low/Up"<< std::endl;
     if (FLAGS_outputtikzPEG) std::cout << pcg.getTikZ();
@@ -110,18 +133,46 @@ int main (int argc , char * argv[]) {
 
 
 
+    if (FLAGS_outputtikzschedule or FLAGS_outputtabularAlgo) {
+        FLAGS_agelatency = true;
+    }
+
+
+    // Check if the alphas is either correct, or empty.
+    if (FLAGS_outputalphas != STRING_FLAG_UNSET) {
+        FLAGS_agelatency = true;
+        try {
+            EXECUTION_ID alpha = std::stol(FLAGS_outputalphas);
+            VERBOSE_INFO("Flag alphas given: " << FLAGS_outputalphas);
+        } catch (...) {
+            if (not FLAGS_outputalphas.empty()) {
+                VERBOSE_ERROR("Incorrect flag alphas given: " << FLAGS_outputalphas);
+                return 1;
+            }
+        }
+    }
+
     if (FLAGS_agelatency) {
+        algo_tabular +="\\begin{tabular}{@{}>{\\bfseries}lllll@{}}\\toprule\n";
+        algo_tabular +="\\textbf{Iteration} & \\textbf{Periodicity Vector} & \\textbf{Lower Bound} & \\textbf{Upper Bound} & \\textbf{Error Rate} \\\\\\midrule\n";
 		auto res = original(*instance, on_created);
-        std::cout << "// Age Latency:" << res.age_latency << std::endl;
+        algo_tabular += "\n\\bottomrule\\end{tabular}\n";
+        std::cout << "% Age Latency:" << res.age_latency << std::endl;
 	}
 
-    if (!FLAGS_peg.empty()) {
-        //PeriodicityVector K = generate_periodicity_vector(*instance);
-        PeriodicityVector K = parse_periodicity_vector(FLAGS_peg);
-        PartialConstraintGraph PKG = PartialConstraintGraph(*instance, K);
-        onPCGCreated(PKG);
-        std::cout << "// End of PEG" << std::endl;
+
+
+
+    if (FLAGS_outputtikzschedule) {
+        VERBOSE_ASSERT_GreaterThan(FLAGS_schedule_duration,0);
+        std::cout << instance->getTikzSchedule(FLAGS_schedule_duration);
     }
+
+
+    if (FLAGS_outputtabularAlgo) {
+        std::cout <<  algo_tabular;
+    }
+
 
 
     if (FLAGS_outputxml) {
@@ -137,19 +188,25 @@ int main (int argc , char * argv[]) {
         std::cout << instance->getSVG();
     }
 
-
-    if (FLAGS_outputtikzschedule) {
-        VERBOSE_ASSERT_GreaterThan(FLAGS_schedule_duration,0);
-        std::cout << instance->getTikzSchedule(FLAGS_schedule_duration);
-    }
-
     if (FLAGS_outputtikzdag) {
         std::cout << instance->getTikzDAG();
     }
 
-    if (FLAGS_outputtabular) {
+
+    if (FLAGS_outputtabularLET) {
         std::cout << instance->getTabular();
     }
+
+    if (!FLAGS_peg.empty()) {
+        //PeriodicityVector K = generate_periodicity_vector(*instance);
+        PeriodicityVector K = parse_periodicity_vector(FLAGS_peg);
+        PartialConstraintGraph PKG = PartialConstraintGraph(*instance, K);
+        onPCGCreated(PKG);
+        std::cout << "// End of PEG" << std::endl;
+    }
+
+
+
     delete instance;
 
 	gflags::ShutDownCommandLineFlags();

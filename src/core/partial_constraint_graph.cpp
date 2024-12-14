@@ -168,13 +168,15 @@ std::string PartialConstraintGraph::getAlphasAsLatex(DEPENDENCY_ID edgeId) const
         }
 
 
+    std::cout << std::endl;
+    std::cout << std::endl;
+    std::cout << "%  Alpha values for the edge " << edgeId << " with Ki=" << Ki << " and Kj=" << Kj << std::endl;
+    std::cout << std::endl;
         // Start the description
-        latex << "For example, let us consider again the LET communication $e=(t_{" << i << "},t_{" << j << "})$ "
-              << "from the instance presented by Figure \\ref{fig:example_dag}.\n";
-        latex << "Let us also suppose here that $K_{" << i << "}=" << Ki << "$ and $K_{" << j << "}=" << Kj << "$.\n";
-        latex << "Figure \\ref{fig:alphaetpiminmax} presents the associated functions "
-              << "$\\alpha_e(a_{" << i << "},a_{" << j << "})$, $\\pi^{\\text{max}}_e(a_{" << i << "},a_{" << j << "})$, "
-              << "and $\\pi^{\\text{min}}_e(a_{" << i << "},a_{" << j << "})$ for "
+        latex << "%  $e=(t_{" << i << "},t_{" << j << "})$ " << " $K_{" << i << "}=" << Ki << "$ ";
+        latex << "%  $K_{" << j << "}=" << Kj << "$.\n";
+        latex << "%  $\\alpha_e(a_{" << i << "},a_{" << j << "})$, $\\pi^{\\text{min}}_e(a_{" << i << "},a_{" << j << "})$, "
+              << "and $\\pi^{\\text{max}}_e(a_{" << i << "},a_{" << j << "})$ for "
               << "$(a_{" << i << "},a_{" << j << "})\\in\\{1,\\ldots," << Ki << "\\}\\times\\{1,\\ldots," << Kj << "\\}$.\n";
 
 
@@ -205,59 +207,34 @@ std::string PartialConstraintGraph::getAlphasAsLatex(DEPENDENCY_ID edgeId) const
               << "\\vskip0.5cm\n"
               << "$\\alpha_e(a_{" << i << "},a_{" << j << "})$\n"
               << "\\end{center}\n";
-        latex << "\\begin{multicols}{2}\n";
-        // Generate table for pi^max_e(a_i, a_j)
-        latex << "\\begin{center}\n"
-              << "\\begin{tabular}{|c";
-        for (size_t col = 0; col < a_j.size(); ++col) latex << "|c";
-        latex << "|}\n\\hline\n"
-              << "\\diagbox{$a_{" << i << "}$}{$a_{" << j << "}$}";
+
+    latex << "\\begin{center}\n"
+          << "\\begin{tabular}{|c";
+    for (size_t col = 0; col < a_j.size(); ++col) latex << "|c";
+    latex << "|}\n\\hline\n"
+          << "\\diagbox{$a_{" << i << "}$}{$a_{" << j << "}$}";
+    for (EXECUTION_COUNT aj : a_j) {
+        latex << " & $" << aj << "$";
+    }
+    latex << " \\\\\n\\hline\n";
+    for (EXECUTION_COUNT ai : a_i) {
+        latex << "$" << ai << "$";
         for (EXECUTION_COUNT aj : a_j) {
-            latex << " & $" << aj << "$";
+            INTEGER_TIME_UNIT piMax = compute_pi_max(model, dep, ai, aj, Ki, Kj);
+            INTEGER_TIME_UNIT piMin = compute_pi_min(model, dep, ai, aj, Ki, Kj);
+            //latex << " & $" << piMax << " | " << piMin << "$";
+            latex << "& \\begin{tabular}{@{}rr@{}} $" << piMin << "$ & $" << piMax << "$ \\end{tabular}";
         }
         latex << " \\\\\n\\hline\n";
-        for (EXECUTION_COUNT ai : a_i) {
-            latex << "$" << ai << "$";
-            for (EXECUTION_COUNT aj : a_j) {
-                INTEGER_TIME_UNIT piMax = compute_pi_max(model, dep, ai, aj, Ki, Kj);
-                latex << " & $" << piMax << "$";
-            }
-            latex << " \\\\\n\\hline\n";
-        }
-        latex << "\\end{tabular}\n"
-              << "\\vskip0.5cm\n"
-              << "$\\pi^{\\text{max}}_e(a_{" << i << "},a_{" << j << "})$\n"
-              << "\\end{center}\n"
-              << "\\columnbreak\n";
+    }
+    latex << "\\end{tabular}\n"
+          << "\\vskip0.5cm\n"
+          << "$\\pi^{\\text{min}}_e(a_{" << i << "},a_{" << j << "}), \\pi^{\\text{max}}_e(a_{" << i << "},a_{" << j << "})$\n"
+          << "\\end{center}\n";
 
-        // Generate table for pi^min_e(a_i, a_j)
-        latex << "\\begin{center}\n"
-              << "\\begin{tabular}{|c";
-        for (size_t col = 0; col < a_j.size(); ++col) latex << "|c";
-        latex << "|}\n\\hline\n"
-              << "\\diagbox{$a_{" << i << "}$}{$a_{" << j << "}$}";
-        for (EXECUTION_COUNT aj : a_j) {
-            latex << " & $" << aj << "$";
-        }
-        latex << " \\\\\n\\hline\n";
-        for (EXECUTION_COUNT ai : a_i) {
-            latex << "$" << ai << "$";
-            for (EXECUTION_COUNT aj : a_j) {
-                INTEGER_TIME_UNIT piMin = compute_pi_min(model, dep, ai, aj, Ki, Kj);
-                latex << " & $" << piMin << "$";
-            }
-            latex << " \\\\\n\\hline\n";
-        }
-        latex << "\\end{tabular}\n"
-              << "\\vskip0.5cm\n"
-              << "$\\pi^{\\text{min}}_e(a_{" << i << "},a_{" << j << "})$\n"
-              << "\\end{center}\n";
-
-        // End LaTeX figure
-        latex << "\\end{multicols}\n"
-              << "\\caption{Functions $\\alpha_e(a_{" << i << "},a_{" << j << "})$, "
-              << "$\\pi^{\\text{max}}_e(a_{" << i << "},a_{" << j << "})$, and "
-              << "$\\pi^{\\text{min}}_e(a_{" << i << "},a_{" << j << "})$ expressed over "
+    latex << "\\caption{Functions $\\alpha_e(a_{" << i << "},a_{" << j << "})$, "
+              << "$\\pi^{\\text{min}}_e(a_{" << i << "},a_{" << j << "})$, and "
+              << "$\\pi^{\\text{max}}_e(a_{" << i << "},a_{" << j << "})$ expressed over "
               << "$(a_{" << i << "},a_{" << j << "})\\in\\{1,\\ldots," << Ki << "\\}\\times\\{1,\\ldots," << Kj << "\\}$,"
               << " for the LET communication $e = (t_" << i << ",t_" << j << ")$, with $K_{"<< i << "} = "<< Ki << "$ and $K_{"<< j << "} = "<< Kj << "$"
               << ".}\n"
@@ -710,6 +687,8 @@ FindLongestPath(const PartialConstraintGraph& PKG, const WeightType wt) {
             VERBOSE_ERROR("Topological order failed");
         }
     }
+
+
 
 
     std::vector<Execution> L;
