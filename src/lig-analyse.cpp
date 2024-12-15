@@ -46,7 +46,7 @@ DEFINE_int32(n,          4, "Generated case: Value of N");
 DEFINE_int32(m,          4, "Generated case: Value of M");
 DEFINE_int32(seed,       1, "Generated case: Value of seed");
 DEFINE_string(kind,  "automotive", "Generated case: Kind of dataset to generate (automotive,generic,harmonic)");
-DEFINE_bool(DiEqualTi,      false, "Generated case: Every Di = Ti");
+DEFINE_bool(DiEqTi,      false, "Generated case: Every Di = Ti");
 DEFINE_string(peg, "",
             "Generate the PEG with a particular periodicity vector");
 
@@ -63,6 +63,7 @@ bool onPCGCreated (const PartialConstraintGraph& pcg) {
     }
     std::cout << "% N=" <<  rv_vec
             << " K=" << pcg.get_periodicity_vector()
+            << " len(UP): " << upper_res.first.size() - 2
             << " LB/UP: " << lower_res.second << "/" << upper_res.second
             << " UP: " << upper_res.first
     << std::endl;
@@ -121,7 +122,7 @@ int main (int argc , char * argv[]) {
 
         instance = new LETModel(str);
     } else {
-        GeneratorRequest r (FLAGS_n,FLAGS_m,FLAGS_seed, str2kind(FLAGS_kind), FLAGS_DiEqualTi);
+        GeneratorRequest r (FLAGS_n,FLAGS_m,FLAGS_seed, str2kind(FLAGS_kind), FLAGS_DiEqTi);
         VERBOSE_INFO("Generate instance " << r);
         instance = new LETModel(generate_LET(r));
     }

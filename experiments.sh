@@ -10,5 +10,5 @@ PARAMETERS="-begin_n $bn -end_n $en -step_n $sn -iter_count $iter_count -sample_
 BENCHMARK_EXECUTABLE=./build/src/benchmarkAgelatency
 for kind in harmonic automotive generic; do
     $BENCHMARK_EXECUTABLE  -logfile $kind.csv -kind ${kind} $PARAMETERS
-    $BENCHMARK_EXECUTABLE -DiEqualTi  -logfile ${kind}diti.csv -kind ${kind} $PARAMETERS
+    $BENCHMARK_EXECUTABLE -DiEqTi  -logfile ${kind}diti.csv -kind ${kind} $PARAMETERS
 done

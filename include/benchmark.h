@@ -23,7 +23,7 @@ struct BenchmarkConfiguration  {
 	size_t seed = 123;
     bool dryrun = false;
 	bool detailed = false;
-    bool DiEqualTi = false;
+    bool DiEqTi = false;
     LETDatasetType kind = LETDatasetType::automotive_dt;
     std::string logfile = "";
 };

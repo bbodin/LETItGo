@@ -24,7 +24,7 @@ DEFINE_bool(detailed,      false, "printout every sample");
 DEFINE_bool(dryrun,      false, "printout every sample");
 DEFINE_string(kind,  "automotive", "Kind of dataset to generate (automotive,generic,harmonic)");
 DEFINE_string(logfile,  "", "Location of output file");
-DEFINE_bool(DiEqualTi,      false, "Every Di = Ti");
+DEFINE_bool(DiEqTi,      false, "Every Di = Ti");
 
 
 
@@ -50,7 +50,7 @@ int main (int argc , char * argv[]) {
 	config.kind          = str2kind(FLAGS_kind);
     config.detailed      = FLAGS_detailed;
     config.dryrun        = FLAGS_dryrun;
-    config.DiEqualTi     = FLAGS_DiEqualTi;
+    config.DiEqTi     = FLAGS_DiEqTi;
 	main_benchmark_age_latency (config ) ;
 
 
