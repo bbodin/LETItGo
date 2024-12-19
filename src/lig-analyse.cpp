@@ -144,6 +144,7 @@ int main (int argc , char * argv[]) {
         FLAGS_agelatency = true;
         try {
             EXECUTION_ID alpha = std::stol(FLAGS_outputalphas);
+            VERBOSE_ASSERT(alpha >= 0, "Alpha must be a valid value.");
             VERBOSE_INFO("Flag alphas given: " << FLAGS_outputalphas);
         } catch (...) {
             if (not FLAGS_outputalphas.empty()) {

@@ -15,8 +15,21 @@
 
 BOOST_AUTO_TEST_SUITE(test_generator)
 
+std::vector<INTEGER_TIME_UNIT>  GenerateTaskTSet(std::mt19937& gen) {
 
-std::vector<INTEGER_TIME_UNIT>  GenerateTaskTSet(std::mt19937& gen) ;
+	// Possible period to be taken uniformly
+	std::uniform_int_distribution<> TValues_distrib(1, 6);
+
+	std::vector<INTEGER_TIME_UNIT> T = {};
+	INTEGER_TIME_UNIT prod = 1;
+	for (auto i = 0; i < 5; i++) {
+		auto new_value = TValues_distrib(gen) * prod;
+		prod = std::lcm(prod, new_value);
+		T.push_back(new_value);
+	}
+	return T;
+}
+
 BOOST_AUTO_TEST_CASE(test_GeneratorHarmonicSet) {
     int seed = 133;
         VERBOSE_DEBUG("generate_random_periodicity_vector Seed=" << seed);
